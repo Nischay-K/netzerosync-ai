@@ -10,6 +10,7 @@ export default function CarbonCopilot({ user, isOpen, onClose }) {
   const [loading, setLoading] = useState(false);
   
   const messagesEndRef = useRef(null);
+  const closeButtonRef = useRef(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -62,46 +63,39 @@ export default function CarbonCopilot({ user, isOpen, onClose }) {
     }
   };
 
+  // Trap Escape key and manage focus for A11y
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    if (isOpen) {
+      window.addEventListener('keydown', handleKeyDown);
+      setTimeout(() => {
+        if (closeButtonRef.current) {
+          closeButtonRef.current.focus();
+        }
+      }, 50);
+    }
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      right: 0,
-      width: '380px',
-      height: '100vh',
-      background: 'rgba(10, 14, 23, 0.95)',
-      backdropFilter: 'blur(20px)',
-      borderLeft: '1px solid var(--glass-border)',
-      boxShadow: '-10px 0 30px rgba(0,0,0,0.5)',
-      zIndex: 1000,
-      display: 'flex',
-      flexDirection: 'column',
-      animation: 'slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards'
-    }}>
+    <div className="carbon-copilot-style-1">
       {/* Copilot Header */}
-      <div style={{
-        padding: '20px',
-        borderBottom: '1px solid var(--glass-border)',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        background: 'rgba(255,255,255,0.01)'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{
-            background: 'rgba(99, 102, 241, 0.1)',
-            border: '1px solid rgba(99, 102, 241, 0.2)',
-            padding: '8px',
-            borderRadius: '10px',
-            color: 'var(--secondary)'
-          }}>
+      <div className="carbon-copilot-style-2">
+        <div className="carbon-copilot-style-3">
+          <div className="carbon-copilot-style-4">
             <Bot size={20} />
           </div>
           <div>
-            <h3 style={{ fontSize: '15px', fontWeight: '700' }}>Carbon Copilot</h3>
-            <span style={{ fontSize: '11px', color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <h3 className="carbon-copilot-style-5">Carbon Copilot</h3>
+            <span className="carbon-copilot-style-6">
               <Sparkles size={10} /> AI Sustainability Coach
             </span>
           </div>
@@ -109,50 +103,25 @@ export default function CarbonCopilot({ user, isOpen, onClose }) {
 
         <button
           onClick={onClose}
-          style={{
-            background: 'transparent',
-            border: 'none',
-            color: 'var(--text-secondary)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}
+          ref={closeButtonRef}
+          aria-label="Close Carbon Copilot"
+          className="carbon-copilot-style-7"
         >
           <X size={20} />
         </button>
       </div>
 
       {/* Messages area */}
-      <div style={{
-        flexGrow: 1,
-        overflowY: 'auto',
-        padding: '20px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '16px'
-      }}>
+      <div className="carbon-copilot-style-8">
         {messages.map((msg) => {
           const isCoach = msg.sender === 'coach';
           return (
             <div
               key={msg.id}
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: isCoach ? 'flex-start' : 'flex-end',
-                maxWidth: '85%',
-                alignSelf: isCoach ? 'flex-start' : 'flex-end'
-              }}
+              className="carbon-copilot-style-9" style={{ alignItems: isCoach ? 'flex-start' : 'flex-end', alignSelf: isCoach ? 'flex-start' : 'flex-end' }}
             >
               {/* Sender label */}
-              <div style={{
-                fontSize: '10px',
-                color: 'var(--text-muted)',
-                marginBottom: '4px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px'
-              }}>
+              <div className="carbon-copilot-style-10">
                 {isCoach ? (
                   <>
                     <Bot size={10} /> Copilot Coach
@@ -165,16 +134,7 @@ export default function CarbonCopilot({ user, isOpen, onClose }) {
               </div>
 
               {/* Message text bubble */}
-              <div style={{
-                background: isCoach ? 'rgba(255, 255, 255, 0.03)' : 'rgba(99, 102, 241, 0.15)',
-                border: isCoach ? '1px solid var(--glass-border)' : '1px solid rgba(99, 102, 241, 0.25)',
-                color: 'var(--text-primary)',
-                padding: '12px 14px',
-                borderRadius: isCoach ? '0px 14px 14px 14px' : '14px 0px 14px 14px',
-                fontSize: '13px',
-                lineHeight: '1.45',
-                whiteSpace: 'pre-wrap'
-              }}>
+              <div className="carbon-copilot-style-11" style={{ background: isCoach ? 'rgba(255, 255, 255, 0.03)' : 'rgba(99, 102, 241, 0.15)', border: isCoach ? '1px solid var(--glass-border)' : '1px solid rgba(99, 102, 241, 0.25)', borderRadius: isCoach ? '0px 14px 14px 14px' : '14px 0px 14px 14px' }}>
                 {msg.text}
               </div>
             </div>
@@ -182,18 +142,11 @@ export default function CarbonCopilot({ user, isOpen, onClose }) {
         })}
 
         {loading && (
-          <div style={{ alignSelf: 'flex-start', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div style={{
-              background: 'rgba(255, 255, 255, 0.03)',
-              border: '1px solid var(--glass-border)',
-              padding: '10px 16px',
-              borderRadius: '0px 14px 14px 14px',
-              display: 'flex',
-              gap: '4px'
-            }}>
-              <span className="animate-pulse" style={{ width: '6px', height: '6px', background: 'var(--text-muted)', borderRadius: '50%' }}></span>
-              <span className="animate-pulse" style={{ width: '6px', height: '6px', background: 'var(--text-muted)', borderRadius: '50%', animationDelay: '0.2s' }}></span>
-              <span className="animate-pulse" style={{ width: '6px', height: '6px', background: 'var(--text-muted)', borderRadius: '50%', animationDelay: '0.4s' }}></span>
+          <div className="carbon-copilot-style-12">
+            <div className="carbon-copilot-style-13">
+              <span className="animate-pulse carbon-copilot-style-14"></span>
+              <span className="animate-pulse carbon-copilot-style-15"></span>
+              <span className="animate-pulse carbon-copilot-style-16"></span>
             </div>
           </div>
         )}
@@ -201,34 +154,19 @@ export default function CarbonCopilot({ user, isOpen, onClose }) {
       </div>
 
       {/* Input section */}
-      <form onSubmit={handleSend} style={{
-        padding: '20px',
-        borderTop: '1px solid var(--glass-border)',
-        display: 'flex',
-        gap: '8px',
-        background: 'rgba(255,255,255,0.01)'
-      }}>
+      <form onSubmit={handleSend} className="carbon-copilot-style-17">
         <input
           type="text"
           placeholder="Ask a sustainability question..."
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           disabled={loading}
-          style={{ flexGrow: 1 }}
+          className="carbon-copilot-style-18"
         />
         <button
           type="submit"
-          className="btn-primary glow-indigo"
+          className="btn-primary glow-indigo carbon-copilot-style-19"
           disabled={loading || !inputValue.trim()}
-          style={{
-            width: '44px',
-            height: '44px',
-            borderRadius: '8px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: 0
-          }}
         >
           <Send size={16} />
         </button>
@@ -236,14 +174,7 @@ export default function CarbonCopilot({ user, isOpen, onClose }) {
 
       {/* API Key reminder if missing */}
       {!isGeminiConfigured() && (
-        <div style={{
-          padding: '10px 20px',
-          background: 'rgba(6, 182, 212, 0.05)',
-          borderTop: '1px solid var(--glass-border)',
-          fontSize: '10px',
-          color: 'var(--text-muted)',
-          textAlign: 'center'
-        }}>
+        <div className="carbon-copilot-style-20">
           Mock chatbot activated. paste Gemini API key in settings modal for a live conversation.
         </div>
       )}

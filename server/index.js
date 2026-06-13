@@ -39,8 +39,13 @@ try {
 const db = admin.firestore();
 
 const cors = require('cors');
+const helmet = require('helmet');
 
 const app = express();
+
+// Enable Helmet to set secure HTTP headers (e.g. X-Content-Type-Options, X-Frame-Options)
+app.use(helmet());
+
 // Restrict CORS origins in production to prevent arbitrary API scraping
 const allowedOrigins = process.env.ALLOWED_ORIGINS 
   ? process.env.ALLOWED_ORIGINS.split(',') 
@@ -87,6 +92,34 @@ const copilotLimiter = rateLimit({
   handler: (req, res) => {
     res.status(429).json({
       error: 'Too many queries. Please wait 15 minutes before asking CarbonCopilot again.'
+    });
+  }
+});
+
+// Rate limiter: Max 100 activity logs per 15 minutes per authenticated user
+const logLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => req.userId || req.ip,
+  handler: (req, res) => {
+    res.status(429).json({
+      error: 'Too many logging requests. Please wait 15 minutes.'
+    });
+  }
+});
+
+// Rate limiter: Max 50 challenge joins per 15 minutes per authenticated user
+const joinLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 50,
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => req.userId || req.ip,
+  handler: (req, res) => {
+    res.status(429).json({
+      error: 'Too many challenge join requests. Please wait 15 minutes.'
     });
   }
 });
@@ -212,7 +245,7 @@ app.post('/api/copilot/chat', authenticateUser, copilotLimiter, async (req, res)
 });
 
 // 5. Secure Carbon Activity Logging & Rewards Endpoint
-app.post('/api/activity/log', authenticateUser, async (req, res) => {
+app.post('/api/activity/log', authenticateUser, logLimiter, async (req, res) => {
   try {
     const { entry, logType, questId, questXP, questTokens, tokenCost, xpReward, tokenReward } = req.body;
     if (!entry || typeof entry !== 'object') {
@@ -313,7 +346,7 @@ app.post('/api/activity/log', authenticateUser, async (req, res) => {
 });
 
 // 6. Secure Community Challenge Joining Endpoint
-app.post('/api/challenge/join', authenticateUser, async (req, res) => {
+app.post('/api/challenge/join', authenticateUser, joinLimiter, async (req, res) => {
   try {
     const { challengeId } = req.body;
     if (!challengeId || typeof challengeId !== 'string') {
@@ -364,16 +397,16 @@ app.post('/api/challenge/join', authenticateUser, async (req, res) => {
       // Update user
       transaction.update(userRef, userUpdates);
 
-      // Update challenge count
-      const newParticipants = (challengeData.participantCount || 0) + 1;
-      const newCurrent = Math.min(
-        challengeData.goal || 1000,
-        (challengeData.current || 0) + (challengeData.co2SavedPerMember || 0)
-      );
-      transaction.update(challengeRef, {
-        participantCount: newParticipants,
-        current: newCurrent
-      });
+      // Distributed Counter Shards to prevent lock hotspot contention under 10k DAU join load
+      const shardNum = Math.floor(Math.random() * 10);
+      const shardRef = challengeRef.collection('shards').doc(`shard_${shardNum}`);
+      const shardSnap = await transaction.get(shardRef);
+      const shardData = shardSnap.exists ? shardSnap.data() : { participantCount: 0, current: 0 };
+
+      transaction.set(shardRef, {
+        participantCount: (shardData.participantCount || 0) + 1,
+        current: (shardData.current || 0) + (challengeData.co2SavedPerMember || 0)
+      }, { merge: true });
 
       // Log the activity log entry for joining
       const newLogRef = logsCol.doc();
@@ -407,6 +440,10 @@ app.post('/api/challenge/join', authenticateUser, async (req, res) => {
 
 // Start server
 const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
-  console.log(`NetZeroSync API Gateway running securely on port ${PORT}`);
-});
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
+    console.log(`NetZeroSync API Gateway running securely on port ${PORT}`);
+  });
+}
+
+module.exports = app;

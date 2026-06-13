@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { getCarbonLogs, logCarbonEntry } from '../utils/firebase';
 import { scanProductCarbon } from '../utils/gemini';
+import { calculateProductTokenCost } from '../utils/calculators';
 import { Leaf, Coins, ShieldCheck, Check, Sparkles, Globe, Sun, Flame, Loader, ChevronRight, Search, Camera, X, Wind, TreePine, Factory } from 'lucide-react';
 
 export default function Marketplace({ user, onProfileUpdate }) {
@@ -56,7 +57,7 @@ export default function Marketplace({ user, onProfileUpdate }) {
   const handleOffsetProduct = async () => {
     if (!lensResult) return;
     
-    const tokenCost = Math.max(5, Math.ceil(lensResult.carbonImpact * 10));
+    const tokenCost = calculateProductTokenCost(lensResult.carbonImpact);
     const balance = user.ecoTokens || 0;
     
     if (balance < tokenCost) {
@@ -426,14 +427,14 @@ export default function Marketplace({ user, onProfileUpdate }) {
                     <div className="text-mut-9-5">Offset Token Cost</div>
                     <div className="text-primary-14-bold-flex">
                       <Coins size={11} />
-                      {Math.max(5, Math.ceil(lensResult.carbonImpact * 10))} Tkn
+                      {calculateProductTokenCost(lensResult.carbonImpact)} Tkn
                     </div>
                   </div>
                 </div>
 
                 <button
                   onClick={handleOffsetProduct}
-                  disabled={lensOffsetting || (user.ecoTokens || 0) < Math.max(5, Math.ceil(lensResult.carbonImpact * 10))}
+                  disabled={lensOffsetting || (user.ecoTokens || 0) < calculateProductTokenCost(lensResult.carbonImpact)}
                   className="btn-primary lens-offset-btn"
                 >
                   {lensOffsetting ? (

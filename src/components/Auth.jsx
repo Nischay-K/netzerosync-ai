@@ -103,140 +103,49 @@ export default function Auth({ onAuthSuccess }) {
   return (
     <div 
       onMouseMove={handleMouseMove}
-      style={{
-        minHeight: '100vh',
-        backgroundImage: 'linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url("/hero-bg.png")',
-        backgroundRepeat: 'no-repeat',
-        backgroundPosition: 'center center',
-        backgroundSize: 'cover',
-        backgroundAttachment: 'fixed',
-        color: '#ffffff',
-        fontFamily: 'var(--font-sans)',
-        position: 'relative',
-        overflowX: 'hidden'
-      }}
+      className="auth-style-1"
     >
       {/* Floating Background Particles */}
-      <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', overflow: 'hidden', pointerEvents: 'none', zIndex: 1 }}>
+      <div className="auth-style-2">
         {staticParticles.map(p => (
           <div
             key={p.id}
-            style={{
-              position: 'absolute',
-              left: p.left,
-              width: p.size,
-              height: p.size,
-              background: 'rgba(0, 255, 136, 0.4)',
-              borderRadius: '50%',
-              boxShadow: '0 0 6px rgba(0, 255, 136, 0.5)',
-              animation: `floatParticle ${p.duration} linear infinite`,
-              animationDelay: p.delay,
-              bottom: '-15px'
-            }}
+            className="auth-style-3" style={{ left: p.left, width: p.size, height: p.size, animation: `floatParticle ${p.duration} linear infinite`, animationDelay: p.delay }}
           />
         ))}
       </div>
 
       {/* Background Interactive Cursor Glow */}
-      <div style={{
-        position: 'fixed',
-        top: mousePos.y - 200,
-        left: mousePos.x - 200,
-        width: '400px',
-        height: '400px',
-        background: 'radial-gradient(circle, rgba(0, 255, 136, 0.05) 0%, transparent 70%)',
-        pointerEvents: 'none',
-        zIndex: 1,
-        transition: 'transform 0.08s ease-out'
-      }} />
+      <div className="auth-style-4" style={{ top: mousePos.y - 200, left: mousePos.x - 200 }} />
       {/* Background Neon Glows */}
-      <div style={{
-        position: 'absolute',
-        top: '20%',
-        left: '20%',
-        width: '400px',
-        height: '400px',
-        background: 'rgba(0, 255, 136, 0.04)',
-        filter: 'blur(150px)',
-        pointerEvents: 'none',
-        zIndex: 1
-      }} />
-      <div style={{
-        position: 'absolute',
-        bottom: '20%',
-        right: '20%',
-        width: '400px',
-        height: '400px',
-        background: 'rgba(16, 185, 129, 0.04)',
-        filter: 'blur(150px)',
-        pointerEvents: 'none',
-        zIndex: 1
-      }} />
+      <div className="auth-style-5" />
+      <div className="auth-style-6" />
 
       {/* VIEW STATE 1: INTERACTIVE PRODUCT TOUR CARD GRID */}
       {viewState === 'features' && (
-        <div style={{
-          position: 'relative',
-          zIndex: 2,
-          maxWidth: '1080px',
-          margin: '0 auto',
-          padding: '80px 20px',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: '40px',
-          minHeight: '100vh',
-          justifyContent: 'center'
-        }} className="fade-in">
+        <div className="auth-style-7" className="fade-in">
           
           {/* Header */}
-          <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: '56px',
-              height: '56px',
-              borderRadius: '16px',
-              background: 'rgba(0, 255, 136, 0.1)',
-              border: '1px solid rgba(0, 255, 136, 0.2)',
-              boxShadow: '0 0 20px rgba(0, 255, 136, 0.15)',
-              marginBottom: '8px'
-            }}>
+          <div className="auth-style-8">
+            <div className="auth-style-9">
               <Leaf size={28} color="#00ff88" />
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px', color: 'var(--accent-cyan)', textTransform: 'uppercase', letterSpacing: '3px' }}>
+            <div className="auth-style-10">
               <Zap size={12} /> Carbon Footprint Telemetry
             </div>
 
-            <h1 style={{
-              fontSize: '44px',
-              fontWeight: '800',
-              fontFamily: 'var(--font-display)',
-              letterSpacing: '-0.02em',
-              background: 'linear-gradient(135deg, #ffffff 40%, #00ff88 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              lineHeight: '1.15',
-              maxWidth: '680px'
-            }}>
+            <h1 className="auth-style-11">
               Take Control of Emissions with NetZeroSync AI
             </h1>
 
-            <p style={{ color: 'var(--text-secondary)', fontSize: '15px', maxWidth: '540px', lineHeight: '1.6' }}>
+            <p className="auth-style-12">
               Simulate lifestyle parameters, track carbon costs using Vision OCR, and achieve Net-Zero milestones through gamified community challenges.
             </p>
           </div>
 
           {/* Interactive Feature Cards Grid */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-            gap: '24px',
-            width: '100%',
-            marginTop: '16px'
-          }}>
+          <div className="auth-style-13">
             {[
               { 
                 icon: <Leaf size={24} color="#00ff88" />, 
@@ -277,37 +186,17 @@ export default function Auth({ onAuthSuccess }) {
             ].map((card, idx) => (
               <div 
                 key={idx} 
-                className="glass-panel"
+                className="glass-panel auth-style-14"
                 onMouseEnter={() => setHoveredCard(idx)}
                 onMouseLeave={() => setHoveredCard(null)}
-                style={{
-                  background: card.color,
-                  borderColor: hoveredCard === idx ? card.glowColor : card.borderColor,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '16px',
-                  padding: '24px',
-                  boxShadow: hoveredCard === idx ? card.shadowGlow : '0 8px 32px rgba(0,0,0,0.4)',
-                  transform: hoveredCard === idx ? 'translateY(-6px)' : 'translateY(0)',
-                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-                }}
+                style={{ background: card.color, borderColor: hoveredCard === idx ? card.glowColor : card.borderColor, boxShadow: hoveredCard === idx ? card.shadowGlow : '0 8px 32px rgba(0,0,0,0.4)', transform: hoveredCard === idx ? 'translateY(-6px)' : 'translateY(0)' }}
               >
-                <div style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: '48px',
-                  height: '48px',
-                  borderRadius: '12px',
-                  background: 'rgba(255, 255, 255, 0.02)',
-                  border: '1px solid var(--glass-border)',
-                  color: '#fff'
-                }}>
+                <div className="auth-style-15">
                   {card.icon}
                 </div>
                 <div>
-                  <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#fff', marginBottom: '8px' }}>{card.title}</h3>
-                  <p style={{ fontSize: '12.5px', color: 'var(--text-secondary)', lineHeight: '1.5' }}>{card.desc}</p>
+                  <h3 className="auth-style-16">{card.title}</h3>
+                  <p className="auth-style-17">{card.desc}</p>
                 </div>
               </div>
             ))}
@@ -316,18 +205,7 @@ export default function Auth({ onAuthSuccess }) {
           {/* CTA Action button to proceed */}
           <button
             onClick={() => setViewState('auth')}
-            className="btn-primary"
-            style={{
-              padding: '16px 36px',
-              fontSize: '15px',
-              background: 'linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-              borderRadius: '30px',
-              boxShadow: '0 0 30px rgba(0, 255, 136, 0.25)',
-              marginTop: '12px'
-            }}
+            className="btn-primary auth-style-18"
           >
             Access Telemetry Console <ChevronRight size={18} />
           </button>
@@ -336,164 +214,77 @@ export default function Auth({ onAuthSuccess }) {
 
       {/* VIEW STATE 2: SPLIT-SCREEN AUTHENTICATION PANEL */}
       {viewState === 'auth' && (
-        <div style={{
-          display: 'flex',
-          minHeight: '100vh',
-          animation: 'slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards'
-        }}>
+        <div className="auth-style-19">
           {/* Left features sidebar */}
-          <div style={{
-            flex: '1',
-            background: 'linear-gradient(135deg, #041a13 0%, #020b08 100%)',
-            borderRight: '1px solid var(--glass-border)',
-            padding: '50px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            position: 'relative',
-            zIndex: 2
-          }} className="hide-mobile">
+          <div className="auth-style-20" className="hide-mobile">
             {/* Back to Tour Button */}
             <button
               onClick={() => setViewState('features')}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                background: 'transparent',
-                border: 'none',
-                color: 'var(--text-secondary)',
-                fontSize: '13px',
-                cursor: 'pointer'
-              }}
+              className="auth-style-21"
             >
               <ArrowLeft size={16} /> Back to Feature Tour
             </button>
 
-            <div style={{ maxWidth: '440px', marginTop: '40px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px' }}>
+            <div className="auth-style-22">
+              <div className="auth-style-23">
                 <Leaf size={24} color="var(--primary)" />
-                <span style={{ fontFamily: 'var(--font-display)', fontSize: '18px', fontWeight: '800', letterSpacing: '1px' }}>
+                <span className="auth-style-24">
                   NETZEROSYNC AI
                 </span>
               </div>
-              <h2 style={{ fontSize: '32px', fontWeight: '800', fontFamily: 'var(--font-display)', lineHeight: '1.2', color: '#fff', marginBottom: '16px' }}>
+              <h2 className="auth-style-25">
                 Climate intelligence, at your node.
               </h2>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '13.5px', lineHeight: '1.6', marginBottom: '20px' }}>
+              <p className="auth-style-26">
                 Configure parameters directly in the settings drawer to connect your real Firebase Auth, Firestore, and Gemini models. Local Sandbox fallback allows instant evaluation checks.
               </p>
 
               {/* Animated Technical Terminal */}
-              <div style={{
-                background: 'rgba(0, 0, 0, 0.45)',
-                border: '1px solid rgba(0, 255, 136, 0.1)',
-                padding: '16px',
-                fontFamily: 'monospace',
-                fontSize: '11.5px',
-                color: 'var(--primary)',
-                borderRadius: '8px',
-                textAlign: 'left',
-                boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '8px'
-              }}>
-                <div style={{ display: 'flex', gap: '5px', marginBottom: '4px' }}>
-                  <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#ff5f56' }} />
-                  <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#ffbd2e' }} />
-                  <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#27c93f' }} />
+              <div className="auth-style-27">
+                <div className="auth-style-28">
+                  <div className="auth-style-29" />
+                  <div className="auth-style-30" />
+                  <div className="auth-style-31" />
                 </div>
                 <ConsoleTerminal />
               </div>
             </div>
 
-            <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+            <div className="auth-style-32">
               NODE ID STATUS: SECURE CONNECTION ACTIVE
             </div>
           </div>
 
           {/* Right login container */}
-          <div style={{
-            flex: '1',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            padding: '40px 20px',
-            position: 'relative'
-          }}>
+          <div className="auth-style-33">
             {/* Back to features (mobile-only display helper) */}
             <button
               onClick={() => setViewState('features')}
-              className="show-mobile-only"
-              style={{
-                position: 'absolute',
-                top: '20px',
-                left: '20px',
-                background: 'transparent',
-                border: 'none',
-                color: 'var(--text-secondary)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                fontSize: '12px'
-              }}
+              className="show-mobile-only auth-style-34"
             >
               <ArrowLeft size={14} /> View Features
             </button>
 
-            <div className="glass-panel glow-emerald fade-in" style={{
-              maxWidth: '380px',
-              width: '100%',
-              position: 'relative',
-              zIndex: 5,
-              background: 'rgba(8, 20, 16, 0.95)',
-              border: '1px solid rgba(0, 255, 136, 0.15)',
-              boxShadow: '0 20px 50px rgba(0,0,0,0.9)',
-              padding: '24px'
-            }}>
+            <div className="glass-panel glow-emerald fade-in auth-style-35">
               
-              <h2 style={{ fontSize: '18px', fontWeight: '700', color: '#fff', marginBottom: '4px', textAlign: 'center' }}>
+              <h2 className="auth-style-36">
                 {isRegister ? 'Create Node Account' : 'Console Sign In'}
               </h2>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '12px', marginBottom: '20px', textAlign: 'center' }}>
+              <p className="auth-style-37">
                 {isRegister ? 'Setup your target parameters.' : 'Connect to dashboard telemetry.'}
               </p>
 
               {/* Tabs */}
-              <div style={{
-                display: 'flex',
-                borderBottom: '1px solid var(--glass-border)',
-                marginBottom: '20px'
-              }}>
+              <div className="auth-style-38">
                 <button
                   onClick={() => { setIsRegister(false); setError(''); }}
-                  style={{
-                    flex: 1,
-                    padding: '8px',
-                    background: 'transparent',
-                    border: 'none',
-                    borderBottom: !isRegister ? '2px solid var(--primary)' : '2px solid transparent',
-                    color: !isRegister ? 'var(--text-primary)' : 'var(--text-muted)',
-                    fontSize: '13px',
-                    fontWeight: '600'
-                  }}
+                  className="auth-style-39" style={{ borderBottom: !isRegister ? '2px solid var(--primary)' : '2px solid transparent', color: !isRegister ? 'var(--text-primary)' : 'var(--text-muted)' }}
                 >
                   Sign In
                 </button>
                 <button
                   onClick={() => { setIsRegister(true); setError(''); }}
-                  style={{
-                    flex: 1,
-                    padding: '8px',
-                    background: 'transparent',
-                    border: 'none',
-                    borderBottom: isRegister ? '2px solid var(--primary)' : '2px solid transparent',
-                    color: isRegister ? 'var(--text-primary)' : 'var(--text-muted)',
-                    fontSize: '13px',
-                    fontWeight: '600'
-                  }}
+                  className="auth-style-40" style={{ borderBottom: isRegister ? '2px solid var(--primary)' : '2px solid transparent', color: isRegister ? 'var(--text-primary)' : 'var(--text-muted)' }}
                 >
                   Sign Up
                 </button>
@@ -501,123 +292,84 @@ export default function Auth({ onAuthSuccess }) {
 
               {/* Error Alert */}
               {error && (
-                <div style={{
-                  background: 'rgba(255, 42, 95, 0.08)',
-                  border: '1px solid rgba(255, 42, 95, 0.2)',
-                  color: 'var(--accent-rose)',
-                  padding: '10px',
-                  borderRadius: '8px',
-                  fontSize: '12px',
-                  marginBottom: '16px',
-                  textAlign: 'center'
-                }}>
+                <div className="auth-style-41">
                   {error}
                 </div>
               )}
 
               {/* Form elements */}
-              <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <form onSubmit={handleSubmit} className="auth-style-42">
                 {isRegister && (
                   <div>
-                    <label style={{ display: 'block', fontSize: '10.5px', color: 'var(--text-secondary)', marginBottom: '4px' }}>Explorer Name</label>
-                    <div style={{ position: 'relative' }}>
-                      <User size={13} color="var(--text-muted)" style={{ position: 'absolute', left: '14px', top: '15px' }} />
+                    <label htmlFor="auth-explorer-name" className="auth-style-43">Explorer Name</label>
+                    <div className="auth-style-44">
+                      <User size={13} color="var(--text-muted)" className="auth-style-45" />
                       <input
+                        id="auth-explorer-name"
                         type="text"
                         placeholder="e.g. John Doe"
                         value={displayName}
                         onChange={(e) => setDisplayName(e.target.value)}
                         required
-                        style={{ paddingLeft: '38px', fontSize: '12.5px', padding: '10px' }}
+                        className="auth-style-46"
                       />
                     </div>
                   </div>
                 )}
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '10.5px', color: 'var(--text-secondary)', marginBottom: '4px' }}>Email Address</label>
-                  <div style={{ position: 'relative' }}>
+                  <label htmlFor="auth-email" className="auth-style-47">Email Address</label>
+                  <div className="auth-style-48">
                     <input
+                      id="auth-email"
                       type="email"
                       placeholder="name@example.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      style={{
-                        paddingLeft: '14px',
-                        fontSize: '12.5px',
-                        padding: '10px',
-                        borderColor: !email || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? 'var(--glass-border)' : 'rgba(239, 68, 68, 0.5)'
-                      }}
+                      className="auth-style-49" style={{ borderColor: !email || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? 'var(--glass-border)' : 'rgba(239, 68, 68, 0.5)' }}
                     />
                   </div>
                 </div>
 
                  <div>
-                  <label style={{ display: 'block', fontSize: '10.5px', color: 'var(--text-secondary)', marginBottom: '4px' }}>Password</label>
-                  <div style={{ position: 'relative' }}>
+                  <label htmlFor="auth-password" className="auth-style-50">Password</label>
+                  <div className="auth-style-51">
                     <input
+                      id="auth-password"
                       type={showPassword ? "text" : "password"}
                       placeholder="••••••••"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
-                      style={{
-                        paddingLeft: '14px',
-                        paddingRight: '38px',
-                        fontSize: '12.5px',
-                        padding: '10px',
-                        borderColor: !password || (isRegister ? (validatePasswordStrength(password).length && validatePasswordStrength(password).hasUpper && validatePasswordStrength(password).hasLower && validatePasswordStrength(password).hasNumber && validatePasswordStrength(password).hasSpecial) : password.length >= 6) ? 'var(--glass-border)' : 'rgba(239, 68, 68, 0.5)'
-                      }}
+                      className="auth-style-52" style={{ borderColor: !password || (isRegister ? (validatePasswordStrength(password).length && validatePasswordStrength(password).hasUpper && validatePasswordStrength(password).hasLower && validatePasswordStrength(password).hasNumber && validatePasswordStrength(password).hasSpecial) : password.length >= 6) ? 'var(--glass-border)' : 'rgba(239, 68, 68, 0.5)' }}
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      style={{
-                        position: 'absolute',
-                        right: '12px',
-                        top: '12.5px',
-                        background: 'transparent',
-                        border: 'none',
-                        color: 'var(--text-muted)',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        padding: 0
-                      }}
+                      className="auth-style-53"
                     >
                       {showPassword ? <EyeOff size={13} /> : <Eye size={13} />}
                     </button>
                   </div>
                   
                   {isRegister && password.length > 0 && (
-                    <div style={{
-                      fontSize: '11px',
-                      marginTop: '8px',
-                      background: 'rgba(255, 255, 255, 0.02)',
-                      border: '1px solid var(--glass-border)',
-                      padding: '10px',
-                      borderRadius: '8px',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '6px'
-                    }}>
-                      <span style={{ color: 'var(--text-secondary)', fontWeight: '600', marginBottom: '2px' }}>Password Security Checklist:</span>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: validatePasswordStrength(password).length ? '#00ff88' : 'var(--text-muted)' }}>
-                        <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: validatePasswordStrength(password).length ? '#00ff88' : 'var(--text-muted)' }} />
+                    <div className="auth-style-54">
+                      <span className="auth-style-55">Password Security Checklist:</span>
+                      <div className="auth-style-56" style={{ color: validatePasswordStrength(password).length ? '#00ff88' : 'var(--text-muted)' }}>
+                        <div className="auth-style-57" style={{ background: validatePasswordStrength(password).length ? '#00ff88' : 'var(--text-muted)' }} />
                         <span>At least 8 characters</span>
                       </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: (validatePasswordStrength(password).hasUpper && validatePasswordStrength(password).hasLower) ? '#00ff88' : 'var(--text-muted)' }}>
-                        <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: (validatePasswordStrength(password).hasUpper && validatePasswordStrength(password).hasLower) ? '#00ff88' : 'var(--text-muted)' }} />
+                      <div className="auth-style-58" style={{ color: (validatePasswordStrength(password).hasUpper && validatePasswordStrength(password).hasLower) ? '#00ff88' : 'var(--text-muted)' }}>
+                        <div className="auth-style-59" style={{ background: (validatePasswordStrength(password).hasUpper && validatePasswordStrength(password).hasLower) ? '#00ff88' : 'var(--text-muted)' }} />
                         <span>Uppercase & lowercase letters</span>
                       </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: validatePasswordStrength(password).hasNumber ? '#00ff88' : 'var(--text-muted)' }}>
-                        <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: validatePasswordStrength(password).hasNumber ? '#00ff88' : 'var(--text-muted)' }} />
+                      <div className="auth-style-60" style={{ color: validatePasswordStrength(password).hasNumber ? '#00ff88' : 'var(--text-muted)' }}>
+                        <div className="auth-style-61" style={{ background: validatePasswordStrength(password).hasNumber ? '#00ff88' : 'var(--text-muted)' }} />
                         <span>At least one number (0-9)</span>
                       </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: validatePasswordStrength(password).hasSpecial ? '#00ff88' : 'var(--text-muted)' }}>
-                        <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: validatePasswordStrength(password).hasSpecial ? '#00ff88' : 'var(--text-muted)' }} />
+                      <div className="auth-style-62" style={{ color: validatePasswordStrength(password).hasSpecial ? '#00ff88' : 'var(--text-muted)' }}>
+                        <div className="auth-style-63" style={{ background: validatePasswordStrength(password).hasSpecial ? '#00ff88' : 'var(--text-muted)' }} />
                         <span>At least one special character (!@#$%)</span>
                       </div>
                     </div>
@@ -628,17 +380,8 @@ export default function Auth({ onAuthSuccess }) {
 
                 <button
                   type="submit"
-                  className="btn-primary"
+                  className="btn-primary auth-style-64"
                   disabled={loading}
-                  style={{
-                    marginTop: '4px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px',
-                    padding: '11px',
-                    fontSize: '12.5px'
-                  }}
                 >
                   {loading ? 'Processing...' : isRegister ? 'Establish Node Account' : 'Authenticate Console'}
                   <ChevronRight size={14} />
@@ -646,38 +389,21 @@ export default function Auth({ onAuthSuccess }) {
               </form>
 
               {/* Divider */}
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                textAlign: 'center',
-                color: 'var(--text-muted)',
-                fontSize: '10.5px',
-                margin: '16px 0'
-              }}>
-                <div style={{ flex: 1, height: '1px', background: 'var(--glass-border)' }}></div>
-                <span style={{ padding: '0 8px' }}>OR</span>
-                <div style={{ flex: 1, height: '1px', background: 'var(--glass-border)' }}></div>
+              <div className="auth-style-65">
+                <div className="auth-style-66"></div>
+                <span className="auth-style-67">OR</span>
+                <div className="auth-style-68"></div>
               </div>
 
               {/* Google Sign-in button */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div className="auth-style-69">
 
                 <button
                   onClick={handleGoogleLogin}
                   disabled={loading}
-                  className="btn-ghost"
-                  style={{
-                    width: '100%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px',
-                    padding: '10px',
-                    borderColor: 'var(--glass-border)',
-                    fontSize: '12.5px'
-                  }}
+                  className="btn-ghost auth-style-70"
                 >
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" style={{ marginRight: '4px' }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true" className="auth-style-71">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
                     <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
                     <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/>
@@ -754,7 +480,7 @@ function ConsoleTerminal() {
   }, []);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+    <div className="auth-style-72">
       {lines.map((line, idx) => {
         let lineColor = 'var(--text-secondary)';
         if (line.startsWith('[OK]')) lineColor = '#00ff88';
@@ -766,14 +492,7 @@ function ConsoleTerminal() {
         );
       })}
       {lines.length < DIAGNOSTIC_LOGS.length && (
-        <span style={{
-          display: 'inline-block',
-          width: '6px',
-          height: '11px',
-          background: 'var(--primary)',
-          animation: 'blink 1.0s step-end infinite',
-          marginTop: '2px'
-        }} />
+        <span className="auth-style-73" />
       )}
       <style>{`
         @keyframes blink {

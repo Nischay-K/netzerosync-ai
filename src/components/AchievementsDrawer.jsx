@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Award, Compass, Shield, Zap, Leaf, CheckCircle2, Lock, X, Trophy } from 'lucide-react';
 import { getCarbonLogs } from '../utils/firebase';
 
 export default function AchievementsDrawer({ user, isOpen, onClose }) {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(false);
+  const closeButtonRef = useRef(null);
 
   useEffect(() => {
     if (isOpen && user?.uid) {
@@ -19,6 +20,26 @@ export default function AchievementsDrawer({ user, isOpen, onClose }) {
         .finally(() => setLoading(false));
     }
   }, [isOpen, user?.uid]);
+
+  // Trap Escape key and manage focus for A11y
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    if (isOpen) {
+      window.addEventListener('keydown', handleKeyDown);
+      setTimeout(() => {
+        if (closeButtonRef.current) {
+          closeButtonRef.current.focus();
+        }
+      }, 50);
+    }
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -80,44 +101,16 @@ export default function AchievementsDrawer({ user, isOpen, onClose }) {
   const progressPercent = Math.round((unlockedCount / badges.length) * 100);
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      right: 0,
-      width: '400px',
-      height: '100vh',
-      background: 'rgba(5, 22, 16, 0.95)',
-      backdropFilter: 'blur(20px)',
-      borderLeft: '1px solid var(--glass-border)',
-      boxShadow: '-10px 0 30px rgba(0,0,0,0.6)',
-      zIndex: 1100,
-      display: 'flex',
-      flexDirection: 'column',
-      animation: 'slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards'
-    }}>
+    <div className="achievements-drawer-style-1">
       {/* Drawer Header */}
-      <div style={{
-        padding: '24px 20px',
-        borderBottom: '1px solid var(--glass-border)',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        background: 'rgba(255,255,255,0.01)'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{
-            background: 'rgba(16, 185, 129, 0.1)',
-            border: '1px solid rgba(16, 185, 129, 0.2)',
-            padding: '8px',
-            borderRadius: '10px',
-            color: 'var(--primary)',
-            boxShadow: '0 0 15px rgba(16, 185, 129, 0.15)'
-          }}>
+      <div className="achievements-drawer-style-2">
+        <div className="achievements-drawer-style-3">
+          <div className="achievements-drawer-style-4">
             <Award size={20} />
           </div>
           <div>
-            <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#fff' }}>Eco Achievements</h3>
-            <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
+            <h3 className="achievements-drawer-style-5">Eco Achievements</h3>
+            <span className="achievements-drawer-style-6">
               Gamified Carbon Milestones
             </span>
           </div>
@@ -125,32 +118,19 @@ export default function AchievementsDrawer({ user, isOpen, onClose }) {
 
         <button
           onClick={onClose}
-          style={{
-            background: 'transparent',
-            border: 'none',
-            color: 'var(--text-secondary)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer'
-          }}
+          ref={closeButtonRef}
+          aria-label="Close Achievements Drawer"
+          className="achievements-drawer-style-7"
         >
           <X size={20} />
         </button>
       </div>
 
       {/* Progress Circle Summary */}
-      <div style={{
-        padding: '24px 20px',
-        background: 'rgba(11, 33, 26, 0.3)',
-        borderBottom: '1px solid var(--glass-border)',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '24px'
-      }}>
-        <div style={{ position: 'relative', width: '70px', height: '70px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div className="achievements-drawer-style-8">
+        <div className="achievements-drawer-style-9">
           {/* SVG Progress Circle */}
-          <svg width="70" height="70" style={{ transform: 'rotate(-90deg)' }}>
+          <svg width="70" height="70" aria-hidden="true" className="achievements-drawer-style-10">
             <circle
               cx="35"
               cy="35"
@@ -168,110 +148,62 @@ export default function AchievementsDrawer({ user, isOpen, onClose }) {
               strokeWidth="5"
               strokeDasharray={2 * Math.PI * 30}
               strokeDashoffset={2 * Math.PI * 30 * (1 - progressPercent / 100)}
-              style={{ transition: 'stroke-dashoffset 0.5s ease-out' }}
+              className="achievements-drawer-style-11"
             />
           </svg>
-          <span style={{
-            position: 'absolute',
-            fontSize: '14px',
-            fontWeight: '700',
-            fontFamily: 'var(--font-display)',
-            color: 'var(--text-primary)'
-          }}>
+          <span className="achievements-drawer-style-12">
             {progressPercent}%
           </span>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          <div style={{ fontSize: '13px', fontWeight: '600', color: '#fff' }}>
+        <div className="achievements-drawer-style-13">
+          <div className="achievements-drawer-style-14">
             Milestones Tracker
           </div>
-          <div style={{ fontSize: '11.5px', color: 'var(--text-secondary)' }}>
+          <div className="achievements-drawer-style-15">
             Unlocked {unlockedCount} of {badges.length} environmental badges. Keep logging green choices to unlock more!
           </div>
         </div>
       </div>
 
       {/* Badges List container */}
-      <div style={{
-        flexGrow: 1,
-        overflowY: 'auto',
-        padding: '20px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '16px'
-      }}>
+      <div className="achievements-drawer-style-16">
         {loading ? (
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '40px 0' }}>
-            <div style={{
-              width: '24px',
-              height: '24px',
-              border: '2.5px solid var(--glass-border)',
-              borderTopColor: 'var(--primary)',
-              borderRadius: '50%',
-              animation: 'spin 1s linear infinite'
-            }} />
+          <div className="achievements-drawer-style-17">
+            <div className="achievements-drawer-style-18" />
           </div>
         ) : (
           badges.map((badge) => (
             <div
               key={badge.id}
               className={`glass-panel ${badge.isUnlocked ? badge.glowClass : ''}`}
-              style={{
-                display: 'flex',
-                gap: '16px',
-                padding: '16px',
-                background: badge.isUnlocked ? 'rgba(11, 33, 26, 0.5)' : 'rgba(11, 33, 26, 0.25)',
-                borderColor: badge.isUnlocked ? badge.color + '33' : 'rgba(255,255,255,0.04)',
-                opacity: badge.isUnlocked ? 1 : 0.65,
-                position: 'relative',
-                transition: 'all 0.3s ease'
-              }}
+              className="achievements-drawer-style-19" style={{ background: badge.isUnlocked ? 'rgba(11, 33, 26, 0.5)' : 'rgba(11, 33, 26, 0.25)', borderColor: badge.isUnlocked ? badge.color + '33' : 'rgba(255,255,255,0.04)', opacity: badge.isUnlocked ? 1 : 0.65 }}
             >
               {/* Badge Icon circle */}
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: '48px',
-                height: '48px',
-                borderRadius: '50%',
-                background: badge.isUnlocked ? badge.color + '18' : 'rgba(255,255,255,0.02)',
-                border: `1px solid ${badge.isUnlocked ? badge.color + '44' : 'rgba(255,255,255,0.05)'}`,
-                color: badge.isUnlocked ? badge.color : 'var(--text-muted)',
-                boxShadow: badge.isUnlocked ? `0 0 15px ${badge.color}15` : 'none'
-              }}>
+              <div className="achievements-drawer-style-20" style={{ background: badge.isUnlocked ? badge.color + '18' : 'rgba(255,255,255,0.02)', border: `1px solid ${badge.isUnlocked ? badge.color + '44' : 'rgba(255,255,255,0.05)'}`, color: badge.isUnlocked ? badge.color : 'var(--text-muted)', boxShadow: badge.isUnlocked ? `0 0 15px ${badge.color}15` : 'none' }}>
                 {badge.icon}
               </div>
 
               {/* Text Info */}
-              <div style={{ flexGrow: 1 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                  <h4 style={{ fontSize: '13.5px', fontWeight: '700', color: badge.isUnlocked ? '#fff' : 'var(--text-muted)' }}>
+              <div className="achievements-drawer-style-21">
+                <div className="achievements-drawer-style-22">
+                  <h4 className="achievements-drawer-style-23" style={{ color: badge.isUnlocked ? '#fff' : 'var(--text-muted)' }}>
                     {badge.title}
                   </h4>
                   {badge.isUnlocked ? (
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '3px', fontSize: '9.5px', color: badge.color, fontWeight: '700', textTransform: 'uppercase' }}>
+                    <span className="achievements-drawer-style-24" style={{ color: badge.color }}>
                       <CheckCircle2 size={11} /> Unlocked
                     </span>
                   ) : (
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '3px', fontSize: '9.5px', color: 'var(--text-muted)', fontWeight: '500' }}>
+                    <span className="achievements-drawer-style-25">
                       <Lock size={11} /> Locked
                     </span>
                   )}
                 </div>
-                <p style={{ fontSize: '11.5px', color: 'var(--text-secondary)', lineHeight: '1.4', marginBottom: '6px' }}>
+                <p className="achievements-drawer-style-26">
                   {badge.description}
                 </p>
-                <div style={{
-                  fontSize: '9.5px',
-                  fontFamily: 'monospace',
-                  color: badge.isUnlocked ? 'var(--primary)' : 'var(--text-muted)',
-                  background: 'rgba(255,255,255,0.02)',
-                  padding: '3px 8px',
-                  borderRadius: '4px',
-                  display: 'inline-block'
-                }}>
+                <div className="achievements-drawer-style-27" style={{ color: badge.isUnlocked ? 'var(--primary)' : 'var(--text-muted)' }}>
                   Target: {badge.criteriaText}
                 </div>
               </div>

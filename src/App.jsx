@@ -64,25 +64,9 @@ export default function App() {
 
   if (authLoading) {
     return (
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        minHeight: '100vh',
-        background: 'var(--bg-primary)',
-        color: 'var(--text-secondary)'
-      }}>
-        <div style={{
-          width: '40px',
-          height: '40px',
-          border: '3px solid var(--glass-border)',
-          borderTopColor: 'var(--primary)',
-          borderRadius: '50%',
-          animation: 'spin 1s linear infinite',
-          marginBottom: '16px'
-        }} />
-        <p style={{ fontFamily: 'var(--font-display)', fontSize: '14px' }}>Securing sandbox gateway...</p>
+      <div className="app-style-1">
+        <div className="app-style-2" />
+        <p className="app-style-3">Securing sandbox gateway...</p>
         <style>{`
           @keyframes spin {
             0% { transform: rotate(0deg); }
@@ -104,22 +88,8 @@ export default function App() {
   if (!hasOnboarded) {
     return (
       <Suspense fallback={
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          minHeight: '100vh',
-          background: 'var(--bg-primary)',
-          color: 'var(--text-secondary)'
-        }}>
-          <div style={{
-            width: '32px',
-            height: '32px',
-            border: '2.5px solid var(--glass-border)',
-            borderTopColor: 'var(--primary)',
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite'
-          }} />
+        <div className="app-style-4">
+          <div className="app-style-5" />
         </div>
       }>
         <Onboarding 
@@ -173,7 +143,7 @@ export default function App() {
         <div className="toast-container">
           <div className="toast success">
             <Leaf size={16} color="var(--primary)" />
-            <span style={{ fontSize: '13px', fontWeight: '500' }}>{toastNotify}</span>
+            <span className="app-style-6">{toastNotify}</span>
           </div>
         </div>
       )}
@@ -185,13 +155,13 @@ export default function App() {
           <span>NetZeroSync AI</span>
         </div>
 
-        <nav style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+        <nav className="app-style-7">
           <ul className="nav-links">
             <li>
               <button 
                 onClick={() => setActiveTab('dashboard')} 
                 className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`}
-                style={{ background: 'transparent', border: 'none', width: '100%', textAlign: 'left', padding: '12px 16px' }}
+                className="app-style-8"
                 aria-current={activeTab === 'dashboard' ? 'page' : undefined}
               >
                 <LayoutDashboard size={18} />
@@ -202,7 +172,7 @@ export default function App() {
               <button 
                 onClick={() => setActiveTab('ecotwin')} 
                 className={`nav-item ${activeTab === 'ecotwin' ? 'active' : ''}`}
-                style={{ background: 'transparent', border: 'none', width: '100%', textAlign: 'left', padding: '12px 16px' }}
+                className="app-style-9"
                 aria-current={activeTab === 'ecotwin' ? 'page' : undefined}
               >
                 <Orbit size={18} />
@@ -213,7 +183,7 @@ export default function App() {
               <button 
                 onClick={() => setActiveTab('carbonlens')} 
                 className={`nav-item ${activeTab === 'carbonlens' ? 'active' : ''}`}
-                style={{ background: 'transparent', border: 'none', width: '100%', textAlign: 'left', padding: '12px 16px' }}
+                className="app-style-10"
                 aria-current={activeTab === 'carbonlens' ? 'page' : undefined}
               >
                 <Scan size={18} />
@@ -224,7 +194,7 @@ export default function App() {
               <button 
                 onClick={() => setActiveTab('carbonquest')} 
                 className={`nav-item ${activeTab === 'carbonquest' ? 'active' : ''}`}
-                style={{ background: 'transparent', border: 'none', width: '100%', textAlign: 'left', padding: '12px 16px' }}
+                className="app-style-11"
                 aria-current={activeTab === 'carbonquest' ? 'page' : undefined}
               >
                 <ListTodo size={18} />
@@ -235,7 +205,7 @@ export default function App() {
               <button 
                 onClick={() => setActiveTab('community')} 
                 className={`nav-item ${activeTab === 'community' ? 'active' : ''}`}
-                style={{ background: 'transparent', border: 'none', width: '100%', textAlign: 'left', padding: '12px 16px' }}
+                className="app-style-12"
                 aria-current={activeTab === 'community' ? 'page' : undefined}
               >
                 <Users size={18} />
@@ -246,7 +216,7 @@ export default function App() {
               <button 
                 onClick={() => setActiveTab('marketplace')} 
                 className={`nav-item ${activeTab === 'marketplace' ? 'active' : ''}`}
-                style={{ background: 'transparent', border: 'none', width: '100%', textAlign: 'left', padding: '12px 16px' }}
+                className="app-style-13"
                 aria-current={activeTab === 'marketplace' ? 'page' : undefined}
               >
                 <ShoppingCart size={18} />
@@ -256,55 +226,31 @@ export default function App() {
           </ul>
 
           {/* User Profile Badge at bottom of Sidebar */}
-          <div className="sidebar-footer" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div className="sidebar-footer app-style-14">
             <button 
               onClick={() => setAchievementsOpen(true)}
               onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.04)'}
               onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-              style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: '10px',
-                cursor: 'pointer',
-                padding: '6px',
-                borderRadius: '8px',
-                transition: 'background 0.2s ease',
-                background: 'transparent',
-                border: 'none',
-                width: '100%',
-                textAlign: 'left'
-              }}
+              className="app-style-15"
               title="Click to view achievements"
               aria-label="View eco achievements drawer"
             >
-              <div style={{
-                width: '36px',
-                height: '36px',
-                borderRadius: '50%',
-                background: 'rgba(255,255,255,0.03)',
-                border: '1px solid var(--glass-border)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '14px',
-                fontWeight: '700',
-                color: 'var(--primary)'
-              }}>
+              <div className="app-style-16">
                 {user.displayName?.charAt(0) || 'E'}
               </div>
-              <div style={{ overflow: 'hidden' }}>
-                <div style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+              <div className="app-style-17">
+                <div className="app-style-18">
                   {user.displayName}
                 </div>
-                <div style={{ fontSize: '10.5px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
+                <div className="app-style-19">
                   <span>Lvl {user.level || 1}</span>
                   <span>•</span>
-                  <span style={{ color: 'var(--primary)', fontWeight: '600', display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
+                  <span className="app-style-20">
                     <Coins size={10} />
                     {user.ecoTokens || 0}
                   </span>
                   <span>•</span>
-                  <span style={{ color: 'var(--accent-amber)', display: 'inline-flex', alignItems: 'center' }}>
+                  <span className="app-style-21">
                     <Award size={11} />
                   </span>
                 </div>
@@ -313,18 +259,7 @@ export default function App() {
 
             <button 
               onClick={handleLogout}
-              className="btn-ghost" 
-              style={{
-                width: '100%',
-                padding: '8px 12px',
-                fontSize: '12px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                borderColor: 'transparent',
-                color: 'var(--text-secondary)'
-              }}
+              className="btn-ghost app-style-22"
             >
               <LogOut size={14} />
               Sign Out
@@ -335,54 +270,26 @@ export default function App() {
 
       {/* Main Panel Content Area */}
       <main className="main-content">
-        <header className="header-bar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
-            <h2 style={{ fontSize: '22px', textTransform: 'capitalize' }}>
+        <header className="header-bar app-style-23">
+          <div className="app-style-24">
+            <h2 className="app-style-25">
               {activeTab === 'carbonlens' ? 'Carbon Lens AI' : activeTab === 'ecotwin' ? 'EcoTwin Simulator' : activeTab === 'marketplace' ? 'Offset Marketplace' : activeTab}
             </h2>
 
             {/* Global Telemetry Carbon Ticker */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              background: 'rgba(16, 185, 129, 0.05)',
-              border: '1px solid rgba(16, 185, 129, 0.18)',
-              padding: '6px 14px',
-              borderRadius: '20px',
-              fontFamily: 'monospace',
-              fontSize: '12px',
-              color: 'var(--primary)',
-              boxShadow: '0 0 10px rgba(16, 185, 129, 0.05)'
-            }} className="hide-mobile" title="Simulated collective carbon offsets across the NetZeroSync network">
-              <span style={{ 
-                width: '6px', 
-                height: '6px', 
-                background: 'var(--primary)', 
-                borderRadius: '50%', 
-                display: 'inline-block', 
-                boxShadow: '0 0 8px var(--primary)'
-              }} />
+            <div className="app-style-26" className="hide-mobile" title="Simulated collective carbon offsets across the NetZeroSync network">
+              <span className="app-style-27" />
               <span>Net-Zero Network Save: </span>
-              <strong style={{ color: '#fff' }}>{globalSavings.toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 })} kg</strong>
+              <strong className="app-style-28">{globalSavings.toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 })} kg</strong>
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '12px' }}>
+          <div className="app-style-29">
             
             {/* Toggle Settings Modal */}
             <button
               onClick={() => setSettingsOpen(true)}
-              className="btn-ghost"
-              style={{
-                width: '40px',
-                height: '40px',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: 0
-              }}
+              className="btn-ghost app-style-30"
               aria-label="Open cloud connection settings"
             >
               <Settings size={16} />
@@ -391,15 +298,7 @@ export default function App() {
             {/* Toggle slide-out AI Copilot */}
             <button
               onClick={() => setCopilotOpen(true)}
-              className="btn-secondary glow-indigo"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                borderRadius: '20px',
-                padding: '8px 16px',
-                fontSize: '13px'
-              }}
+              className="btn-secondary glow-indigo app-style-31"
             >
               <Bot size={14} />
               <span>Ask Copilot</span>
@@ -408,26 +307,11 @@ export default function App() {
         </header>
 
         {/* Dynamic Inner Panel Page */}
-        <div style={{ flexGrow: 1 }}>
+        <div className="app-style-32">
           <Suspense fallback={
-            <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
-              minHeight: '400px',
-              color: 'var(--text-secondary)'
-            }}>
-              <div style={{
-                width: '32px',
-                height: '32px',
-                border: '2.5px solid var(--glass-border)',
-                borderTopColor: 'var(--primary)',
-                borderRadius: '50%',
-                animation: 'spin 1s linear infinite',
-                marginBottom: '12px'
-              }} />
-              <p style={{ fontSize: '12.5px', fontFamily: 'var(--font-sans)' }}>Loading panel telemetry...</p>
+            <div className="app-style-33">
+              <div className="app-style-34" />
+              <p className="app-style-35">Loading panel telemetry...</p>
             </div>
           }>
             {renderContent()}

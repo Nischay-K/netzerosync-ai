@@ -529,9 +529,24 @@ export const getCommunityChallenges = async (forceRefresh = false) => {
   if (isFirebaseConnected) {
     const colSnap = await getDocs(collection(db, 'challenges'));
     const ch = [];
-    colSnap.forEach(d => {
-      ch.push({ id: d.id, ...d.data() });
-    });
+    for (const d of colSnap.docs) {
+      const challengeData = d.data();
+      const shardsCol = collection(db, 'challenges', d.id, 'shards');
+      const shardsSnap = await getDocs(shardsCol);
+      let participantCount = 0;
+      let current = 0;
+      shardsSnap.forEach(s => {
+        const sData = s.data();
+        participantCount += (sData.participantCount || 0);
+        current += (sData.current || 0);
+      });
+      ch.push({
+        id: d.id,
+        ...challengeData,
+        participantCount: participantCount || challengeData.participantCount || 0,
+        current: current || challengeData.current || 0
+      });
+    }
     communityChallengesCache = ch;
     communityChallengesCacheTime = now;
     return ch;

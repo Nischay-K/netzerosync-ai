@@ -291,7 +291,7 @@ export default function Dashboard({ user, onProfileUpdate, onOpenAchievements })
 
         {/* SVG Wrapper */}
         <div className="chart-svg-wrapper">
-          <svg viewBox="0 0 800 200" width="100%" height="100%" className="chart-svg">
+          <svg viewBox="0 0 800 200" width="100%" height="100%" aria-hidden="true" className="chart-svg">
             <defs>
               <linearGradient id="chartAreaGrad" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="var(--accent-cyan)" stopOpacity="0.25" />

@@ -29,3 +29,7 @@ server/service-account.json
 *.njsproj
 *.sln
 *.sw?
+
+# Temporary files & Scratch folders
+scratch/
+server/test_paths.js

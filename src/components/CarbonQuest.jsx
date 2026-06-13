@@ -163,46 +163,30 @@ export default function CarbonQuest({ user, onProfileUpdate }) {
   };
 
   return (
-    <div className="fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
+    <div className="fade-in carbon-quest-style-1">
       
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
+      <div className="carbon-quest-style-2">
         <div>
-          <h1 style={{ fontSize: '28px', marginBottom: '6px' }}>CarbonQuest</h1>
-          <p style={{ color: 'var(--text-secondary)' }}>
+          <h1 className="carbon-quest-style-3">CarbonQuest</h1>
+          <p className="carbon-quest-style-4">
             Complete individual missions, level up your profile, and earn achievements.
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-          <div className="glass-panel" style={{
-            padding: '10px 16px',
-            borderRadius: '12px',
-            border: '1px solid rgba(0, 255, 136, 0.2)',
-            background: 'rgba(0, 255, 136, 0.03)',
-            boxShadow: '0 0 15px rgba(0, 255, 136, 0.05)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px'
-          }}>
+        <div className="carbon-quest-style-5">
+          <div className="glass-panel carbon-quest-style-6">
             <Leaf size={14} color="var(--primary)" />
-            <span style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)' }}>
+            <span className="carbon-quest-style-7">
               {user.ecoTokens || 0}
             </span>
-            <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Eco-Tokens</span>
+            <span className="carbon-quest-style-8">Eco-Tokens</span>
           </div>
 
           <button
             onClick={handleGenerateAiMissions}
             disabled={aiGenerating}
-            className="btn-secondary glow-indigo"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '10px 18px',
-              fontSize: '13px'
-            }}
+            className="btn-secondary glow-indigo carbon-quest-style-9"
           >
             <RefreshCw size={14} className={aiGenerating ? 'animate-spin' : ''} />
             {aiGenerating ? 'AI Generating...' : 'Suggest AI Quests'}
@@ -211,80 +195,55 @@ export default function CarbonQuest({ user, onProfileUpdate }) {
       </div>
 
       {/* Progress Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '30px' }} className="dashboard-grid">
+      <div className="carbon-quest-style-10" className="dashboard-grid">
         
         {/* Active Missions List */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          <h3 style={{ fontSize: '18px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div className="carbon-quest-style-11">
+          <h3 className="carbon-quest-style-12">
             <Compass size={20} color="var(--primary)" />
             Active Quests
           </h3>
 
           {activeMissions.length === 0 ? (
-            <div className="glass-panel" style={{ textAlign: 'center', padding: '40px', color: 'var(--text-secondary)' }}>
-              <CheckCircle2 size={36} color="var(--primary)" style={{ margin: '0 auto 12px' }} />
-              <p style={{ fontWeight: '600', marginBottom: '4px' }}>All quests completed!</p>
-              <p style={{ fontSize: '12.5px' }}>Click "Suggest AI Quests" above to receive customized sustainability missions.</p>
+            <div className="glass-panel carbon-quest-style-13">
+              <CheckCircle2 size={36} color="var(--primary)" className="carbon-quest-style-14" />
+              <p className="carbon-quest-style-15">All quests completed!</p>
+              <p className="carbon-quest-style-16">Click "Suggest AI Quests" above to receive customized sustainability missions.</p>
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div className="carbon-quest-style-17">
               {activeMissions.map((mission) => {
                 const missionFeedback = feedback[mission.id];
                 const isVerifying = verifyingId === mission.id;
                 
                 return (
-                  <div key={mission.id} className="glass-panel" style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    padding: '20px',
-                    gap: '16px'
-                  }}>
-                    <div style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      gap: '16px'
-                    }}>
-                      <div style={{ flexGrow: 1 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                          <span style={{
-                            background: 'rgba(255, 255, 255, 0.03)',
-                            border: '1px solid var(--glass-border)',
-                            padding: '2px 8px',
-                            borderRadius: '4px',
-                            fontSize: '10px',
-                            fontWeight: '600',
-                            color: 'var(--text-muted)'
-                          }}>
+                  <div key={mission.id} className="glass-panel carbon-quest-style-18">
+                    <div className="carbon-quest-style-19">
+                      <div className="carbon-quest-style-20">
+                        <div className="carbon-quest-style-21">
+                          <span className="carbon-quest-style-22">
                             {mission.category}
                           </span>
-                          <span style={{
-                            background: 'rgba(0, 255, 136, 0.1)',
-                            color: 'var(--primary)',
-                            padding: '2px 8px',
-                            borderRadius: '4px',
-                            fontSize: '10px',
-                            fontWeight: '600'
-                          }}>
+                          <span className="carbon-quest-style-23">
                             Saves {mission.co2Saved} kg CO₂
                           </span>
                         </div>
 
-                        <h4 style={{ fontSize: '15px', fontWeight: '700', color: 'var(--text-primary)' }}>
+                        <h4 className="carbon-quest-style-24">
                           {mission.title}
                         </h4>
-                        <p style={{ color: 'var(--text-secondary)', fontSize: '12px', marginTop: '4px' }}>
+                        <p className="carbon-quest-style-25">
                           {mission.description}
                         </p>
                       </div>
 
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <div style={{ textAlign: 'right' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--accent-amber)', fontSize: '13px', fontWeight: '700' }}>
+                      <div className="carbon-quest-style-26">
+                        <div className="carbon-quest-style-27">
+                          <div className="carbon-quest-style-28">
                             <Star size={14} fill="var(--accent-amber)" />
                             +{mission.xp}
                           </div>
-                          <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>XP Reward</span>
+                          <span className="carbon-quest-style-29">XP Reward</span>
                         </div>
 
                         {/* Hidden file input */}
@@ -293,26 +252,15 @@ export default function CarbonQuest({ user, onProfileUpdate }) {
                           accept="image/*"
                           id={`file-verify-${mission.id}`}
                           onChange={(e) => handleVerifyPhoto(e, mission)}
-                          style={{ display: 'none' }}
+                          className="carbon-quest-style-30"
                           disabled={completingId === mission.id || isVerifying}
                         />
 
                         {/* Verify button */}
                         <label
                           htmlFor={`file-verify-${mission.id}`}
-                          className="btn-ghost"
-                          style={{
-                            padding: '8px 12px',
-                            fontSize: '12px',
-                            borderColor: 'rgba(0, 240, 255, 0.3)',
-                            color: 'var(--accent-cyan)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '6px',
-                            cursor: 'pointer',
-                            opacity: (completingId === mission.id || isVerifying) ? 0.5 : 1,
-                            pointerEvents: (completingId === mission.id || isVerifying) ? 'none' : 'auto'
-                          }}
+                          className="btn-ghost carbon-quest-style-31"
+                          style={{ opacity: (completingId === mission.id || isVerifying) ? 0.5 : 1, pointerEvents: (completingId === mission.id || isVerifying) ? 'none' : 'auto' }}
                         >
                           <Camera size={14} />
                           Verify
@@ -322,16 +270,7 @@ export default function CarbonQuest({ user, onProfileUpdate }) {
                         <button
                           onClick={() => handleCompleteMission(mission)}
                           disabled={completingId === mission.id || isVerifying}
-                          className="btn-ghost"
-                          style={{
-                            padding: '8px 16px',
-                            fontSize: '12px',
-                            borderColor: 'rgba(0, 255, 136, 0.3)',
-                            color: 'var(--primary)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '6px'
-                          }}
+                          className="btn-ghost carbon-quest-style-32"
                         >
                           {completingId === mission.id ? 'Claiming...' : 'Complete'}
                         </button>
@@ -340,46 +279,19 @@ export default function CarbonQuest({ user, onProfileUpdate }) {
 
                     {/* Verification Loader */}
                     {isVerifying && (
-                      <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '10px',
-                        fontSize: '12px',
-                        color: 'var(--accent-cyan)',
-                        background: 'rgba(0, 240, 255, 0.05)',
-                        padding: '10px',
-                        borderRadius: '8px',
-                        border: '1px dashed rgba(0, 240, 255, 0.2)'
-                      }}>
-                        <div style={{
-                          width: '14px',
-                          height: '14px',
-                          border: '2px solid var(--glass-border)',
-                          borderTopColor: 'var(--accent-cyan)',
-                          borderRadius: '50%',
-                          animation: 'spin 1s linear infinite'
-                        }} />
+                      <div className="carbon-quest-style-33">
+                        <div className="carbon-quest-style-34" />
                         <span>Copilot Coach checking visual proof... (+100 XP photo bonus pending)</span>
                       </div>
                     )}
 
                     {/* Verification Feedback Banner */}
                     {missionFeedback && (
-                      <div style={{
-                        display: 'flex',
-                        alignItems: 'flex-start',
-                        gap: '8px',
-                        fontSize: '12px',
-                        background: missionFeedback.success ? 'rgba(0, 255, 136, 0.08)' : 'rgba(255, 42, 95, 0.08)',
-                        border: missionFeedback.success ? '1px solid rgba(0, 255, 136, 0.2)' : '1px solid rgba(255, 42, 95, 0.2)',
-                        color: missionFeedback.success ? 'var(--primary)' : 'var(--accent-rose)',
-                        padding: '10px 12px',
-                        borderRadius: '8px'
-                      }}>
-                        {missionFeedback.success ? <CheckCircle2 size={16} style={{ marginTop: '1px', flexShrink: 0 }} /> : <AlertCircle size={16} style={{ marginTop: '1px', flexShrink: 0 }} />}
+                      <div className="carbon-quest-style-35" style={{ background: missionFeedback.success ? 'rgba(0, 255, 136, 0.08)' : 'rgba(255, 42, 95, 0.08)', border: missionFeedback.success ? '1px solid rgba(0, 255, 136, 0.2)' : '1px solid rgba(255, 42, 95, 0.2)', color: missionFeedback.success ? 'var(--primary)' : 'var(--accent-rose)' }}>
+                        {missionFeedback.success ? <CheckCircle2 size={16} className="carbon-quest-style-36" /> : <AlertCircle size={16} className="carbon-quest-style-37" />}
                         <div>
                           <strong>{missionFeedback.success ? 'AI Proof Verified! (+100 XP Bonus)' : 'Verification Failed'}</strong>
-                          <p style={{ marginTop: '2px', color: 'var(--text-secondary)' }}>{missionFeedback.text}</p>
+                          <p className="carbon-quest-style-38">{missionFeedback.text}</p>
                         </div>
                       </div>
                     )}
@@ -391,36 +303,24 @@ export default function CarbonQuest({ user, onProfileUpdate }) {
         </div>
 
         {/* Right Column: Achievements & Profile level */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <div className="carbon-quest-style-39">
           
           {/* Level Progress */}
-          <div className="glass-panel glow-indigo" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <h3 style={{ fontSize: '17px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div className="glass-panel glow-indigo carbon-quest-style-40">
+            <h3 className="carbon-quest-style-41">
               <Zap size={18} color="var(--secondary)" />
               Profile Level Status
             </h3>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <div style={{
-                width: '56px',
-                height: '56px',
-                borderRadius: '16px',
-                background: 'linear-gradient(135deg, var(--secondary) 0%, var(--accent-purple) 100%)',
-                color: '#fff',
-                fontSize: '20px',
-                fontWeight: '800',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)'
-              }}>
+            <div className="carbon-quest-style-42">
+              <div className="carbon-quest-style-43">
                 Lvl {user.level || 1}
               </div>
 
-              <div style={{ flexGrow: 1 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '6px' }}>
-                  <span style={{ color: 'var(--text-secondary)' }}>XP: {user.xp || 0} / {Math.ceil(((user.xp || 0) + 1) / 1000) * 1000}</span>
-                  <span style={{ color: 'var(--text-muted)' }}>
+              <div className="carbon-quest-style-44">
+                <div className="carbon-quest-style-45">
+                  <span className="carbon-quest-style-46">XP: {user.xp || 0} / {Math.ceil(((user.xp || 0) + 1) / 1000) * 1000}</span>
+                  <span className="carbon-quest-style-47">
                     {Math.round(((user.xp || 0) % 1000) / 10)}% to next lvl
                   </span>
                 </div>
@@ -432,13 +332,13 @@ export default function CarbonQuest({ user, onProfileUpdate }) {
           </div>
 
           {/* Badges / Achievements Unlock */}
-          <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <h3 style={{ fontSize: '17px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div className="glass-panel carbon-quest-style-48">
+            <h3 className="carbon-quest-style-49">
               <Award size={18} color="var(--accent-amber)" />
               Earned Badges
             </h3>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            <div className="carbon-quest-style-50">
               {[
                 { id: 'b_1', name: 'Seed Sower', desc: 'Initialize your EcoTwin', unlocked: true, iconColor: '#10b981' },
                 { id: 'b_2', name: 'Green Chef', desc: 'Complete 3 diet quests', unlocked: user.completedMissions?.length >= 3, iconColor: '#059669' },
@@ -447,34 +347,16 @@ export default function CarbonQuest({ user, onProfileUpdate }) {
               ].map(badge => (
                 <div
                   key={badge.id}
-                  className="glass-card"
-                  style={{
-                    opacity: badge.unlocked ? 1 : 0.45,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    textAlign: 'center',
-                    padding: '12px 8px'
-                  }}
+                  className="glass-card carbon-quest-style-51"
+                  style={{ opacity: badge.unlocked ? 1 : 0.45 }}
                 >
-                  <div style={{
-                    width: '36px',
-                    height: '36px',
-                    borderRadius: '50%',
-                    background: badge.unlocked ? `rgba(255, 255, 255, 0.05)` : 'rgba(0, 0, 0, 0.1)',
-                    border: badge.unlocked ? `1.5px solid ${badge.iconColor}` : '1.5px solid var(--glass-border)',
-                    color: badge.unlocked ? badge.iconColor : 'var(--text-muted)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    marginBottom: '8px'
-                  }}>
+                  <div className="carbon-quest-style-52" style={{ background: badge.unlocked ? `rgba(255, 255, 255, 0.05)` : 'rgba(0, 0, 0, 0.1)', border: badge.unlocked ? `1.5px solid ${badge.iconColor}` : '1.5px solid var(--glass-border)', color: badge.unlocked ? badge.iconColor : 'var(--text-muted)' }}>
                     <Award size={18} />
                   </div>
-                  <div style={{ fontSize: '12px', fontWeight: '600', color: badge.unlocked ? 'var(--text-primary)' : 'var(--text-muted)' }}>
+                  <div className="carbon-quest-style-53" style={{ color: badge.unlocked ? 'var(--text-primary)' : 'var(--text-muted)' }}>
                     {badge.name}
                   </div>
-                  <div style={{ fontSize: '9.5px', color: 'var(--text-muted)', marginTop: '2px', lineHeight: '1.3' }}>
+                  <div className="carbon-quest-style-54">
                     {badge.desc}
                   </div>
                 </div>

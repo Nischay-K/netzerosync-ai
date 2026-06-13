@@ -1,14 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
-// Pure mirroring function of the level calculation in Dashboard.jsx & firebase.js
-const calculateUserLevel = (xp) => {
-  return Math.floor((xp || 0) / 1000) + 1;
-};
-
-// Pure mirroring function of product token cost calculation in Marketplace.jsx
-const calculateProductTokenCost = (carbonImpactKg) => {
-  return Math.max(5, Math.ceil(carbonImpactKg * 10));
-};
+import { calculateUserLevel, calculateProductTokenCost } from './calculators';
 
 describe('Telemetry Rank & Level Calculations', () => {
   it('should map 0 XP to Level 1', () => {

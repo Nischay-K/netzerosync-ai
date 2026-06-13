@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { updateUserProfile } from '../utils/firebase';
+import { calculateSimulationMetrics } from '../utils/calculators';
 import { Leaf, TrendingDown } from 'lucide-react';
 import * as THREE from 'three';
 
@@ -32,16 +33,18 @@ export default function EcoTwin({ user, onProfileUpdate }) {
   }, [currentTransport, currentDiet, currentEnergy, currentShopping]);
 
   // Calculations
-  const currentScore = currentTransport + currentDiet + currentEnergy + currentShopping;
-  const simScore = simTransport + simDiet + simEnergy + simShopping;
-
-  // Translate score to simulated Carbon Footprint (tons/year)
-  const calculatedCurrentCO2 = Number((1.0 + (currentScore / 400) * 9.0).toFixed(2));
-  const calculatedSimCO2 = Number((1.0 + (simScore / 400) * 9.0).toFixed(2));
-  
-  const co2Saved = Math.max(0, Number((calculatedCurrentCO2 - calculatedSimCO2).toFixed(2)));
-  const treesEquivalent = Math.round(co2Saved * 45); // ~45 trees absorb 1 ton of CO2/year
-  const financialSavings = Math.round(co2Saved * 4200); // estimated Rs. saved per ton of CO2 reduction
+  const {
+    currentScore,
+    simScore,
+    calculatedCurrentCO2,
+    calculatedSimCO2,
+    co2Saved,
+    treesEquivalent,
+    financialSavings
+  } = calculateSimulationMetrics(
+    simTransport, simDiet, simEnergy, simShopping,
+    currentTransport, currentDiet, currentEnergy, currentShopping
+  );
 
   const handleApplyHabits = async () => {
     setSavingLoading(true);
@@ -506,87 +509,51 @@ export default function EcoTwin({ user, onProfileUpdate }) {
   }, [simTransport, simDiet, simEnergy, simShopping, simScore, isHealthy, isModerate]);
 
   return (
-    <div className="fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
+    <div className="fade-in eco-twin-style-1">
       
       {/* Toast */}
       {toast && (
-        <div style={{
-          position: 'fixed',
-          top: '24px',
-          right: '24px',
-          background: 'var(--bg-secondary)',
-          border: '1px solid var(--primary)',
-          padding: '16px 24px',
-          borderRadius: '8px',
-          color: 'var(--text-primary)',
-          boxShadow: 'var(--glass-glow)',
-          zIndex: 1000,
-          animation: 'slideInRight 0.3s ease'
-        }}>
+        <div className="eco-twin-style-2">
           {toast}
         </div>
       )}
 
       {/* Header section */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div className="eco-twin-style-3">
         <div>
-          <h1 style={{ fontSize: '28px', marginBottom: '6px' }}>Digital Sustainability Twin</h1>
-          <p style={{ color: 'var(--text-secondary)' }}>
+          <h1 className="eco-twin-style-4">Digital Sustainability Twin</h1>
+          <p className="eco-twin-style-5">
             Simulate how changes to your daily lifestyle transform your local ecosystem.
           </p>
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '30px' }} className="dashboard-grid">
+      <div className="eco-twin-style-6" className="dashboard-grid">
         
         {/* Left Column: Interactive Twin Visualizer */}
-        <div className="glass-panel glow-indigo" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h3 style={{ fontSize: '18px' }}>3D Ecosystem Status: 
-              <span style={{ 
-                marginLeft: '8px', 
-                color: isHealthy ? 'var(--primary)' : isModerate ? 'var(--accent-amber)' : 'var(--accent-rose)' 
-              }}>
+        <div className="glass-panel glow-indigo eco-twin-style-7">
+          <div className="eco-twin-style-8">
+            <h3 className="eco-twin-style-9">3D Ecosystem Status: 
+              <span className="eco-twin-style-10" style={{ color: isHealthy ? 'var(--primary)' : isModerate ? 'var(--accent-amber)' : 'var(--accent-rose)' }}>
                 {isHealthy ? 'Pristine & Renewable' : isModerate ? 'Stressed Environment' : 'Industrial Smog Alert'}
               </span>
             </h3>
-            <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Score Index: {simScore}/400</span>
+            <span className="eco-twin-style-11">Score Index: {simScore}/400</span>
           </div>
 
           {/* Dynamic 3D WebGL Ecosystem Twin */}
-          <div style={{
-            position: 'relative',
-            width: '100%',
-            height: '280px',
-            borderRadius: '12px',
-            background: 'linear-gradient(to bottom, #0f172a 0%, #111827 100%)',
-            overflow: 'hidden',
-            border: '1px solid var(--glass-border)',
-            boxShadow: 'var(--glass-glow)'
-          }}>
+          <div className="eco-twin-style-12">
             {/* 3D WebGL Canvas Container */}
             <div 
               ref={canvasContainerRef} 
-              style={{ width: '100%', height: '100%', outline: 'none' }} 
+              className="eco-twin-style-13" 
               role="img" 
               aria-label={`Interactive 3D Ecosystem Twin. The environment is currently ${isHealthy ? 'Pristine and Renewable with green lands, spinning wind turbines, and growing trees.' : isModerate ? 'Stressed with drying grass.' : 'Polluted with industrial smoke and smog particles.'} You can click and drag on the 3D scene to rotate and view the landscape from different angles.`}
               tabIndex={0}
             />
 
             {/* Glowing environmental status overlay label */}
-            <div style={{
-              position: 'absolute',
-              bottom: '12px',
-              left: '12px',
-              background: 'rgba(0, 0, 0, 0.65)',
-              border: '1px solid var(--glass-border)',
-              padding: '5px 12px',
-              borderRadius: '20px',
-              fontSize: '11px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px'
-            }}>
+            <div className="eco-twin-style-14">
               <Leaf size={10} color={isHealthy ? '#10b981' : isModerate ? '#eab308' : '#f43f5e'} />
               <span>CO₂ Load: <strong>{calculatedSimCO2} tons/yr</strong></span>
             </div>
@@ -594,37 +561,37 @@ export default function EcoTwin({ user, onProfileUpdate }) {
         </div>
 
         {/* Right Column: Simulation Panel & Savings Stats */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <div className="eco-twin-style-15">
           
           {/* Carbon Twin Statistics */}
-          <div className="glass-panel glow-emerald" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <h3 style={{ fontSize: '18px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div className="glass-panel glow-emerald eco-twin-style-16">
+            <h3 className="eco-twin-style-17">
               <TrendingDown size={20} color="var(--primary)" />
               Simulated Reduction Savings
             </h3>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            <div className="eco-twin-style-18">
               
-              <div className="glass-card" style={{ padding: '12px' }}>
-                <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '4px' }}>CO₂ Reduction</div>
-                <div style={{ fontSize: '20px', fontWeight: '800', color: 'var(--primary)' }}>
-                  {co2Saved} tons <span style={{ fontSize: '12px', fontWeight: '400', color: 'var(--text-muted)' }}>/ yr</span>
+              <div className="glass-card eco-twin-style-19">
+                <div className="eco-twin-style-20">CO₂ Reduction</div>
+                <div className="eco-twin-style-21">
+                  {co2Saved} tons <span className="eco-twin-style-22">/ yr</span>
                 </div>
               </div>
 
-              <div className="glass-card" style={{ padding: '12px' }}>
-                <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '4px' }}>Tree Equivalent</div>
-                <div style={{ fontSize: '20px', fontWeight: '800', color: 'var(--accent-cyan)' }}>
-                  {treesEquivalent} <span style={{ fontSize: '12px', fontWeight: '400', color: 'var(--text-muted)' }}>planted</span>
+              <div className="glass-card eco-twin-style-23">
+                <div className="eco-twin-style-24">Tree Equivalent</div>
+                <div className="eco-twin-style-25">
+                  {treesEquivalent} <span className="eco-twin-style-26">planted</span>
                 </div>
               </div>
 
-              <div className="glass-card" style={{ padding: '12px', gridColumn: 'span 2' }}>
-                <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '4px' }}>Estimated Annual Cost Savings</div>
-                <div style={{ fontSize: '22px', fontWeight: '800', color: 'var(--accent-amber)' }}>
+              <div className="glass-card eco-twin-style-27">
+                <div className="eco-twin-style-28">Estimated Annual Cost Savings</div>
+                <div className="eco-twin-style-29">
                   ₹{financialSavings.toLocaleString('en-IN')} / year
                 </div>
-                <div style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '2px' }}>
+                <div className="eco-twin-style-30">
                   Based on fuel offsets, plant diet discounts, and utility savings.
                 </div>
               </div>
@@ -632,16 +599,16 @@ export default function EcoTwin({ user, onProfileUpdate }) {
           </div>
 
           {/* Action Sliders */}
-          <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <h4 style={{ fontSize: '15px' }}>Tweak Simulators</h4>
+          <div className="glass-panel eco-twin-style-31">
+            <h4 className="eco-twin-style-32">Tweak Simulators</h4>
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div className="eco-twin-style-33">
               
               {/* Slider 1: Transport */}
               <div>
-                <label style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '6px' }}>
-                  <span style={{ color: 'var(--text-secondary)' }}>Transport Footprint</span>
-                  <span style={{ fontWeight: '600' }}>{simTransport === 0 ? 'Zero Emission' : simTransport < 40 ? 'Eco-Commute' : 'High Commute'}</span>
+                <label className="eco-twin-style-34">
+                  <span className="eco-twin-style-35">Transport Footprint</span>
+                  <span className="eco-twin-style-36">{simTransport === 0 ? 'Zero Emission' : simTransport < 40 ? 'Eco-Commute' : 'High Commute'}</span>
                 </label>
                 <input
                   type="range"
@@ -654,9 +621,9 @@ export default function EcoTwin({ user, onProfileUpdate }) {
 
               {/* Slider 2: Diet */}
               <div>
-                <label style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '6px' }}>
-                  <span style={{ color: 'var(--text-secondary)' }}>Diet Choice</span>
-                  <span style={{ fontWeight: '600' }}>{simDiet < 25 ? 'Plant-based' : simDiet < 60 ? 'Low-Meat' : 'Heavy Meat'}</span>
+                <label className="eco-twin-style-37">
+                  <span className="eco-twin-style-38">Diet Choice</span>
+                  <span className="eco-twin-style-39">{simDiet < 25 ? 'Plant-based' : simDiet < 60 ? 'Low-Meat' : 'Heavy Meat'}</span>
                 </label>
                 <input
                   type="range"
@@ -669,9 +636,9 @@ export default function EcoTwin({ user, onProfileUpdate }) {
 
               {/* Slider 3: Energy */}
               <div>
-                <label style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '6px' }}>
-                  <span style={{ color: 'var(--text-secondary)' }}>Home Utilities</span>
-                  <span style={{ fontWeight: '600' }}>{simEnergy < 30 ? 'Renewable/Solar' : simEnergy < 60 ? 'Smart Energy' : 'Inefficient Grid'}</span>
+                <label className="eco-twin-style-40">
+                  <span className="eco-twin-style-41">Home Utilities</span>
+                  <span className="eco-twin-style-42">{simEnergy < 30 ? 'Renewable/Solar' : simEnergy < 60 ? 'Smart Energy' : 'Inefficient Grid'}</span>
                 </label>
                 <input
                   type="range"
@@ -684,9 +651,9 @@ export default function EcoTwin({ user, onProfileUpdate }) {
 
               {/* Slider 4: Shopping */}
               <div>
-                <label style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '6px' }}>
-                  <span style={{ color: 'var(--text-secondary)' }}>Shopping & Waste</span>
-                  <span style={{ fontWeight: '600' }}>{simShopping < 30 ? 'Minimalist Recycle' : simShopping < 60 ? 'Average Consumer' : 'High Waste'}</span>
+                <label className="eco-twin-style-43">
+                  <span className="eco-twin-style-44">Shopping & Waste</span>
+                  <span className="eco-twin-style-45">{simShopping < 30 ? 'Minimalist Recycle' : simShopping < 60 ? 'Average Consumer' : 'High Waste'}</span>
                 </label>
                 <input
                   type="range"
@@ -701,12 +668,7 @@ export default function EcoTwin({ user, onProfileUpdate }) {
             <button
               onClick={handleApplyHabits}
               disabled={savingLoading || (simTransport === currentTransport && simDiet === currentDiet && simEnergy === currentEnergy && simShopping === currentShopping)}
-              className="btn-primary"
-              style={{
-                marginTop: '8px',
-                padding: '12px',
-                fontSize: '13px'
-              }}
+              className="btn-primary eco-twin-style-46"
             >
               {savingLoading ? 'Saving twin parameters...' : 'Lock-In Simulated Habits'}
             </button>
