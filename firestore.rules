@@ -1,0 +1,52 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper: Is the user authenticated?
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Helper: Is the user accessing their own record?
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // 1. Users Collection
+    match /users/{userId} {
+      // Profiles are readable by any logged-in user (needed for Leaderboard)
+      allow read: if isAuthenticated();
+      
+      // Users can register their profile, but cannot modify critical metrics (xp, ecoTokens, level) directly
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId) 
+        && request.resource.data.xp == resource.data.xp 
+        && request.resource.data.ecoTokens == resource.data.ecoTokens
+        && request.resource.data.level == resource.data.level;
+    }
+
+    // 2. Carbon Logs Collection
+    match /carbonLogs/{logId} {
+      // Read access is restricted to the owner of the log
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      
+      // Users can only write logs pointing to their own UID
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
+
+    // 3. Challenges Collection
+    match /challenges/{challengeId} {
+      // Challenges are read-only for frontends
+      allow read: if isAuthenticated();
+      allow write: if false; // Only manageable via Firebase Admin SDK / Cloud Functions
+
+      // Distributed counter shards for updates
+      match /shards/{shardId} {
+        allow read: if isAuthenticated();
+        // Users can increment their shard entry through transactions
+        allow create, update: if isAuthenticated();
+      }
+    }
+  }
+}
