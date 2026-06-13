@@ -28,8 +28,8 @@ export const calculateProductTokenCost = (carbonImpactKg) => {
 export const calculateFootprint = (answers) => {
   let transportEmissions = 0;
   let foodEmissions = 0;
-  let energyEmissions = 0;
-  let shoppingEmissions = 0;
+  let energyEmissions;
+  let shoppingEmissions;
 
   // 1. Transport (tons CO2 per year)
   const weeklyKm = Number(answers.distancePerWeek) || 0;

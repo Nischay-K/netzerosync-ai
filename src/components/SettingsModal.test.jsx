@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+// eslint-disable-next-line no-unused-vars
 import React from 'react';
 import SettingsModal from './SettingsModal';
 

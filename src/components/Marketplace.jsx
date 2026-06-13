@@ -457,9 +457,9 @@ export default function Marketplace({ user, onProfileUpdate }) {
 
       {/* Project Cards Section */}
       <div>
-        <h3 style={{ fontSize: '20px', marginBottom: '20px', color: 'var(--text-primary)' }}>Verified Green Initiatives</h3>
+        <h3 className="market-section-title">Verified Green Initiatives</h3>
         
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px' }}>
+        <div className="layout-grid-2cols">
           {(() => {
             const filtered = offsetProjects.filter(p => 
               p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -470,7 +470,7 @@ export default function Marketplace({ user, onProfileUpdate }) {
 
             if (filtered.length === 0) {
               return (
-                <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>
+                <div className="market-empty-message">
                   No offset initiatives match your query. Try searching "solar", "mangrove", "India", or "Kenya".
                 </div>
               );

@@ -34,9 +34,7 @@ export default function EcoTwin({ user, onProfileUpdate }) {
 
   // Calculations
   const {
-    currentScore,
     simScore,
-    calculatedCurrentCO2,
     calculatedSimCO2,
     co2Saved,
     treesEquivalent,
