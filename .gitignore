@@ -13,6 +13,7 @@ dist-ssr
 *.local
 .env
 .env.*
+.firebase/
 
 # Local credentials
 service-account.json
