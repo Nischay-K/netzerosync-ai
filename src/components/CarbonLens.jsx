@@ -95,7 +95,7 @@ export default function CarbonLens({ user, onProfileUpdate, addLogNotify }) {
         </p>
       </div>
 
-      <div className="carbon-lens-style-4" className="dashboard-grid">
+      <div className="carbon-lens-style-4 dashboard-grid">
         
         {/* Left Column: Upload Form */}
         <div className="glass-panel glow-indigo carbon-lens-style-5">

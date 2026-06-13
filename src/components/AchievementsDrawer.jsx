@@ -176,8 +176,7 @@ export default function AchievementsDrawer({ user, isOpen, onClose }) {
           badges.map((badge) => (
             <div
               key={badge.id}
-              className={`glass-panel ${badge.isUnlocked ? badge.glowClass : ''}`}
-              className="achievements-drawer-style-19" style={{ background: badge.isUnlocked ? 'rgba(11, 33, 26, 0.5)' : 'rgba(11, 33, 26, 0.25)', borderColor: badge.isUnlocked ? badge.color + '33' : 'rgba(255,255,255,0.04)', opacity: badge.isUnlocked ? 1 : 0.65 }}
+              className={`glass-panel ${badge.isUnlocked ? badge.glowClass : ''} achievements-drawer-style-19`} style={{ background: badge.isUnlocked ? 'rgba(11, 33, 26, 0.5)' : 'rgba(11, 33, 26, 0.25)', borderColor: badge.isUnlocked ? badge.color + '33' : 'rgba(255,255,255,0.04)', opacity: badge.isUnlocked ? 1 : 0.65 }}
             >
               {/* Badge Icon circle */}
               <div className="achievements-drawer-style-20" style={{ background: badge.isUnlocked ? badge.color + '18' : 'rgba(255,255,255,0.02)', border: `1px solid ${badge.isUnlocked ? badge.color + '44' : 'rgba(255,255,255,0.05)'}`, color: badge.isUnlocked ? badge.color : 'var(--text-muted)', boxShadow: badge.isUnlocked ? `0 0 15px ${badge.color}15` : 'none' }}>

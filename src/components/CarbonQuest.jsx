@@ -195,7 +195,7 @@ export default function CarbonQuest({ user, onProfileUpdate }) {
       </div>
 
       {/* Progress Cards */}
-      <div className="carbon-quest-style-10" className="dashboard-grid">
+      <div className="carbon-quest-style-10 dashboard-grid">
         
         {/* Active Missions List */}
         <div className="carbon-quest-style-11">

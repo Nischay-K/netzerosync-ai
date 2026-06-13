@@ -123,7 +123,7 @@ export default function Auth({ onAuthSuccess }) {
 
       {/* VIEW STATE 1: INTERACTIVE PRODUCT TOUR CARD GRID */}
       {viewState === 'features' && (
-        <div className="auth-style-7" className="fade-in">
+        <div className="auth-style-7 fade-in">
           
           {/* Header */}
           <div className="auth-style-8">
@@ -216,7 +216,7 @@ export default function Auth({ onAuthSuccess }) {
       {viewState === 'auth' && (
         <div className="auth-style-19">
           {/* Left features sidebar */}
-          <div className="auth-style-20" className="hide-mobile">
+          <div className="auth-style-20 hide-mobile">
             {/* Back to Tour Button */}
             <button
               onClick={() => setViewState('features')}

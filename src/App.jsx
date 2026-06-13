@@ -160,8 +160,7 @@ export default function App() {
             <li>
               <button 
                 onClick={() => setActiveTab('dashboard')} 
-                className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`}
-                className="app-style-8"
+                className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''} app-style-8`}
                 aria-current={activeTab === 'dashboard' ? 'page' : undefined}
               >
                 <LayoutDashboard size={18} />
@@ -171,8 +170,7 @@ export default function App() {
             <li>
               <button 
                 onClick={() => setActiveTab('ecotwin')} 
-                className={`nav-item ${activeTab === 'ecotwin' ? 'active' : ''}`}
-                className="app-style-9"
+                className={`nav-item ${activeTab === 'ecotwin' ? 'active' : ''} app-style-9`}
                 aria-current={activeTab === 'ecotwin' ? 'page' : undefined}
               >
                 <Orbit size={18} />
@@ -182,8 +180,7 @@ export default function App() {
             <li>
               <button 
                 onClick={() => setActiveTab('carbonlens')} 
-                className={`nav-item ${activeTab === 'carbonlens' ? 'active' : ''}`}
-                className="app-style-10"
+                className={`nav-item ${activeTab === 'carbonlens' ? 'active' : ''} app-style-10`}
                 aria-current={activeTab === 'carbonlens' ? 'page' : undefined}
               >
                 <Scan size={18} />
@@ -193,8 +190,7 @@ export default function App() {
             <li>
               <button 
                 onClick={() => setActiveTab('carbonquest')} 
-                className={`nav-item ${activeTab === 'carbonquest' ? 'active' : ''}`}
-                className="app-style-11"
+                className={`nav-item ${activeTab === 'carbonquest' ? 'active' : ''} app-style-11`}
                 aria-current={activeTab === 'carbonquest' ? 'page' : undefined}
               >
                 <ListTodo size={18} />
@@ -204,8 +200,7 @@ export default function App() {
             <li>
               <button 
                 onClick={() => setActiveTab('community')} 
-                className={`nav-item ${activeTab === 'community' ? 'active' : ''}`}
-                className="app-style-12"
+                className={`nav-item ${activeTab === 'community' ? 'active' : ''} app-style-12`}
                 aria-current={activeTab === 'community' ? 'page' : undefined}
               >
                 <Users size={18} />
@@ -215,8 +210,7 @@ export default function App() {
             <li>
               <button 
                 onClick={() => setActiveTab('marketplace')} 
-                className={`nav-item ${activeTab === 'marketplace' ? 'active' : ''}`}
-                className="app-style-13"
+                className={`nav-item ${activeTab === 'marketplace' ? 'active' : ''} app-style-13`}
                 aria-current={activeTab === 'marketplace' ? 'page' : undefined}
               >
                 <ShoppingCart size={18} />
@@ -277,7 +271,7 @@ export default function App() {
             </h2>
 
             {/* Global Telemetry Carbon Ticker */}
-            <div className="app-style-26" className="hide-mobile" title="Simulated collective carbon offsets across the NetZeroSync network">
+            <div className="app-style-26 hide-mobile" title="Simulated collective carbon offsets across the NetZeroSync network">
               <span className="app-style-27" />
               <span>Net-Zero Network Save: </span>
               <strong className="app-style-28">{globalSavings.toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 })} kg</strong>

@@ -2281,8 +2281,9 @@ input[type="range"]::-webkit-slider-thumb:hover {
   font-family: var(--font-display);
   letter-spacing: -0.02em;
   background: linear-gradient(135deg, #ffffff 40%, #00ff88 100%);
-  webkit-background-clip: text;
-  webkit-text-fill-color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
   line-height: 1.15;
   max-width: 680px;
 }

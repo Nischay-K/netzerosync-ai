@@ -528,7 +528,7 @@ export default function EcoTwin({ user, onProfileUpdate }) {
         </div>
       </div>
 
-      <div className="eco-twin-style-6" className="dashboard-grid">
+      <div className="eco-twin-style-6 dashboard-grid">
         
         {/* Left Column: Interactive Twin Visualizer */}
         <div className="glass-panel glow-indigo eco-twin-style-7">

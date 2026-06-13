@@ -49,7 +49,12 @@ app.use(helmet());
 // Restrict CORS origins in production to prevent arbitrary API scraping
 const allowedOrigins = process.env.ALLOWED_ORIGINS 
   ? process.env.ALLOWED_ORIGINS.split(',') 
-  : ['http://localhost:5173'];
+  : [
+      'http://localhost:5173',
+      'http://localhost:5174',
+      'https://netzerosync-ai.web.app',
+      'https://netzerosync-ai.firebaseapp.com'
+    ];
 
 app.use(cors({
   origin: (origin, callback) => {
