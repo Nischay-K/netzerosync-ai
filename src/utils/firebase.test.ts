@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 // Initialize global localStorage BEFORE importing modules to prevent startup crashes
-global.localStorage = {
-  store: {},
-  getItem(key) { return this.store[key] || null; },
-  setItem(key, value) { this.store[key] = String(value); },
-  removeItem(key) { delete this.store[key]; },
+(global as any).localStorage = {
+  store: {} as Record<string, string>,
+  getItem(key: string) { return this.store[key] || null; },
+  setItem(key: string, value: any) { this.store[key] = String(value); },
+  removeItem(key: string) { delete this.store[key]; },
   clear() { this.store = {}; }
 };
 
@@ -25,7 +25,7 @@ const {
 describe('Firebase Utilities & Caching', () => {
   beforeEach(() => {
     localStorage.clear();
-    global.fetch = vi.fn();
+    (global as any).fetch = vi.fn();
   });
 
   afterEach(() => {
@@ -52,7 +52,7 @@ describe('Firebase Utilities & Caching', () => {
   });
 
   it('should execute fetchWithRetry and succeed on the first try', async () => {
-    global.fetch.mockResolvedValueOnce({
+    ((global as any).fetch as any).mockResolvedValueOnce({
       ok: true,
       status: 200,
       json: () => Promise.resolve({ success: true })
@@ -62,11 +62,11 @@ describe('Firebase Utilities & Caching', () => {
     const data = await response.json();
     expect(response.status).toBe(200);
     expect(data.success).toBe(true);
-    expect(global.fetch).toHaveBeenCalledTimes(1);
+    expect((global as any).fetch).toHaveBeenCalledTimes(1);
   });
 
   it('should execute fetchWithRetry and recover after failures (linear backoff)', async () => {
-    global.fetch
+    ((global as any).fetch as any)
       .mockRejectedValueOnce(new Error('Network drop 1'))
       .mockRejectedValueOnce(new Error('Network drop 2'))
       .mockResolvedValueOnce({
@@ -79,16 +79,16 @@ describe('Firebase Utilities & Caching', () => {
     const data = await response.json();
     expect(response.status).toBe(200);
     expect(data.retried).toBe(true);
-    expect(global.fetch).toHaveBeenCalledTimes(3);
+    expect((global as any).fetch).toHaveBeenCalledTimes(3);
   });
 
   it('should execute fetchWithRetry and throw error after max retries exceed', async () => {
-    global.fetch.mockRejectedValue(new Error('Permanent connection loss'));
+    ((global as any).fetch as any).mockRejectedValue(new Error('Permanent connection loss'));
 
     await expect(fetchWithRetry('http://localhost:8080/api/activity/log', {}, 3, 10))
       .rejects
       .toThrow('Permanent connection loss');
 
-    expect(global.fetch).toHaveBeenCalledTimes(3);
+    expect((global as any).fetch).toHaveBeenCalledTimes(3);
   });
 });

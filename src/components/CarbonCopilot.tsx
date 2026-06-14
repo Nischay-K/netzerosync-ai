@@ -1,16 +1,30 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, FormEvent } from 'react';
 import { chatWithCoach, isGeminiConfigured } from '../utils/gemini';
 import { Send, X, Bot, Sparkles, User } from 'lucide-react';
+import { UserProfile } from '../utils/firebase';
 
-export default function CarbonCopilot({ user, isOpen, onClose }) {
-  const [messages, setMessages] = useState([
+interface CarbonCopilotProps {
+  user: UserProfile;
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+interface Message {
+  id: string;
+  sender: 'coach' | 'user';
+  text: string;
+  timestamp: string;
+}
+
+export default function CarbonCopilot({ user, isOpen, onClose }: CarbonCopilotProps) {
+  const [messages, setMessages] = useState<Message[]>([
     { id: '1', sender: 'coach', text: `Hi ${user.displayName || 'Eco Warrior'}! I am your Carbon Copilot. I've analyzed your onboarding stats and daily habits. Ask me anything about how to reduce emissions, save money, or optimize your EcoTwin ecosystem!`, timestamp: new Date().toISOString() }
   ]);
   const [inputValue, setInputValue] = useState('');
   const [loading, setLoading] = useState(false);
   
-  const messagesEndRef = useRef(null);
-  const closeButtonRef = useRef(null);
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -20,11 +34,11 @@ export default function CarbonCopilot({ user, isOpen, onClose }) {
     scrollToBottom();
   }, [messages, loading]);
 
-  const handleSend = async (e) => {
+  const handleSend = async (e: FormEvent) => {
     e.preventDefault();
     if (!inputValue.trim() || loading) return;
 
-    const userMessage = {
+    const userMessage: Message = {
       id: Date.now().toString(),
       sender: 'user',
       text: inputValue,
@@ -65,7 +79,7 @@ export default function CarbonCopilot({ user, isOpen, onClose }) {
 
   // Trap Escape key and manage focus for A11y
   useEffect(() => {
-    const handleKeyDown = (e) => {
+    const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         onClose();
       }

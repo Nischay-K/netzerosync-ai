@@ -1,6 +1,10 @@
-import { useState, useEffect } from 'react';
-import { signUp, signIn, signInWithGoogle } from '../utils/firebase';
+import React, { useState, useEffect } from 'react';
+import { signUp, signIn, signInWithGoogle, UserProfile } from '../utils/firebase';
 import { Leaf, User, ChevronRight, Shield, Eye, EyeOff, Bot, ArrowLeft, Zap } from 'lucide-react';
+
+interface AuthProps {
+  onAuthSuccess: (profile: UserProfile) => void;
+}
 
 const staticParticles = Array.from({ length: 25 }).map((_, i) => ({
   id: i,
@@ -10,7 +14,7 @@ const staticParticles = Array.from({ length: 25 }).map((_, i) => ({
   size: `${1.5 + Math.random() * 3.5}px`
 }));
 
-const validatePasswordStrength = (pass) => {
+const validatePasswordStrength = (pass: string) => {
   return {
     length: pass.length >= 8,
     hasUpper: /[A-Z]/.test(pass),
@@ -20,8 +24,8 @@ const validatePasswordStrength = (pass) => {
   };
 };
 
-export default function Auth({ onAuthSuccess }) {
-  const [viewState, setViewState] = useState('features'); // 'features' or 'auth'
+export default function Auth({ onAuthSuccess }: AuthProps) {
+  const [viewState, setViewState] = useState<'features' | 'auth'>('features'); // 'features' or 'auth'
   const [isRegister, setIsRegister] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -30,13 +34,13 @@ export default function Auth({ onAuthSuccess }) {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [hoveredCard, setHoveredCard] = useState(null);
+  const [hoveredCard, setHoveredCard] = useState<number | null>(null);
 
-  const handleMouseMove = (e) => {
+  const handleMouseMove = (e: React.MouseEvent) => {
     setMousePos({ x: e.clientX, y: e.clientY });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
@@ -72,28 +76,26 @@ export default function Auth({ onAuthSuccess }) {
 
     try {
       if (isRegister) {
-        const user = await signUp(email.trim(), password, displayName.trim());
-        onAuthSuccess(user);
+        const userProfile = await signUp(email.trim(), password, displayName.trim());
+        onAuthSuccess(userProfile);
       } else {
-        const user = await signIn(email.trim(), password);
-        onAuthSuccess(user);
+        const userProfile = await signIn(email.trim(), password);
+        onAuthSuccess(userProfile);
       }
-    } catch (err) {
+    } catch (err: any) {
       setError(err.message || 'An error occurred during authentication.');
     } finally {
       setLoading(false);
     }
   };
 
-
-
   const handleGoogleLogin = async () => {
     setError('');
     setLoading(true);
     try {
-      const user = await signInWithGoogle();
-      onAuthSuccess(user);
-    } catch (err) {
+      const userProfile = await signInWithGoogle();
+      onAuthSuccess(userProfile);
+    } catch (err: any) {
       setError(err.message || 'Failed to authenticate with Google.');
     } finally {
       setLoading(false);
@@ -376,8 +378,6 @@ export default function Auth({ onAuthSuccess }) {
                   )}
                 </div>
 
-
-
                 <button
                   type="submit"
                   className="btn-primary auth-style-64"
@@ -397,7 +397,6 @@ export default function Auth({ onAuthSuccess }) {
 
               {/* Google Sign-in button */}
               <div className="auth-style-69">
-
                 <button
                   onClick={handleGoogleLogin}
                   disabled={loading}
@@ -464,7 +463,7 @@ const DIAGNOSTIC_LOGS = [
 
 // Subcomponent: Simulated technical terminal diagnostics logger
 function ConsoleTerminal() {
-  const [lines, setLines] = useState([]);
+  const [lines, setLines] = useState<string[]>([]);
 
   useEffect(() => {
     let currentLine = 0;

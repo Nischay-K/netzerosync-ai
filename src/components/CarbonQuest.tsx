@@ -1,15 +1,29 @@
-import { useState } from 'react';
-import { logCarbonEntry } from '../utils/firebase';
+import React, { useState } from 'react';
+import { logCarbonEntry, UserProfile } from '../utils/firebase';
 import { verifyQuestPhoto } from '../utils/gemini';
 import { CheckCircle2, Star, Award, Zap, Compass, RefreshCw, Camera, AlertCircle, Leaf } from 'lucide-react';
 
-export default function CarbonQuest({ user, onProfileUpdate }) {
-  const [completingId, setCompletingId] = useState(null);
-  const [aiGenerating, setAiGenerating] = useState(false);
-  const [verifyingId, setVerifyingId] = useState(null);
-  const [feedback, setFeedback] = useState({}); // { [missionId]: { success: bool, text: string } }
+interface CarbonQuestProps {
+  user: UserProfile;
+  onProfileUpdate: (profile: UserProfile) => void;
+}
 
-  const [activeMissions, setActiveMissions] = useState(() => {
+interface Mission {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  xp: number;
+  co2Saved: number;
+}
+
+export default function CarbonQuest({ user, onProfileUpdate }: CarbonQuestProps) {
+  const [completingId, setCompletingId] = useState<string | null>(null);
+  const [aiGenerating, setAiGenerating] = useState(false);
+  const [verifyingId, setVerifyingId] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<Record<string, { success: boolean; text: string } | null>>({});
+
+  const [activeMissions, setActiveMissions] = useState<Mission[]>(() => {
     const stored = localStorage.getItem(`ecoSphere_missions_${user.uid}`);
     if (stored) {
       try {
@@ -34,7 +48,7 @@ export default function CarbonQuest({ user, onProfileUpdate }) {
     }
   });
 
-  const handleCompleteMission = async (mission) => {
+  const handleCompleteMission = async (mission: Mission) => {
     setCompletingId(mission.id);
     try {
       // 1. Log Carbon Entry and update quest rewards atomically via secure gateway
@@ -56,7 +70,7 @@ export default function CarbonQuest({ user, onProfileUpdate }) {
       localStorage.setItem(`ecoSphere_missions_${user.uid}`, JSON.stringify(remainingMissions));
 
       // 3. Update local state using securely calculated stats
-      const updatedUser = {
+      const updatedUser: UserProfile = {
         ...user,
         completedMissions: result.completedMissions,
         carbonCurrent: result.carbonCurrent,
@@ -73,8 +87,8 @@ export default function CarbonQuest({ user, onProfileUpdate }) {
     }
   };
 
-  const handleVerifyPhoto = async (e, mission) => {
-    const file = e.target.files[0];
+  const handleVerifyPhoto = async (e: React.ChangeEvent<HTMLInputElement>, mission: Mission) => {
+    const file = e.target.files?.[0];
     if (!file) return;
 
     setVerifyingId(mission.id);
@@ -112,7 +126,7 @@ export default function CarbonQuest({ user, onProfileUpdate }) {
           setActiveMissions(remainingMissions);
           localStorage.setItem(`ecoSphere_missions_${user.uid}`, JSON.stringify(remainingMissions));
 
-          const updatedUser = {
+          const updatedUser: UserProfile = {
             ...user,
             completedMissions: result.completedMissions,
             carbonCurrent: result.carbonCurrent,
@@ -146,7 +160,7 @@ export default function CarbonQuest({ user, onProfileUpdate }) {
     // Simulate AI prompt analysis
     await new Promise(r => setTimeout(r, 1500));
     try {
-      const generated = [
+      const generated: Mission[] = [
         { id: `m_ai_${Date.now()}_1`, title: 'Line Dry Day', description: 'Air-dry your clothes today instead of using the dryer.', category: 'Energy', xp: 180, co2Saved: 4.2 },
         { id: `m_ai_${Date.now()}_2`, title: 'No-Plastic Shopping', description: 'Go shopping using only reusable bags and avoid any plastic packaging.', category: 'Shopping', xp: 220, co2Saved: 3 },
         { id: `m_ai_${Date.now()}_3`, title: 'Carpool Commute', description: 'Carpool with a colleague or friend for your daily drive.', category: 'Transport', xp: 200, co2Saved: 6 }
@@ -341,9 +355,9 @@ export default function CarbonQuest({ user, onProfileUpdate }) {
             <div className="carbon-quest-style-50">
               {[
                 { id: 'b_1', name: 'Seed Sower', desc: 'Initialize your EcoTwin', unlocked: true, iconColor: '#10b981' },
-                { id: 'b_2', name: 'Green Chef', desc: 'Complete 3 diet quests', unlocked: user.completedMissions?.length >= 3, iconColor: '#059669' },
-                { id: 'b_3', name: 'Grid Master', desc: 'Complete 5 energy quests', unlocked: user.completedMissions?.length >= 5, iconColor: '#06b6d4' },
-                { id: 'b_4', name: 'Commuter Pro', desc: 'Swap 5 petrol commutes', unlocked: user.completedMissions?.length >= 8, iconColor: '#6366f1' }
+                { id: 'b_2', name: 'Green Chef', desc: 'Complete 3 diet quests', unlocked: (user.completedMissions?.length || 0) >= 3, iconColor: '#059669' },
+                { id: 'b_3', name: 'Grid Master', desc: 'Complete 5 energy quests', unlocked: (user.completedMissions?.length || 0) >= 5, iconColor: '#06b6d4' },
+                { id: 'b_4', name: 'Commuter Pro', desc: 'Swap 5 petrol commutes', unlocked: (user.completedMissions?.length || 0) >= 8, iconColor: '#6366f1' }
               ].map(badge => (
                 <div
                   key={badge.id}

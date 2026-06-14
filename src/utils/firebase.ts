@@ -1,4 +1,4 @@
-import { initializeApp, getApps, getApp } from 'firebase/app';
+import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
 import { 
   getAuth, 
   createUserWithEmailAndPassword, 
@@ -7,7 +7,9 @@ import {
   onAuthStateChanged as firebaseOnAuthStateChanged,
   updateProfile,
   GoogleAuthProvider,
-  signInWithPopup
+  signInWithPopup,
+  Auth,
+  User
 } from 'firebase/auth';
 import { 
   getFirestore, 
@@ -20,11 +22,57 @@ import {
   query, 
   where, 
   orderBy, 
-  limit
+  limit,
+  Firestore
 } from 'firebase/firestore';
 
-let auth = null;
-let db = null;
+export interface UserProfile {
+  uid: string;
+  displayName: string;
+  email: string;
+  level: number;
+  xp: number;
+  ecoTokens: number;
+  carbonTarget: number;
+  carbonCurrent: number;
+  twinState: {
+    transportSlider: number;
+    dietSlider: number;
+    energySlider: number;
+    shoppingSlider: number;
+  };
+  completedMissions: string[];
+  joinedChallenges: string[];
+}
+
+export interface CarbonEntry {
+  co2Value: number;
+  timestamp?: string;
+  userId?: string;
+  [key: string]: any;
+}
+
+export interface Challenge {
+  id: string;
+  title: string;
+  description: string;
+  goal: number;
+  current: number;
+  rewardXP: number;
+  participantCount: number;
+  co2SavedPerMember: number;
+}
+
+export interface LeaderboardUser {
+  uid: string;
+  displayName: string;
+  xp: number;
+  level: number;
+  carbonCurrent: number;
+}
+
+let auth: Auth | null = null;
+let db: Firestore | null = null;
 let isFirebaseConnected = false;
 
 // Attempt to load Firebase config from localStorage or env
@@ -55,7 +103,7 @@ const config = getFirebaseConfig();
 
 if (config && config.apiKey && config.projectId) {
   try {
-    const app = getApps().length === 0 ? initializeApp(config) : getApp();
+    const app: FirebaseApp = getApps().length === 0 ? initializeApp(config) : getApp();
     auth = getAuth(app);
     db = getFirestore(app);
     isFirebaseConnected = true;
@@ -70,14 +118,14 @@ if (config && config.apiKey && config.projectId) {
 // -------------------------------------------------------------
 // LOCAL DEMO ENGINE (FALLBACK)
 // -------------------------------------------------------------
-const getLocalUsers = () => JSON.parse(localStorage.getItem('ecoSphere_users') || '{}');
-const saveLocalUsers = (users) => localStorage.setItem('ecoSphere_users', JSON.stringify(users));
+const getLocalUsers = (): Record<string, any> => JSON.parse(localStorage.getItem('ecoSphere_users') || '{}');
+const saveLocalUsers = (users: Record<string, any>) => localStorage.setItem('ecoSphere_users', JSON.stringify(users));
 
-const getLocalLogs = () => JSON.parse(localStorage.getItem('ecoSphere_logs') || '[]');
-const saveLocalLogs = (logs) => localStorage.setItem('ecoSphere_logs', JSON.stringify(logs));
+const getLocalLogs = (): any[] => JSON.parse(localStorage.getItem('ecoSphere_logs') || '[]');
+const saveLocalLogs = (logs: any[]) => localStorage.setItem('ecoSphere_logs', JSON.stringify(logs));
 
-const getLocalChallenges = () => {
-  const defaultChallenges = [
+const getLocalChallenges = (): Challenge[] => {
+  const defaultChallenges: Challenge[] = [
     { id: 'comm_1', title: 'Park the Car Weekend', description: 'Swap driving for cycling or walking this weekend.', goal: 1000, current: 480, rewardXP: 250, participantCount: 12, co2SavedPerMember: 15 },
     { id: 'comm_2', title: 'Veggie Power Week', description: 'Eat plant-based dinners for 7 days consecutive.', goal: 2500, current: 1820, rewardXP: 400, participantCount: 28, co2SavedPerMember: 22 },
     { id: 'comm_3', title: 'Digital Carbon Cleanse', description: 'Turn off non-essential screen time for 2 hours daily.', goal: 500, current: 120, rewardXP: 150, participantCount: 8, co2SavedPerMember: 4 }
@@ -89,11 +137,11 @@ const getLocalChallenges = () => {
   }
   return JSON.parse(local);
 };
-const saveLocalChallenges = (ch) => localStorage.setItem('ecoSphere_challenges', JSON.stringify(ch));
+const saveLocalChallenges = (ch: Challenge[]) => localStorage.setItem('ecoSphere_challenges', JSON.stringify(ch));
 
 // Mock authentication listeners
-const demoAuthListeners = new Set();
-let demoCurrentUser = null;
+const demoAuthListeners = new Set<(user: any) => void>();
+let demoCurrentUser: UserProfile | null = null;
 
 // Load stored demo session
 const storedDemoUser = localStorage.getItem('ecoSphere_current_session');
@@ -112,14 +160,14 @@ if (storedDemoUser) {
 export { isFirebaseConnected };
 
 // Authentication Functions
-export const signUp = async (email, password, displayName) => {
-  if (isFirebaseConnected) {
+export const signUp = async (email: string, password: string, displayName: string): Promise<any> => {
+  if (isFirebaseConnected && auth && db) {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     await updateProfile(userCredential.user, { displayName });
     
     // Set up default Firestore user profile
     const userDocRef = doc(db, 'users', userCredential.user.uid);
-    const initialProfile = {
+    const initialProfile: UserProfile = {
       uid: userCredential.user.uid,
       displayName,
       email,
@@ -146,7 +194,7 @@ export const signUp = async (email, password, displayName) => {
       throw new Error("User already exists.");
     }
     const uid = 'demo_' + Math.random().toString(36).substr(2, 9);
-    const newProfile = {
+    const newProfile: UserProfile = {
       uid,
       displayName,
       email,
@@ -175,8 +223,8 @@ export const signUp = async (email, password, displayName) => {
   }
 };
 
-export const signIn = async (email, password) => {
-  if (isFirebaseConnected) {
+export const signIn = async (email: string, password: string): Promise<any> => {
+  if (isFirebaseConnected && auth) {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     return userCredential.user;
   } else {
@@ -192,8 +240,8 @@ export const signIn = async (email, password) => {
   }
 };
 
-export const signInWithGoogle = async () => {
-  if (isFirebaseConnected) {
+export const signInWithGoogle = async (): Promise<any> => {
+  if (isFirebaseConnected && auth && db) {
     const provider = new GoogleAuthProvider();
     const userCredential = await signInWithPopup(auth, provider);
     
@@ -201,7 +249,7 @@ export const signInWithGoogle = async () => {
     const userDocRef = doc(db, 'users', userCredential.user.uid);
     const userDoc = await getDoc(userDocRef);
     if (!userDoc.exists()) {
-      const initialProfile = {
+      const initialProfile: UserProfile = {
         uid: userCredential.user.uid,
         displayName: userCredential.user.displayName || 'Eco Explorer',
         email: userCredential.user.email || '',
@@ -249,8 +297,8 @@ export const signInWithGoogle = async () => {
   }
 };
 
-export const signOut = async () => {
-  if (isFirebaseConnected) {
+export const signOut = async (): Promise<void> => {
+  if (isFirebaseConnected && auth) {
     await firebaseSignOut(auth);
   } else {
     demoCurrentUser = null;
@@ -259,26 +307,26 @@ export const signOut = async () => {
   }
 };
 
-export const onAuthStateChanged = (callback) => {
-  if (isFirebaseConnected) {
+export const onAuthStateChanged = (callback: (user: any) => void): (() => void) => {
+  if (isFirebaseConnected && auth && db) {
     return firebaseOnAuthStateChanged(auth, async (fbUser) => {
       try {
         if (fbUser) {
           // Fetch full profile from Firestore
-          const userDocRef = doc(db, 'users', fbUser.uid);
+          const userDocRef = doc(db as Firestore, 'users', fbUser.uid);
           const userDoc = await getDoc(userDocRef);
           if (userDoc.exists()) {
-            const profile = userDoc.data();
+            const profile = userDoc.data() as UserProfile;
             if (profile.ecoTokens === undefined) {
               profile.ecoTokens = 500;
             }
             callback({ ...fbUser, ...profile });
           } else {
             // If Firestore profile doesn't exist, create one
-            const defaultProfile = {
+            const defaultProfile: UserProfile = {
               uid: fbUser.uid,
               displayName: fbUser.displayName || 'Eco Warrior',
-              email: fbUser.email,
+              email: fbUser.email || '',
               level: 1,
               xp: 0,
               ecoTokens: 500,
@@ -319,19 +367,19 @@ export const onAuthStateChanged = (callback) => {
 };
 
 // Database Profile operations
-export const getUserProfile = async (uid) => {
-  if (isFirebaseConnected) {
+export const getUserProfile = async (uid: string): Promise<UserProfile | null> => {
+  if (isFirebaseConnected && db) {
     const docRef = doc(db, 'users', uid);
     const docSnap = await getDoc(docRef);
-    return docSnap.exists() ? docSnap.data() : null;
+    return docSnap.exists() ? (docSnap.data() as UserProfile) : null;
   } else {
     const users = getLocalUsers();
-    return users[uid] ? users[uid].profile : null;
+    return users[uid] ? (users[uid].profile as UserProfile) : null;
   }
 };
 
-export const updateUserProfile = async (uid, data) => {
-  if (isFirebaseConnected) {
+export const updateUserProfile = async (uid: string, data: Partial<UserProfile>): Promise<void> => {
+  if (isFirebaseConnected && db) {
     const docRef = doc(db, 'users', uid);
     await updateDoc(docRef, data);
   } else {
@@ -348,15 +396,15 @@ export const updateUserProfile = async (uid, data) => {
 };
 
 // Add XP Helper
-export const addXP = async (uid, amount) => {
-  if (isFirebaseConnected) {
+export const addXP = async (uid: string, amount: number): Promise<void> => {
+  if (isFirebaseConnected && db) {
     const docRef = doc(db, 'users', uid);
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
-      const currentData = docSnap.data();
+      const currentData = docSnap.data() as UserProfile;
       const newXP = (currentData.xp || 0) + amount;
       const newLevel = Math.floor(newXP / 1000) + 1; // 1000 XP per level
-      const updates = { xp: newXP };
+      const updates: Partial<UserProfile> = { xp: newXP };
       if (newLevel > (currentData.level || 1)) {
         updates.level = newLevel;
       }
@@ -365,7 +413,7 @@ export const addXP = async (uid, amount) => {
   } else {
     const users = getLocalUsers();
     if (users[uid]) {
-      const profile = users[uid].profile;
+      const profile = users[uid].profile as UserProfile;
       profile.xp = (profile.xp || 0) + amount;
       const newLevel = Math.floor(profile.xp / 1000) + 1;
       if (newLevel > (profile.level || 1)) {
@@ -382,7 +430,7 @@ export const addXP = async (uid, amount) => {
 };
 
 // Generic fetch retry helper with linear backoff (max 3 retries, starting at 1000ms delay)
-export const fetchWithRetry = async (url, options = {}, retries = 3, delay = 1000) => {
+export const fetchWithRetry = async (url: string, options: RequestInit = {}, retries = 3, delay = 1000): Promise<Response> => {
   for (let i = 0; i < retries; i++) {
     try {
       const response = await fetch(url, options);
@@ -397,21 +445,21 @@ export const fetchWithRetry = async (url, options = {}, retries = 3, delay = 100
       throw error;
     }
   }
+  throw new Error("fetchWithRetry maximum retries exceeded");
 };
 
 // Log Carbon Activities
-export const logCarbonEntry = async (uid, entry, options = {}) => {
+export const logCarbonEntry = async (uid: string, entry: CarbonEntry, options: any = {}): Promise<any> => {
   const newEntry = {
     ...entry,
     userId: uid,
     timestamp: new Date().toISOString()
   };
 
-  if (isFirebaseConnected) {
+  if (isFirebaseConnected && auth) {
     try {
-      const authInstance = getAuth();
-      if (authInstance.currentUser) {
-        const idToken = await authInstance.currentUser.getIdToken(true);
+      if (auth.currentUser) {
+        const idToken = await auth.currentUser.getIdToken(true);
         const gatewayUrl = import.meta.env.VITE_API_GATEWAY_URL || 'http://localhost:8080';
         
         const response = await fetchWithRetry(`${gatewayUrl}/api/activity/log`, {
@@ -448,7 +496,7 @@ export const logCarbonEntry = async (uid, entry, options = {}) => {
     // Update local profile
     const users = getLocalUsers();
     if (users[uid]) {
-      const profile = users[uid].profile;
+      const profile = users[uid].profile as UserProfile;
       const totalDaily = profile.carbonCurrent || 6.8;
       const carbonDelta = (entry.co2Value || 0) / 1000;
       profile.carbonCurrent = Math.max(0.1, Number((totalDaily + carbonDelta).toFixed(2)));
@@ -485,12 +533,12 @@ export const logCarbonEntry = async (uid, entry, options = {}) => {
   }
 };
 
-export const getCarbonLogs = async (uid) => {
-  if (isFirebaseConnected) {
+export const getCarbonLogs = async (uid: string): Promise<any[]> => {
+  if (isFirebaseConnected && db) {
     const logsCol = collection(db, 'carbonLogs');
     const q = query(logsCol, where('userId', '==', uid), orderBy('timestamp', 'desc'), limit(50));
     const querySnapshot = await getDocs(q);
-    const logs = [];
+    const logs: any[] = [];
     querySnapshot.forEach(doc => {
       logs.push({ id: doc.id, ...doc.data() });
     });
@@ -502,10 +550,10 @@ export const getCarbonLogs = async (uid) => {
 };
 
 // In-memory cache for community and leaderboard queries (expires after 30 seconds)
-let communityChallengesCache = null;
+let communityChallengesCache: Challenge[] | null = null;
 let communityChallengesCacheTime = 0;
 
-let leaderboardCache = null;
+let leaderboardCache: LeaderboardUser[] | null = null;
 let leaderboardCacheTime = 0;
 
 const CACHE_EXPIRY_MS = 30000; // 30 seconds cache TTL
@@ -520,15 +568,15 @@ export const invalidateCommunityChallengesCache = () => {
 };
 
 // Global Community Challenges Operations
-export const getCommunityChallenges = async (forceRefresh = false) => {
+export const getCommunityChallenges = async (forceRefresh = false): Promise<Challenge[]> => {
   const now = Date.now();
   if (!forceRefresh && communityChallengesCache && (now - communityChallengesCacheTime < CACHE_EXPIRY_MS)) {
     return communityChallengesCache;
   }
 
-  if (isFirebaseConnected) {
+  if (isFirebaseConnected && db) {
     const colSnap = await getDocs(collection(db, 'challenges'));
-    const ch = [];
+    const ch: Challenge[] = [];
     for (const d of colSnap.docs) {
       const challengeData = d.data();
       const shardsCol = collection(db, 'challenges', d.id, 'shards');
@@ -542,7 +590,11 @@ export const getCommunityChallenges = async (forceRefresh = false) => {
       });
       ch.push({
         id: d.id,
-        ...challengeData,
+        title: challengeData.title || '',
+        description: challengeData.description || '',
+        goal: challengeData.goal || 0,
+        rewardXP: challengeData.rewardXP || 0,
+        co2SavedPerMember: challengeData.co2SavedPerMember || 0,
         participantCount: participantCount || challengeData.participantCount || 0,
         current: current || challengeData.current || 0
       });
@@ -558,14 +610,13 @@ export const getCommunityChallenges = async (forceRefresh = false) => {
   }
 };
 
-export const joinCommunityChallenge = async (uid, challengeId) => {
+export const joinCommunityChallenge = async (uid: string, challengeId: string): Promise<any> => {
   invalidateCommunityChallengesCache();
   
-  if (isFirebaseConnected) {
+  if (isFirebaseConnected && auth) {
     try {
-      const authInstance = getAuth();
-      if (authInstance.currentUser) {
-        const idToken = await authInstance.currentUser.getIdToken(true);
+      if (auth.currentUser) {
+        const idToken = await auth.currentUser.getIdToken(true);
         const gatewayUrl = import.meta.env.VITE_API_GATEWAY_URL || 'http://localhost:8080';
         
         const response = await fetchWithRetry(`${gatewayUrl}/api/challenge/join`, {
@@ -593,7 +644,7 @@ export const joinCommunityChallenge = async (uid, challengeId) => {
   } else {
     const users = getLocalUsers();
     if (users[uid]) {
-      const profile = users[uid].profile;
+      const profile = users[uid].profile as UserProfile;
       if (!profile.joinedChallenges.includes(challengeId)) {
         profile.joinedChallenges.push(challengeId);
         
@@ -627,24 +678,24 @@ export const joinCommunityChallenge = async (uid, challengeId) => {
 };
 
 // Global Leaderboards
-export const getLeaderboard = async (forceRefresh = false) => {
+export const getLeaderboard = async (forceRefresh = false): Promise<LeaderboardUser[]> => {
   const now = Date.now();
   if (!forceRefresh && leaderboardCache && (now - leaderboardCacheTime < CACHE_EXPIRY_MS)) {
     return leaderboardCache;
   }
 
-  if (isFirebaseConnected) {
+  if (isFirebaseConnected && db) {
     const q = query(collection(db, 'users'), orderBy('xp', 'desc'), limit(10));
     const snap = await getDocs(q);
-    const leaders = [];
+    const leaders: LeaderboardUser[] = [];
     snap.forEach(d => {
       const data = d.data();
       leaders.push({
         uid: d.id,
-        displayName: data.displayName,
-        xp: data.xp,
-        level: data.level,
-        carbonCurrent: data.carbonCurrent
+        displayName: data.displayName || 'Eco Explorer',
+        xp: data.xp || 0,
+        level: data.level || 1,
+        carbonCurrent: data.carbonCurrent || 6.8
       });
     });
     leaderboardCache = leaders;
@@ -652,11 +703,11 @@ export const getLeaderboard = async (forceRefresh = false) => {
     return leaders;
   } else {
     const users = getLocalUsers();
-    const leaders = [];
+    const leaders: LeaderboardUser[] = [];
     Object.keys(users).forEach(key => {
       // Skip strings that map emails to uids
       if (typeof users[key] === 'object') {
-        const profile = users[key].profile;
+        const profile = users[key].profile as UserProfile;
         leaders.push({
           uid: profile.uid,
           displayName: profile.displayName,

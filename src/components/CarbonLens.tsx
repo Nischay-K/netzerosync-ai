@@ -1,18 +1,24 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { scanReceipt, isGeminiConfigured } from '../utils/gemini';
-import { logCarbonEntry } from '../utils/firebase';
+import { logCarbonEntry, UserProfile } from '../utils/firebase';
 import { Upload, FileText, Trash2, Check, AlertCircle } from 'lucide-react';
 
-export default function CarbonLens({ user, onProfileUpdate, addLogNotify }) {
-  const [file, setFile] = useState(null);
+interface CarbonLensProps {
+  user: UserProfile;
+  onProfileUpdate: (profile: UserProfile) => void;
+  addLogNotify?: () => void;
+}
+
+export default function CarbonLens({ user, onProfileUpdate, addLogNotify }: CarbonLensProps) {
+  const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState('');
   const [textNotes, setTextNotes] = useState('');
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState(null);
+  const [result, setResult] = useState<any | null>(null);
   const [successMsg, setSuccessMsg] = useState('');
 
-  const handleFileChange = (e) => {
-    const selectedFile = e.target.files[0];
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0];
     if (selectedFile) {
       setFile(selectedFile);
       setPreviewUrl(URL.createObjectURL(selectedFile));
@@ -21,7 +27,7 @@ export default function CarbonLens({ user, onProfileUpdate, addLogNotify }) {
     }
   };
 
-  const handleScan = async (e) => {
+  const handleScan = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!file && !textNotes) return;
 
@@ -54,7 +60,7 @@ export default function CarbonLens({ user, onProfileUpdate, addLogNotify }) {
       });
 
       // 2. Trigger profile update using securely calculated stats
-      const updatedUser = {
+      const updatedUser: UserProfile = {
         ...user,
         carbonCurrent: resultData.carbonCurrent,
         xp: resultData.xp,
@@ -161,7 +167,7 @@ export default function CarbonLens({ user, onProfileUpdate, addLogNotify }) {
                 Add items details manually (Alternative if no image)
               </label>
               <textarea
-                rows="3"
+                rows={3}
                 placeholder="Example: 1kg local potatoes, 2 Uber rides, organic eggs, 1 fast-fashion shirt..."
                 value={textNotes}
                 onChange={(e) => setTextNotes(e.target.value)}
@@ -207,7 +213,7 @@ export default function CarbonLens({ user, onProfileUpdate, addLogNotify }) {
                     </tr>
                   </thead>
                   <tbody>
-                    {result.items?.map((item, index) => (
+                    {result.items?.map((item: any, index: number) => (
                       <tr key={index} className="carbon-lens-style-35">
                         <td className="carbon-lens-style-36">{item.name}</td>
                         <td className="carbon-lens-style-37">{item.category}</td>

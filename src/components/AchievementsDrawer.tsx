@@ -1,11 +1,17 @@
 import { useState, useEffect, useRef } from 'react';
 import { Award, Compass, Shield, Zap, Leaf, CheckCircle2, Lock, X, Trophy } from 'lucide-react';
-import { getCarbonLogs } from '../utils/firebase';
+import { getCarbonLogs, UserProfile } from '../utils/firebase';
 
-export default function AchievementsDrawer({ user, isOpen, onClose }) {
-  const [logs, setLogs] = useState([]);
+interface AchievementsDrawerProps {
+  user: UserProfile;
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export default function AchievementsDrawer({ user, isOpen, onClose }: AchievementsDrawerProps) {
+  const [logs, setLogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const closeButtonRef = useRef(null);
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     if (isOpen && user?.uid) {
@@ -23,7 +29,7 @@ export default function AchievementsDrawer({ user, isOpen, onClose }) {
 
   // Trap Escape key and manage focus for A11y
   useEffect(() => {
-    const handleKeyDown = (e) => {
+    const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         onClose();
       }

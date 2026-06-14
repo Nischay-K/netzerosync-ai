@@ -1,11 +1,15 @@
-// eslint-disable-next-line no-unused-vars
 import React, { useState, useEffect, useRef } from 'react';
 import { isFirebaseConnected } from '../utils/firebase';
 import { isGeminiConfigured } from '../utils/gemini';
 import { Settings, X, Key, Database, RefreshCw, Check } from 'lucide-react';
 
-export default function SettingsModal({ isOpen, onClose }) {
-  const getFbConfigValue = (keyName) => {
+interface SettingsModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
+  const getFbConfigValue = (keyName: string): string => {
     const stored = localStorage.getItem('ecoSphere_firebaseConfig');
     if (stored) {
       try {
@@ -30,11 +34,11 @@ export default function SettingsModal({ isOpen, onClose }) {
   const [fbAppId, setFbAppId] = useState(() => getFbConfigValue('appId'));
 
   const [saved, setSaved] = useState(false);
-  const closeButtonRef = useRef(null);
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
 
   // Trap Escape key and manage focus for A11y
   useEffect(() => {
-    const handleKeyDown = (e) => {
+    const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         onClose();
       }
@@ -54,7 +58,7 @@ export default function SettingsModal({ isOpen, onClose }) {
 
   if (!isOpen) return null;
 
-  const handleSave = (e) => {
+  const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     
     // Save Gemini Key

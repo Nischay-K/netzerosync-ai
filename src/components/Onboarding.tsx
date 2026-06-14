@@ -1,11 +1,16 @@
 import { useState } from 'react';
-import { updateUserProfile, logCarbonEntry } from '../utils/firebase';
-import { calculateFootprint } from '../utils/calculators';
+import { updateUserProfile, logCarbonEntry, UserProfile } from '../utils/firebase';
+import { calculateFootprint, FootprintAnswers } from '../utils/calculators';
 import { Car, Flame, ShoppingBag, Utensils, ArrowRight, ArrowLeft, CheckCircle } from 'lucide-react';
 
-export default function Onboarding({ user, onComplete }) {
+interface OnboardingProps {
+  user: UserProfile;
+  onComplete: (profile: UserProfile) => void;
+}
+
+export default function Onboarding({ user, onComplete }: OnboardingProps) {
   const [step, setStep] = useState(1);
-  const [answers, setAnswers] = useState({
+  const [answers, setAnswers] = useState<Required<FootprintAnswers>>({
     // Step 1: Transport
     transportMode: 'car_petrol', // car_petrol, car_electric, public, cycle_walk
     distancePerWeek: 150, // km
@@ -27,7 +32,7 @@ export default function Onboarding({ user, onComplete }) {
 
   const totalSteps = 4;
 
-  const handleSelect = (field, value) => {
+  const handleSelect = (field: keyof FootprintAnswers, value: string | number) => {
     setAnswers(prev => ({ ...prev, [field]: value }));
   };
 
@@ -138,7 +143,7 @@ export default function Onboarding({ user, onComplete }) {
                 max="800"
                 step="20"
                 value={answers.distancePerWeek}
-                onChange={(e) => handleSelect('distancePerWeek', e.target.value)}
+                onChange={(e) => handleSelect('distancePerWeek', Number(e.target.value))}
               />
             </div>
 
@@ -153,7 +158,7 @@ export default function Onboarding({ user, onComplete }) {
                 max="20"
                 step="1"
                 value={answers.flightsPerYear}
-                onChange={(e) => handleSelect('flightsPerYear', e.target.value)}
+                onChange={(e) => handleSelect('flightsPerYear', Number(e.target.value))}
               />
             </div>
           </div>
@@ -202,7 +207,7 @@ export default function Onboarding({ user, onComplete }) {
                 max="100"
                 step="10"
                 value={answers.localFoodPct}
-                onChange={(e) => handleSelect('localFoodPct', e.target.value)}
+                onChange={(e) => handleSelect('localFoodPct', Number(e.target.value))}
               />
             </div>
           </div>
@@ -229,7 +234,7 @@ export default function Onboarding({ user, onComplete }) {
                 max="8000"
                 step="200"
                 value={answers.electricityBill}
-                onChange={(e) => handleSelect('electricityBill', e.target.value)}
+                onChange={(e) => handleSelect('electricityBill', Number(e.target.value))}
               />
             </div>
 

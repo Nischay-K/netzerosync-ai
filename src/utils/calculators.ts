@@ -2,34 +2,67 @@
  * Centralized pure mathematical calculations for NetZeroSync AI
  */
 
+export interface FootprintAnswers {
+  distancePerWeek?: string | number;
+  transportMode?: string;
+  flightsPerYear?: string | number;
+  dietType?: string;
+  localFoodPct?: string | number;
+  electricityBill?: string | number;
+  energySource?: string;
+  houseSize?: string;
+  shoppingHabit?: string;
+  recycleHabit?: string;
+}
+
+export interface FootprintResult {
+  total: number;
+  target: number;
+  breakdown: {
+    transport: number;
+    food: number;
+    energy: number;
+    shopping: number;
+  };
+}
+
+export interface QuestRewards {
+  xpAward: number;
+  tokenAward: number;
+}
+
+export interface SimulationMetrics {
+  currentScore: number;
+  simScore: number;
+  calculatedCurrentCO2: number;
+  calculatedSimCO2: number;
+  co2Saved: number;
+  treesEquivalent: number;
+  financialSavings: number;
+}
+
 /**
  * Calculate user level based on accumulated XP
- * @param {number} xp 
- * @returns {number}
  */
-export const calculateUserLevel = (xp) => {
+export const calculateUserLevel = (xp: number): number => {
   return Math.floor((xp || 0) / 1000) + 1;
 };
 
 /**
  * Calculate token cost for purchasing offsets in the marketplace
- * @param {number} carbonImpactKg 
- * @returns {number}
  */
-export const calculateProductTokenCost = (carbonImpactKg) => {
+export const calculateProductTokenCost = (carbonImpactKg: number): number => {
   return Math.max(5, Math.ceil((carbonImpactKg || 0) * 10));
 };
 
 /**
  * Calculate baseline carbon footprint from onboarding answers
- * @param {Object} answers 
- * @returns {Object}
  */
-export const calculateFootprint = (answers) => {
+export const calculateFootprint = (answers: FootprintAnswers): FootprintResult => {
   let transportEmissions = 0;
   let foodEmissions = 0;
-  let energyEmissions;
-  let shoppingEmissions;
+  let energyEmissions: number;
+  let shoppingEmissions: number;
 
   // 1. Transport (tons CO2 per year)
   const weeklyKm = Number(answers.distancePerWeek) || 0;
@@ -91,22 +124,16 @@ export const calculateFootprint = (answers) => {
 
 /**
  * Calculate the adjusted carbon baseline when logging habit additions or deductions (offsets)
- * @param {number} currentTons 
- * @param {number} co2DeltaKg 
- * @returns {number}
  */
-export const calculateNewCarbonBaseline = (currentTons, co2DeltaKg) => {
+export const calculateNewCarbonBaseline = (currentTons: number, co2DeltaKg: number): number => {
   const deltaTons = (co2DeltaKg || 0) / 1000;
   return Math.max(0.1, Number((currentTons + deltaTons).toFixed(2)));
 };
 
 /**
  * Sanitize and validate quest rewards against exploit limits (max 500)
- * @param {number} xp 
- * @param {number} tokens 
- * @returns {Object}
  */
-export const validateQuestRewards = (xp, tokens) => {
+export const validateQuestRewards = (xp: number | string, tokens: number | string): QuestRewards => {
   const xpAward = Math.min(500, Math.max(0, Number(xp) || 0));
   const tokenAward = Math.min(500, Math.max(0, Number(tokens) || 0));
   return { xpAward, tokenAward };
@@ -116,9 +143,15 @@ export const validateQuestRewards = (xp, tokens) => {
  * Calculate carbon reductions, tree equivalents and financial gains for the simulation twin
  */
 export const calculateSimulationMetrics = (
-  simTransport, simDiet, simEnergy, simShopping,
-  currentTransport, currentDiet, currentEnergy, currentShopping
-) => {
+  simTransport: number,
+  simDiet: number,
+  simEnergy: number,
+  simShopping: number,
+  currentTransport: number,
+  currentDiet: number,
+  currentEnergy: number,
+  currentShopping: number
+): SimulationMetrics => {
   const currentScore = currentTransport + currentDiet + currentEnergy + currentShopping;
   const simScore = simTransport + simDiet + simEnergy + simShopping;
 

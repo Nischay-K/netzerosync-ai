@@ -1,13 +1,13 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { getAuth } from "firebase/auth";
-import { isFirebaseConnected, fetchWithRetry } from "./firebase";
+import { isFirebaseConnected, fetchWithRetry, UserProfile } from "./firebase";
 
-const getGeminiApiKey = () => {
+const getGeminiApiKey = (): string => {
   return localStorage.getItem('ecoSphere_geminiApiKey') || import.meta.env.VITE_GEMINI_API_KEY || '';
 };
 
 // Check if Gemini API is configured
-export const isGeminiConfigured = () => {
+export const isGeminiConfigured = (): boolean => {
   return getGeminiApiKey().trim().length > 0;
 };
 
@@ -20,13 +20,14 @@ const initModel = (modelName = "gemini-1.5-flash") => {
 };
 
 // Convert file helper to generative part
-const fileToGenerativePart = async (file) => {
+const fileToGenerativePart = async (file: File): Promise<{ inlineData: { data: string; mimeType: string } }> => {
   return new Promise((resolve) => {
     const reader = new FileReader();
     reader.onloadend = () => {
+      const resultString = reader.result as string;
       resolve({
         inlineData: {
-          data: reader.result.split(',')[1],
+          data: resultString.split(',')[1],
           mimeType: file.type
         },
       });
@@ -39,7 +40,7 @@ const fileToGenerativePart = async (file) => {
 // MOCK FALLBACKS (If no API Key is provided)
 // -------------------------------------------------------------
 
-const getMockReceiptAnalysis = (fileName) => {
+const getMockReceiptAnalysis = (fileName: string) => {
   const name = fileName.toLowerCase();
   if (name.includes('grocery') || name.includes('receipt') || name.includes('store') || name.includes('supermarket')) {
     return {
@@ -75,7 +76,7 @@ const getMockReceiptAnalysis = (fileName) => {
   }
 };
 
-const getMockChatResponse = (message, context) => {
+const getMockChatResponse = (message: string, context: UserProfile) => {
   const msg = message.toLowerCase();
   const name = context.displayName || "Warrior";
   const carbon = context.carbonCurrent || 6.8;
@@ -102,7 +103,7 @@ const getMockChatResponse = (message, context) => {
 /**
  * Chat with the Sustainability Coach (Gemini Copilot)
  */
-export const chatWithCoach = async (message, history, userProfile) => {
+export const chatWithCoach = async (message: string, history: any[], userProfile: UserProfile): Promise<string> => {
   // If connected to a live Firebase backend, securely route via API Gateway
   if (isFirebaseConnected) {
     try {
@@ -149,7 +150,7 @@ User Context:
 - Name: ${userProfile.displayName}
 - Current Carbon Footprint: ${userProfile.carbonCurrent} tons CO2/year
 - Target Carbon Footprint: ${userProfile.carbonTarget} tons CO2/year
-- Current Habits: Transport slider is ${userProfile.twinState.transportSlider}/100, Diet is ${userProfile.twinState.dietSlider}/100, Energy is ${userProfile.twinState.energySlider}/100, Shopping is ${userProfile.twinState.shoppingSlider}/100 (where 0 is carbon-free/pristine and 100 is high carbon impact).
+- Current Habits: Transport slider is ${userProfile.twinState?.transportSlider || 50}/100, Diet is ${userProfile.twinState?.dietSlider || 50}/100, Energy is ${userProfile.twinState?.energySlider || 50}/100, Shopping is ${userProfile.twinState?.shoppingSlider || 50}/100 (where 0 is carbon-free/pristine and 100 is high carbon impact).
 
 Always be encouraging, friendly, and back up your advice with estimates of CO2 savings (in kg) and cost savings (in local currency e.g., $ or Rs.). Keep answers concise and readable.`;
 
@@ -173,7 +174,7 @@ Always be encouraging, friendly, and back up your advice with estimates of CO2 s
 /**
  * Scan receipt/bill and extract items with CO2 estimates (Carbon Lens)
  */
-export const scanReceipt = async (file, textInput = "") => {
+export const scanReceipt = async (file: File | null, textInput = ""): Promise<any> => {
   if (!isGeminiConfigured()) {
     await new Promise(r => setTimeout(r, 1500));
     return getMockReceiptAnalysis(file ? file.name : "text_receipt");
@@ -199,7 +200,7 @@ You must output your response strictly as a JSON object, with no markdown code b
 }
 `;
 
-    let parts = [];
+    let parts: any[] = [];
     if (file) {
       const imagePart = await fileToGenerativePart(file);
       parts.push(imagePart);
@@ -231,8 +232,8 @@ You must output your response strictly as a JSON object, with no markdown code b
 /**
  * Verify Quest Completion via Image Upload (AI Proof Verification)
  */
-export const verifyQuestPhoto = async (file, questTitle) => {
-  if (!isGeminiConfigured()) {
+export const verifyQuestPhoto = async (file: File | null, questTitle: string): Promise<any> => {
+  if (!isGeminiConfigured() || !file) {
     await new Promise(r => setTimeout(r, 1200));
     return { 
       verified: true, 
@@ -279,7 +280,7 @@ You must output your response strictly as a JSON object, with no markdown code b
 };
 
 // Mock product lens analysis
-const getMockProductAnalysis = (fileName) => {
+const getMockProductAnalysis = (fileName: string) => {
   const name = fileName.toLowerCase();
   if (name.includes('bottle') || name.includes('plastic') || name.includes('cup')) {
     return {
@@ -315,8 +316,8 @@ const getMockProductAnalysis = (fileName) => {
 /**
  * Identify product and extract ecological insights (Marketplace Google Lens)
  */
-export const scanProductCarbon = async (file) => {
-  if (!isGeminiConfigured()) {
+export const scanProductCarbon = async (file: File | null): Promise<any> => {
+  if (!isGeminiConfigured() || !file) {
     await new Promise(r => setTimeout(r, 1200));
     return getMockProductAnalysis(file ? file.name : "product.jpg");
   }

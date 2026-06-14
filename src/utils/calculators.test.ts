@@ -5,7 +5,8 @@ import {
   calculateFootprint,
   calculateNewCarbonBaseline,
   validateQuestRewards,
-  calculateSimulationMetrics
+  calculateSimulationMetrics,
+  FootprintAnswers
 } from './calculators';
 
 describe('Centralized Calculators', () => {
@@ -31,7 +32,7 @@ describe('Centralized Calculators', () => {
 
   describe('calculateFootprint', () => {
     it('should calculate standard baseline and target footprints from onboarding answers', () => {
-      const answers = {
+      const answers: FootprintAnswers = {
         transportMode: 'car_petrol',
         distancePerWeek: 100, // 100 * 52 = 5200 km/yr * 0.18 = 936 kg = 0.936 tons
         flightsPerYear: 3, // 3 * 0.3 = 0.9 tons
@@ -62,7 +63,7 @@ describe('Centralized Calculators', () => {
     });
 
     it('should adjust energy factors based on energy source and house size', () => {
-      const answers = {
+      const answers: FootprintAnswers = {
         transportMode: 'cycle_walk',
         distancePerWeek: 0,
         flightsPerYear: 0,

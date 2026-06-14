@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 // Initialize global localStorage BEFORE importing modules to prevent startup crashes
-global.localStorage = {
-  store: {},
-  getItem(key) { return this.store[key] || null; },
-  setItem(key, value) { this.store[key] = String(value); },
-  removeItem(key) { delete this.store[key]; },
+(global as any).localStorage = {
+  store: {} as Record<string, string>,
+  getItem(key: string) { return this.store[key] || null; },
+  setItem(key: string, value: any) { this.store[key] = String(value); },
+  removeItem(key: string) { delete this.store[key]; },
   clear() { this.store = {}; }
 };
 
@@ -48,41 +48,41 @@ describe('Gemini AI Configurations & Mocks', () => {
   });
 
   it('should return appropriate mock receipt scans when not configured', async () => {
-    const groceryResult = await scanReceipt({ name: 'grocery_receipt.jpg' });
+    const groceryResult = await scanReceipt({ name: 'grocery_receipt.jpg' } as File);
     expect(groceryResult.totalCo2).toBe(20.1);
     expect(groceryResult.items.length).toBe(5);
 
-    const energyResult = await scanReceipt({ name: 'electricity_bill.pdf' });
+    const energyResult = await scanReceipt({ name: 'electricity_bill.pdf' } as File);
     expect(energyResult.totalCo2).toBe(206.0);
     expect(energyResult.items[0].name).toContain('Electricity');
 
-    const genericResult = await scanReceipt({ name: 'travel_ticket.jpg' });
+    const genericResult = await scanReceipt({ name: 'travel_ticket.jpg' } as File);
     expect(genericResult.totalCo2).toBe(12.7);
     expect(genericResult.items[0].name).toContain('Uber');
   });
 
   it('should return sandbox quest verification successfully', async () => {
-    const questResult = await verifyQuestPhoto(null, 'Meat-Free Day');
+    const questResult = await verifyQuestPhoto(null as any, 'Meat-Free Day');
     expect(questResult.verified).toBe(true);
     expect(questResult.explanation).toContain('Meat-Free Day');
   });
 
   it('should return sandbox product carbon scans correctly', async () => {
-    const plasticResult = await scanProductCarbon({ name: 'water bottle.jpg' });
+    const plasticResult = await scanProductCarbon({ name: 'water bottle.jpg' } as File);
     expect(plasticResult.productName).toContain('Plastic Bottle');
     expect(plasticResult.carbonImpact).toBe(0.15);
     expect(plasticResult.recommendedOffsetCategory).toBe('Forestry');
 
-    const foodResult = await scanProductCarbon({ name: 'burger.jpg' });
+    const foodResult = await scanProductCarbon({ name: 'burger.jpg' } as File);
     expect(foodResult.productName).toContain('Burger');
     expect(foodResult.carbonImpact).toBe(4.8);
     expect(foodResult.recommendedOffsetCategory).toBe('Efficiency');
 
-    const boxResult = await scanProductCarbon({ name: 'cardboard box.jpg' });
+    const boxResult = await scanProductCarbon({ name: 'cardboard box.jpg' } as File);
     expect(boxResult.productName).toContain('Cardboard');
     expect(boxResult.carbonImpact).toBe(0.85);
 
-    const defaultResult = await scanProductCarbon(null);
+    const defaultResult = await scanProductCarbon(null as any);
     expect(defaultResult.carbonImpact).toBe(12.5);
   });
 });

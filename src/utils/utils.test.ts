@@ -35,42 +35,42 @@ describe('Eco-Token Marketplace Math', () => {
 
 describe('Sandbox LocalStorage Operations (Mocked)', () => {
   beforeEach(() => {
-    global.localStorage = {
-      store: {},
-      getItem(key) { return this.store[key] || null; },
-      setItem(key, value) { this.store[key] = String(value); },
-      removeItem(key) { delete this.store[key]; },
+    (global as any).localStorage = {
+      store: {} as Record<string, string>,
+      getItem(key: string) { return this.store[key] || null; },
+      setItem(key: string, value: any) { this.store[key] = String(value); },
+      removeItem(key: string) { delete this.store[key]; },
       clear() { this.store = {}; }
     };
   });
 
   afterEach(() => {
-    delete global.localStorage;
+    delete (global as any).localStorage;
   });
 
   it('should retrieve items saved in the local sandbox session', () => {
     const mockUser = { uid: 'demo_user', displayName: 'Green Explorer', level: 1, xp: 500 };
     localStorage.setItem('ecoSphere_current_session', JSON.stringify(mockUser));
     
-    const stored = JSON.parse(localStorage.getItem('ecoSphere_current_session'));
+    const stored = JSON.parse(localStorage.getItem('ecoSphere_current_session') || '{}');
     expect(stored.displayName).toBe('Green Explorer');
     expect(stored.xp).toBe(500);
   });
 });
 
 // Backend Transaction & Telemetry Logic Tests
-const calculateLevelUp = (oldLevel, newXP) => {
+const calculateLevelUp = (oldLevel: number, newXP: number): number => {
   const newLevel = Math.floor(newXP / 1000) + 1;
   return newLevel > oldLevel ? newLevel : oldLevel;
 };
 
-const validateQuestRewards = (xp, tokens) => {
+const validateQuestRewards = (xp: any, tokens: any) => {
   const xpAward = Math.min(500, Math.max(0, Number(xp) || 0));
   const tokenAward = Math.min(500, Math.max(0, Number(tokens) || 0));
   return { xpAward, tokenAward };
 };
 
-const calculateNewCarbonBaseline = (currentTons, co2DeltaKg) => {
+const calculateNewCarbonBaseline = (currentTons: number, co2DeltaKg: number): number => {
   const deltaTons = (co2DeltaKg || 0) / 1000;
   return Math.max(0.1, Number((currentTons + deltaTons).toFixed(2)));
 };
@@ -98,7 +98,7 @@ describe('Backend Transaction & Logic Rules', () => {
 
 describe('API Gateway Request Error Handling (Mocked)', () => {
   beforeEach(() => {
-    global.fetch = vi.fn();
+    (global as any).fetch = vi.fn();
   });
 
   afterEach(() => {
@@ -106,18 +106,18 @@ describe('API Gateway Request Error Handling (Mocked)', () => {
   });
 
   it('should handle gateway connection failure gracefully', async () => {
-    global.fetch.mockRejectedValueOnce(new Error('Failed to fetch'));
-    await expect(global.fetch('http://localhost:8080/api/activity/log')).rejects.toThrow('Failed to fetch');
+    ((global as any).fetch as any).mockRejectedValueOnce(new Error('Failed to fetch'));
+    await expect(((global as any).fetch as any)('http://localhost:8080/api/activity/log')).rejects.toThrow('Failed to fetch');
   });
 
   it('should propagate gateway error responses properly', async () => {
-    global.fetch.mockResolvedValueOnce({
+    ((global as any).fetch as any).mockResolvedValueOnce({
       ok: false,
       status: 400,
       json: () => Promise.resolve({ error: 'Invalid reward values requested.' })
     });
 
-    const response = await global.fetch('http://localhost:8080/api/activity/log');
+    const response = await ((global as any).fetch as any)('http://localhost:8080/api/activity/log');
     const data = await response.json();
     expect(response.ok).toBe(false);
     expect(data.error).toBe('Invalid reward values requested.');

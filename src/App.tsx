@@ -1,5 +1,5 @@
 import { useState, useEffect, lazy, Suspense } from 'react';
-import { onAuthStateChanged, signOut } from './utils/firebase';
+import { onAuthStateChanged, signOut, UserProfile } from './utils/firebase';
 import Auth from './components/Auth';
 import './App.css';
 
@@ -31,7 +31,7 @@ import {
 } from 'lucide-react';
 
 export default function App() {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<UserProfile | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -57,7 +57,7 @@ export default function App() {
     return () => unsubscribe();
   }, []);
 
-  const triggerToast = (msg) => {
+  const triggerToast = (msg: string) => {
     setToastNotify(msg);
     setTimeout(() => setToastNotify(''), 4000);
   };
@@ -79,7 +79,7 @@ export default function App() {
 
   // Gate 1: Check Auth
   if (!user) {
-    return <Auth onAuthSuccess={(profile) => setUser(profile)} />;
+    return <Auth onAuthSuccess={(profile: UserProfile) => setUser(profile)} />;
   }
 
   // Gate 2: Check Onboarding (whether baseline is set)
@@ -94,7 +94,7 @@ export default function App() {
       }>
         <Onboarding 
           user={user} 
-          onComplete={(completedProfile) => {
+          onComplete={(completedProfile: UserProfile) => {
             setUser(completedProfile);
             triggerToast('Initial ecological parameters initialized!');
           }} 

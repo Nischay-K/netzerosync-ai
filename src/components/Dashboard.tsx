@@ -1,17 +1,30 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { getCarbonLogs, logCarbonEntry } from '../utils/firebase';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { getCarbonLogs, logCarbonEntry, UserProfile } from '../utils/firebase';
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts';
 import { Activity, Plus, TrendingUp, Calendar, Award, X, Printer, Share2, Leaf, Sparkles } from 'lucide-react';
 
-export default function Dashboard({ user, onProfileUpdate, onOpenAchievements }) {
-  const [logs, setLogs] = useState([]);
+interface DashboardProps {
+  user: UserProfile;
+  onProfileUpdate: (profile: UserProfile) => void;
+  onOpenAchievements: () => void;
+}
+
+interface ChartPoint {
+  x: number;
+  y: number;
+  val: number;
+  week: string;
+}
+
+export default function Dashboard({ user, onProfileUpdate, onOpenAchievements }: DashboardProps) {
+  const [logs, setLogs] = useState<any[]>([]);
   const [loadingLogs, setLoadingLogs] = useState(false);
   const [quickLogName, setQuickLogName] = useState('');
   const [quickLogCategory, setQuickLogCategory] = useState('Transport');
   const [quickLogCo2, setQuickLogCo2] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [showCert, setShowCert] = useState(false);
-  const [hoveredPoint, setHoveredPoint] = useState(null);
+  const [hoveredPoint, setHoveredPoint] = useState<number | null>(null);
   const [showTip, setShowTip] = useState(true);
 
   // Daily tips data list
@@ -30,13 +43,13 @@ export default function Dashboard({ user, onProfileUpdate, onOpenAchievements })
 
   const today = new Date();
   const start = new Date(today.getFullYear(), 0, 0);
-  const diff = today - start;
+  const diff = today.getTime() - start.getTime();
   const oneDay = 1000 * 60 * 60 * 24;
   const dayOfYear = Math.floor(diff / oneDay);
   const dailyTip = tipsList[dayOfYear % tipsList.length];
 
   // Carbon trend calculations
-  const mapCarbonToY = React.useCallback((val) => {
+  const mapCarbonToY = useCallback((val: number): number => {
     const minVal = 1.0;
     const maxVal = 8.0;
     const minY = 170;
@@ -45,9 +58,9 @@ export default function Dashboard({ user, onProfileUpdate, onOpenAchievements })
     return Math.max(maxY, Math.min(minY, y));
   }, []);
 
-  const { points, pathD, fillD } = React.useMemo(() => {
+  const { points, pathD, fillD } = useMemo(() => {
     const weekValues = [6.8, 6.2, 5.9, 5.3, 4.8, user.carbonCurrent || 6.8];
-    const pts = weekValues.map((val, idx) => ({
+    const pts: ChartPoint[] = weekValues.map((val, idx) => ({
       x: 60 + idx * 136,
       y: mapCarbonToY(val),
       val,
@@ -88,7 +101,7 @@ export default function Dashboard({ user, onProfileUpdate, onOpenAchievements })
     });
   }, [fetchLogs]);
 
-  const handleQuickLog = async (e) => {
+  const handleQuickLog = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!quickLogName.trim() || !quickLogCo2 || submitting) return;
 
@@ -108,7 +121,7 @@ export default function Dashboard({ user, onProfileUpdate, onOpenAchievements })
       });
 
       // Update local profile state using values calculated securely on the server
-      const updatedUser = {
+      const updatedUser: UserProfile = {
         ...user,
         carbonCurrent: result.carbonCurrent,
         xp: result.xp,
@@ -128,13 +141,12 @@ export default function Dashboard({ user, onProfileUpdate, onOpenAchievements })
   };
 
   // Recharts Breakdown data preparation
-  // Let's read from user's current twin sliders or calculate from logs
   const transportVal = user.twinState?.transportSlider || 50;
   const dietVal = user.twinState?.dietSlider || 50;
   const energyVal = user.twinState?.energySlider || 50;
   const shoppingVal = user.twinState?.shoppingSlider || 50;
 
-  const totalSliders = transportVal + dietVal + energyVal + shoppingVal;
+  const totalSliders = transportVal + dietVal + energyVal + shoppingVal || 1;
   
   const chartData = [
     { name: 'Transportation', value: Math.max(10, Math.round((transportVal / totalSliders) * 100)), color: '#6366f1' },
@@ -145,7 +157,7 @@ export default function Dashboard({ user, onProfileUpdate, onOpenAchievements })
 
   return (
     <div className="fade-in layout-stack-30">
-            {/* Telemetry Header & Certificate Claim */}
+      {/* Telemetry Header & Certificate Claim */}
       <div className="dashboard-header">
         <div>
           <div className="dashboard-header-telemetry">

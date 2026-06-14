@@ -1,7 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-// eslint-disable-next-line no-unused-vars
-import React from 'react';
 import SettingsModal from './SettingsModal';
 
 // Mock the modules
@@ -55,7 +53,7 @@ describe('SettingsModal Component', () => {
     fireEvent.click(saveButton);
 
     expect(localStorage.getItem('ecoSphere_geminiApiKey')).toBe('test-gemini-key');
-    const storedFb = JSON.parse(localStorage.getItem('ecoSphere_firebaseConfig'));
+    const storedFb = JSON.parse(localStorage.getItem('ecoSphere_firebaseConfig') || '{}');
     expect(storedFb.apiKey).toBe('test-fb-api-key');
     expect(storedFb.projectId).toBe('test-fb-project-id');
 

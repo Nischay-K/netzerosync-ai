@@ -1,26 +1,44 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { getCarbonLogs, logCarbonEntry } from '../utils/firebase';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { getCarbonLogs, logCarbonEntry, UserProfile } from '../utils/firebase';
 import { scanProductCarbon } from '../utils/gemini';
 import { calculateProductTokenCost } from '../utils/calculators';
 import { Leaf, Coins, ShieldCheck, Check, Sparkles, Globe, Sun, Flame, Loader, ChevronRight, Search, Camera, X, Wind, TreePine, Factory } from 'lucide-react';
 
-export default function Marketplace({ user, onProfileUpdate }) {
-  const [logs, setLogs] = useState([]);
+interface MarketplaceProps {
+  user: UserProfile;
+  onProfileUpdate: (profile: UserProfile) => void;
+}
+
+interface OffsetProject {
+  id: string;
+  title: string;
+  location: string;
+  description: string;
+  category: string;
+  cost: number;
+  offsetKg: number;
+  icon: React.ReactNode;
+  color: string;
+  imagePrompt: string;
+}
+
+export default function Marketplace({ user, onProfileUpdate }: MarketplaceProps) {
+  const [logs, setLogs] = useState<any[]>([]);
   const [loadingLogs, setLoadingLogs] = useState(false);
-  const [purchasingId, setPurchasingId] = useState(null);
-  const [successModal, setSuccessModal] = useState(null); // stores purchased project details
+  const [purchasingId, setPurchasingId] = useState<string | null>(null);
+  const [successModal, setSuccessModal] = useState<any | null>(null); // stores purchased project details
 
   // Search & Lens States
   const [searchQuery, setSearchQuery] = useState('');
-  const [lensImageUrl, setLensImageUrl] = useState(null);
+  const [lensImageUrl, setLensImageUrl] = useState<string | null>(null);
   const [scanningProduct, setScanningProduct] = useState(false);
-  const [lensResult, setLensResult] = useState(null);
+  const [lensResult, setLensResult] = useState<any | null>(null);
   const [lensOffsetting, setLensOffsetting] = useState(false);
-  const [highlightedProjectId, setHighlightedProjectId] = useState(null);
-  const fileInputRef = useRef(null);
+  const [highlightedProjectId, setHighlightedProjectId] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const handleLensFileChange = async (e) => {
-    const file = e.target.files[0];
+  const handleLensFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
     if (!file) return;
 
     setLensImageUrl(URL.createObjectURL(file));
@@ -108,7 +126,7 @@ export default function Marketplace({ user, onProfileUpdate }) {
     }
   };
 
-  const offsetProjects = [
+  const offsetProjects: OffsetProject[] = [
     {
       id: 'proj_mangrove',
       title: 'Mangrove Reforestation',
@@ -206,7 +224,7 @@ export default function Marketplace({ user, onProfileUpdate }) {
     .filter(log => log.category === 'Offset' && log.co2Value < 0)
     .reduce((sum, log) => sum + Math.abs(log.co2Value), 0);
 
-  const handlePurchaseOffset = async (project) => {
+  const handlePurchaseOffset = async (project: OffsetProject) => {
     const balance = user.ecoTokens || 0;
     if (balance < project.cost) return;
 
@@ -350,7 +368,7 @@ export default function Marketplace({ user, onProfileUpdate }) {
           </div>
 
           <button
-            onClick={() => fileInputRef.current.click()}
+            onClick={() => fileInputRef.current?.click()}
             className="btn-secondary glow-indigo lens-scan-btn"
           >
             <Camera size={16} />

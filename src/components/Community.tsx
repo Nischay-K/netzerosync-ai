@@ -1,12 +1,17 @@
-import { useState, useEffect } from 'react';
-import { getCommunityChallenges, joinCommunityChallenge, getLeaderboard } from '../utils/firebase';
+import React, { useState, useEffect } from 'react';
+import { getCommunityChallenges, joinCommunityChallenge, getLeaderboard, UserProfile, Challenge, LeaderboardUser } from '../utils/firebase';
 import { Users, Trophy, Award, UserCheck } from 'lucide-react';
 
-export default function Community({ user, onProfileUpdate }) {
-  const [challenges, setChallenges] = useState([]);
-  const [leaderboard, setLeaderboard] = useState([]);
+interface CommunityProps {
+  user: UserProfile;
+  onProfileUpdate: (profile: UserProfile) => void;
+}
+
+export default function Community({ user, onProfileUpdate }: CommunityProps) {
+  const [challenges, setChallenges] = useState<Challenge[]>([]);
+  const [leaderboard, setLeaderboard] = useState<LeaderboardUser[]>([]);
   const [loading, setLoading] = useState(true);
-  const [joiningId, setJoiningId] = useState(null);
+  const [joiningId, setJoiningId] = useState<string | null>(null);
 
   const loadCommunityData = async () => {
     setLoading(true);
@@ -28,7 +33,7 @@ export default function Community({ user, onProfileUpdate }) {
     });
   }, [user]);
 
-  const handleJoinChallenge = async (challengeId) => {
+  const handleJoinChallenge = async (challengeId: string) => {
     setJoiningId(challengeId);
     try {
       const updatedUserStats = await joinCommunityChallenge(user.uid, challengeId);

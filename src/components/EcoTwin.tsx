@@ -1,10 +1,15 @@
 import { useState, useEffect, useRef } from 'react';
-import { updateUserProfile } from '../utils/firebase';
+import { updateUserProfile, UserProfile } from '../utils/firebase';
 import { calculateSimulationMetrics } from '../utils/calculators';
 import { Leaf, TrendingDown } from 'lucide-react';
 import * as THREE from 'three';
 
-export default function EcoTwin({ user, onProfileUpdate }) {
+interface EcoTwinProps {
+  user: UserProfile;
+  onProfileUpdate: (profile: UserProfile) => void;
+}
+
+export default function EcoTwin({ user, onProfileUpdate }: EcoTwinProps) {
   // Current values (historical logs)
   const currentTransport = user.twinState?.transportSlider || 50;
   const currentDiet = user.twinState?.dietSlider || 50;
@@ -20,7 +25,7 @@ export default function EcoTwin({ user, onProfileUpdate }) {
   const [savingLoading, setSavingLoading] = useState(false);
   const [toast, setToast] = useState('');
   
-  const canvasContainerRef = useRef(null);
+  const canvasContainerRef = useRef<HTMLDivElement | null>(null);
 
   // Sync sliders if profile changes
   useEffect(() => {
@@ -120,8 +125,8 @@ export default function EcoTwin({ user, onProfileUpdate }) {
     scene.add(worldGroup);
 
     // Track resources for proper garbage collection on rebuild/unmount
-    const disposables = [];
-    const track = (resource) => {
+    const disposables: any[] = [];
+    const track = (resource: any) => {
       disposables.push(resource);
       return resource;
     };
@@ -153,7 +158,7 @@ export default function EcoTwin({ user, onProfileUpdate }) {
     worldGroup.add(riverMesh);
 
     // 6. Spawn Windmills (Utilities Slider < 60)
-    const windRotors = [];
+    const windRotors: THREE.Group[] = [];
     if (simEnergy < 60) {
       createWindmill(-2.8, -2.8);
       if (simEnergy < 35) {
@@ -161,7 +166,7 @@ export default function EcoTwin({ user, onProfileUpdate }) {
       }
     }
 
-    function createWindmill(x, z) {
+    function createWindmill(x: number, z: number) {
       const wGroup = new THREE.Group();
       wGroup.position.set(x, 0, z);
 
@@ -206,7 +211,7 @@ export default function EcoTwin({ user, onProfileUpdate }) {
       createSolarPanel(3.6, -1.8);
     }
 
-    function createSolarPanel(x, z) {
+    function createSolarPanel(x: number, z: number) {
       const pGroup = new THREE.Group();
       pGroup.position.set(x, 0, z);
       pGroup.rotation.y = 0.3;
@@ -242,7 +247,7 @@ export default function EcoTwin({ user, onProfileUpdate }) {
       createTree(treePositions[i].x, treePositions[i].z);
     }
 
-    function createTree(x, z) {
+    function createTree(x: number, z: number) {
       const tGroup = new THREE.Group();
       tGroup.position.set(x, 0, z);
 
@@ -274,12 +279,12 @@ export default function EcoTwin({ user, onProfileUpdate }) {
     }
 
     // 9. Spawn Factory & Smog (Polluted or high score utility)
-    const smogSpheres = [];
+    const smogSpheres: Array<{ mesh: THREE.Mesh; origin: THREE.Vector3 }> = [];
     if (simScore > 240) {
       createFactory(3.0, -1.0);
     }
 
-    function createFactory(x, z) {
+    function createFactory(x: number, z: number) {
       const fGroup = new THREE.Group();
       fGroup.position.set(x, 0, z);
 
@@ -327,7 +332,7 @@ export default function EcoTwin({ user, onProfileUpdate }) {
       worldGroup.add(fGroup);
     }
 
-    function resetSmog(sphere, origin) {
+    function resetSmog(sphere: THREE.Mesh, origin: THREE.Vector3) {
       sphere.position.copy(origin);
       sphere.position.x += (Math.random() - 0.5) * 0.15;
       sphere.position.z += (Math.random() - 0.5) * 0.15;
@@ -342,7 +347,7 @@ export default function EcoTwin({ user, onProfileUpdate }) {
     }
 
     // 10. Floating spores (leaves / dust)
-    const floaters = [];
+    const floaters: THREE.Mesh[] = [];
     const floaterGeo = track(new THREE.SphereGeometry(0.05, 4, 4));
     const floaterMat = track(new THREE.MeshBasicMaterial({
       color: isHealthy ? 0x10b981 : 0xeab308,
@@ -366,12 +371,12 @@ export default function EcoTwin({ user, onProfileUpdate }) {
     let isDragging = false;
     let prevMousePosition = { x: 0, y: 0 };
 
-    const onMouseDown = (e) => {
+    const onMouseDown = (e: MouseEvent) => {
       isDragging = true;
       prevMousePosition = { x: e.clientX, y: e.clientY };
     };
 
-    const onMouseMove = (e) => {
+    const onMouseMove = (e: MouseEvent) => {
       if (!isDragging) return;
       const deltaX = e.clientX - prevMousePosition.x;
       const deltaY = e.clientY - prevMousePosition.y;
@@ -387,14 +392,14 @@ export default function EcoTwin({ user, onProfileUpdate }) {
     };
 
     // Touch Support
-    const onTouchStart = (e) => {
+    const onTouchStart = (e: TouchEvent) => {
       if (e.touches.length === 1) {
         isDragging = true;
         prevMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
       }
     };
 
-    const onTouchMove = (e) => {
+    const onTouchMove = (e: TouchEvent) => {
       if (!isDragging || e.touches.length !== 1) return;
       const deltaX = e.touches[0].clientX - prevMousePosition.x;
       const deltaY = e.touches[0].clientY - prevMousePosition.y;
@@ -428,7 +433,7 @@ export default function EcoTwin({ user, onProfileUpdate }) {
     resizeObserver.observe(container);
 
     // 13. Animating Lifecycle
-    let frameId;
+    let frameId: number;
     let clock = new THREE.Clock();
 
     const tick = () => {
@@ -454,7 +459,9 @@ export default function EcoTwin({ user, onProfileUpdate }) {
 
         const growth = 1.0 + (m.userData.age / m.userData.maxAge) * 1.8;
         m.scale.set(growth, growth, growth);
-        m.material.opacity = 0.55 * (1.0 - m.userData.age / m.userData.maxAge);
+        if (m.material instanceof THREE.Material) {
+          m.material.opacity = 0.55 * (1.0 - m.userData.age / m.userData.maxAge);
+        }
 
         if (m.userData.age >= m.userData.maxAge) {
           resetSmog(m, puff.origin);
