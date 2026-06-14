@@ -13,6 +13,8 @@ export interface FootprintAnswers {
   houseSize?: string;
   shoppingHabit?: string;
   recycleHabit?: string;
+  vehicleType?: string;
+  gridRegion?: string;
 }
 
 export interface FootprintResult {
@@ -64,13 +66,25 @@ export const calculateFootprint = (answers: FootprintAnswers): FootprintResult =
   let energyEmissions: number;
   let shoppingEmissions: number;
 
+  // Car size modifiers (dynamic vehicle classification)
+  let vehicleMultiplier = 1.0;
+  if (answers.vehicleType === 'suv') vehicleMultiplier = 1.35;
+  else if (answers.vehicleType === 'hybrid') vehicleMultiplier = 0.7;
+  else if (answers.vehicleType === 'compact') vehicleMultiplier = 0.8;
+
+  // Grid/Regional coefficients (dynamic regional emission factors)
+  let energyMultiplier = 1.0;
+  if (answers.gridRegion === 'coal_heavy') energyMultiplier = 1.25;
+  else if (answers.gridRegion === 'renewable_heavy') energyMultiplier = 0.35;
+
   // 1. Transport (tons CO2 per year)
   const weeklyKm = Number(answers.distancePerWeek) || 0;
   const yearlyKm = weeklyKm * 52;
   if (answers.transportMode === 'car_petrol') {
-    transportEmissions = (yearlyKm * 0.18) / 1000;
+    transportEmissions = (yearlyKm * 0.18 * vehicleMultiplier) / 1000;
   } else if (answers.transportMode === 'car_electric') {
-    transportEmissions = (yearlyKm * 0.05) / 1000;
+    // Electric cars also depend on regional grid charging mixes
+    transportEmissions = (yearlyKm * 0.05 * energyMultiplier) / 1000;
   } else if (answers.transportMode === 'public') {
     transportEmissions = (yearlyKm * 0.04) / 1000;
   }
@@ -89,9 +103,9 @@ export const calculateFootprint = (answers: FootprintAnswers): FootprintResult =
 
   // 3. Home Energy
   const estimatedKwhYr = ((Number(answers.electricityBill) || 0) / 8) * 12;
-  let factor = 0.8;
+  let factor = 0.8 * energyMultiplier; // Apply regional grid coefficient
   if (answers.energySource === 'solar') factor = 0.05;
-  else if (answers.energySource === 'mixed') factor = 0.4;
+  else if (answers.energySource === 'mixed') factor = 0.4 * energyMultiplier;
   energyEmissions = (estimatedKwhYr * factor) / 1000;
   
   // House size adjustment

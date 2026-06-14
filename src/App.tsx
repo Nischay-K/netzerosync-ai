@@ -15,6 +15,24 @@ const CarbonCopilot = lazy(() => import('./components/CarbonCopilot'));
 const Marketplace = lazy(() => import('./components/Marketplace'));
 const AchievementsDrawer = lazy(() => import('./components/AchievementsDrawer'));
 
+const prefetchMap: Record<string, () => Promise<any>> = {
+  ecotwin: () => import('./components/EcoTwin'),
+  carbonlens: () => import('./components/CarbonLens'),
+  carbonquest: () => import('./components/CarbonQuest'),
+  community: () => import('./components/Community'),
+  marketplace: () => import('./components/Marketplace'),
+  settings: () => import('./components/SettingsModal'),
+  copilot: () => import('./components/CarbonCopilot'),
+  achievements: () => import('./components/AchievementsDrawer')
+};
+
+const prefetchComponent = (tab: string) => {
+  const loader = prefetchMap[tab];
+  if (loader) {
+    loader().catch(() => {});
+  }
+};
+
 import { 
   LayoutDashboard, 
   Orbit, 
@@ -170,6 +188,8 @@ export default function App() {
             <li>
               <button 
                 onClick={() => setActiveTab('ecotwin')} 
+                onMouseEnter={() => prefetchComponent('ecotwin')}
+                onFocus={() => prefetchComponent('ecotwin')}
                 className={`nav-item ${activeTab === 'ecotwin' ? 'active' : ''} app-style-9`}
                 aria-current={activeTab === 'ecotwin' ? 'page' : undefined}
               >
@@ -180,6 +200,8 @@ export default function App() {
             <li>
               <button 
                 onClick={() => setActiveTab('carbonlens')} 
+                onMouseEnter={() => prefetchComponent('carbonlens')}
+                onFocus={() => prefetchComponent('carbonlens')}
                 className={`nav-item ${activeTab === 'carbonlens' ? 'active' : ''} app-style-10`}
                 aria-current={activeTab === 'carbonlens' ? 'page' : undefined}
               >
@@ -190,6 +212,8 @@ export default function App() {
             <li>
               <button 
                 onClick={() => setActiveTab('carbonquest')} 
+                onMouseEnter={() => prefetchComponent('carbonquest')}
+                onFocus={() => prefetchComponent('carbonquest')}
                 className={`nav-item ${activeTab === 'carbonquest' ? 'active' : ''} app-style-11`}
                 aria-current={activeTab === 'carbonquest' ? 'page' : undefined}
               >
@@ -200,6 +224,8 @@ export default function App() {
             <li>
               <button 
                 onClick={() => setActiveTab('community')} 
+                onMouseEnter={() => prefetchComponent('community')}
+                onFocus={() => prefetchComponent('community')}
                 className={`nav-item ${activeTab === 'community' ? 'active' : ''} app-style-12`}
                 aria-current={activeTab === 'community' ? 'page' : undefined}
               >
@@ -210,6 +236,8 @@ export default function App() {
             <li>
               <button 
                 onClick={() => setActiveTab('marketplace')} 
+                onMouseEnter={() => prefetchComponent('marketplace')}
+                onFocus={() => prefetchComponent('marketplace')}
                 className={`nav-item ${activeTab === 'marketplace' ? 'active' : ''} app-style-13`}
                 aria-current={activeTab === 'marketplace' ? 'page' : undefined}
               >
@@ -223,7 +251,11 @@ export default function App() {
           <div className="sidebar-footer app-style-14">
             <button 
               onClick={() => setAchievementsOpen(true)}
-              onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.04)'}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.04)';
+                prefetchComponent('achievements');
+              }}
+              onFocus={() => prefetchComponent('achievements')}
               onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
               className="app-style-15"
               title="Click to view achievements"
@@ -283,6 +315,8 @@ export default function App() {
             {/* Toggle Settings Modal */}
             <button
               onClick={() => setSettingsOpen(true)}
+              onMouseEnter={() => prefetchComponent('settings')}
+              onFocus={() => prefetchComponent('settings')}
               className="btn-ghost app-style-30"
               aria-label="Open cloud connection settings"
             >
@@ -292,6 +326,8 @@ export default function App() {
             {/* Toggle slide-out AI Copilot */}
             <button
               onClick={() => setCopilotOpen(true)}
+              onMouseEnter={() => prefetchComponent('copilot')}
+              onFocus={() => prefetchComponent('copilot')}
               className="btn-secondary glow-indigo app-style-31"
             >
               <Bot size={14} />

@@ -2,43 +2,11 @@ import { useState, useEffect, useRef } from 'react';
 import { updateUserProfile, UserProfile } from '../utils/firebase';
 import { calculateSimulationMetrics } from '../utils/calculators';
 import { Leaf, TrendingDown } from 'lucide-react';
-import { 
-  Scene, 
-  PerspectiveCamera, 
-  WebGLRenderer, 
-  AmbientLight, 
-  DirectionalLight, 
-  Group, 
-  CylinderGeometry, 
-  MeshStandardMaterial, 
-  Mesh, 
-  BoxGeometry, 
-  SphereGeometry, 
-  ConeGeometry, 
-  Vector3, 
-  MeshBasicMaterial, 
-  Clock, 
-  Material 
-} from 'three';
 
-const THREE = {
-  Scene, 
-  PerspectiveCamera, 
-  WebGLRenderer, 
-  AmbientLight, 
-  DirectionalLight, 
-  Group, 
-  CylinderGeometry, 
-  MeshStandardMaterial, 
-  Mesh, 
-  BoxGeometry, 
-  SphereGeometry, 
-  ConeGeometry, 
-  Vector3, 
-  MeshBasicMaterial, 
-  Clock, 
-  Material
-};
+const treePositions = [
+  { x: -2.0, z: 2.2 }, { x: -3.2, z: 3.5 }, { x: -4.0, z: 2.0 }, { x: -1.0, z: 3.8 },
+  { x: 2.2, z: 2.2 }, { x: 3.2, z: 3.2 }, { x: 4.2, z: 1.5 }, { x: 1.5, z: 4.0 }, { x: -3.8, z: -2.0 }
+];
 
 interface EcoTwinProps {
   user: UserProfile;
@@ -46,6 +14,23 @@ interface EcoTwinProps {
 }
 
 export default function EcoTwin({ user, onProfileUpdate }: EcoTwinProps) {
+  const [threeLib, setThreeLib] = useState<any>(null);
+  const [focusedItem, setFocusedItem] = useState<{ x: number; z: number; type: string; id: string } | null>(null);
+  const focusedItemRef = useRef(focusedItem);
+
+  useEffect(() => {
+    focusedItemRef.current = focusedItem;
+  }, [focusedItem]);
+
+  // Load Three.js dynamically to prevent initial asset download delay
+  useEffect(() => {
+    import('three').then((mod) => {
+      setThreeLib(mod);
+    }).catch((err) => {
+      console.error('Failed to load Three.js dynamically:', err);
+    });
+  }, []);
+
   // Current values (historical logs)
   const currentTransport = user.twinState?.transportSlider || 50;
   const currentDiet = user.twinState?.dietSlider || 50;
@@ -119,11 +104,15 @@ export default function EcoTwin({ user, onProfileUpdate }: EcoTwinProps) {
 
   const isHealthy = simScore < 150;
   const isModerate = simScore >= 150 && simScore < 260;
+  const treesCount = isHealthy ? 9 : isModerate ? 4 : 0;
 
   // -------------------------------------------------------------
   // THREE.JS 3D ECOSYSTEM WEBGL ENGINE
   // -------------------------------------------------------------
   useEffect(() => {
+    if (!threeLib) return;
+    const THREE = threeLib;
+
     const container = canvasContainerRef.current;
     if (!container) return;
 
@@ -194,17 +183,18 @@ export default function EcoTwin({ user, onProfileUpdate }: EcoTwinProps) {
     worldGroup.add(riverMesh);
 
     // 6. Spawn Windmills (Utilities Slider < 60)
-    const windRotors: THREE.Group[] = [];
+    const windRotors: any[] = [];
     if (simEnergy < 60) {
-      createWindmill(-2.8, -2.8);
+      createWindmill(-2.8, -2.8, 'windmill-0');
       if (simEnergy < 35) {
-        createWindmill(-4.2, 0.2);
+        createWindmill(-4.2, 0.2, 'windmill-1');
       }
     }
 
-    function createWindmill(x: number, z: number) {
+    function createWindmill(x: number, z: number, id: string) {
       const wGroup = new THREE.Group();
       wGroup.position.set(x, 0, z);
+      wGroup.userData = { focusId: id };
 
       // Pole
       const poleGeo = track(new THREE.CylinderGeometry(0.06, 0.1, 3.2, 8));
@@ -243,14 +233,15 @@ export default function EcoTwin({ user, onProfileUpdate }: EcoTwinProps) {
 
     // 7. Spawn Solar Panels (Utilities Slider < 45)
     if (simEnergy < 45) {
-      createSolarPanel(2.2, -3.2);
-      createSolarPanel(3.6, -1.8);
+      createSolarPanel(2.2, -3.2, 'solar-0');
+      createSolarPanel(3.6, -1.8, 'solar-1');
     }
 
-    function createSolarPanel(x: number, z: number) {
+    function createSolarPanel(x: number, z: number, id: string) {
       const pGroup = new THREE.Group();
       pGroup.position.set(x, 0, z);
       pGroup.rotation.y = 0.3;
+      pGroup.userData = { focusId: id };
 
       const standGeo = track(new THREE.CylinderGeometry(0.04, 0.04, 0.5, 8));
       const standMat = track(new THREE.MeshStandardMaterial({ color: 0x64748b }));
@@ -273,19 +264,14 @@ export default function EcoTwin({ user, onProfileUpdate }: EcoTwinProps) {
     }
 
     // 8. Spawn Trees (Count scales with environment health)
-    const treesCount = isHealthy ? 9 : isModerate ? 4 : 0;
-    const treePositions = [
-      { x: -2.0, z: 2.2 }, { x: -3.2, z: 3.5 }, { x: -4.0, z: 2.0 }, { x: -1.0, z: 3.8 },
-      { x: 2.2, z: 2.2 }, { x: 3.2, z: 3.2 }, { x: 4.2, z: 1.5 }, { x: 1.5, z: 4.0 }, { x: -3.8, z: -2.0 }
-    ];
-
     for (let i = 0; i < Math.min(treesCount, treePositions.length); i++) {
-      createTree(treePositions[i].x, treePositions[i].z);
+      createTree(treePositions[i].x, treePositions[i].z, `tree-${i}`);
     }
 
-    function createTree(x: number, z: number) {
+    function createTree(x: number, z: number, id: string) {
       const tGroup = new THREE.Group();
       tGroup.position.set(x, 0, z);
+      tGroup.userData = { focusId: id };
 
       // Trunk
       const trunkGeo = track(new THREE.CylinderGeometry(0.06, 0.1, 0.7, 8));
@@ -315,14 +301,15 @@ export default function EcoTwin({ user, onProfileUpdate }: EcoTwinProps) {
     }
 
     // 9. Spawn Factory & Smog (Polluted or high score utility)
-    const smogSpheres: Array<{ mesh: THREE.Mesh; origin: THREE.Vector3 }> = [];
+    const smogSpheres: Array<{ mesh: any; origin: any }> = [];
     if (simScore > 240) {
-      createFactory(3.0, -1.0);
+      createFactory(3.0, -1.0, 'factory-0');
     }
 
-    function createFactory(x: number, z: number) {
+    function createFactory(x: number, z: number, id: string) {
       const fGroup = new THREE.Group();
       fGroup.position.set(x, 0, z);
+      fGroup.userData = { focusId: id };
 
       // Base Structure
       const baseGeo = track(new THREE.BoxGeometry(2.0, 1.2, 1.5));
@@ -368,7 +355,7 @@ export default function EcoTwin({ user, onProfileUpdate }: EcoTwinProps) {
       worldGroup.add(fGroup);
     }
 
-    function resetSmog(sphere: THREE.Mesh, origin: THREE.Vector3) {
+    function resetSmog(sphere: any, origin: any) {
       sphere.position.copy(origin);
       sphere.position.x += (Math.random() - 0.5) * 0.15;
       sphere.position.z += (Math.random() - 0.5) * 0.15;
@@ -383,7 +370,7 @@ export default function EcoTwin({ user, onProfileUpdate }: EcoTwinProps) {
     }
 
     // 10. Floating spores (leaves / dust)
-    const floaters: THREE.Mesh[] = [];
+    const floaters: any[] = [];
     const floaterGeo = track(new THREE.SphereGeometry(0.05, 4, 4));
     const floaterMat = track(new THREE.MeshBasicMaterial({
       color: isHealthy ? 0x10b981 : 0xeab308,
@@ -521,9 +508,45 @@ export default function EcoTwin({ user, onProfileUpdate }: EcoTwinProps) {
         });
       }
 
-      // Rotate group incrementally when idle
-      if (!isDragging && !prefersReducedMotion) {
+      // Smooth keyboard focus orientation
+      const activeFocus = focusedItemRef.current;
+      if (activeFocus && !prefersReducedMotion) {
+        if (activeFocus.id !== 'base' && activeFocus.id !== 'river') {
+          const targetAngle = -Math.atan2(activeFocus.x, activeFocus.z);
+          const angleDiff = targetAngle - worldGroup.rotation.y;
+          const normalizedDiff = Math.atan2(Math.sin(angleDiff), Math.cos(angleDiff));
+          worldGroup.rotation.y += normalizedDiff * 0.08;
+        }
+      } else if (!isDragging && !prefersReducedMotion) {
+        // Rotate group incrementally when idle
         worldGroup.rotation.y += 0.0015;
+      }
+
+      // Apply visual highlight to the focused item
+      if (worldGroup && worldGroup.children) {
+        worldGroup.children.forEach(child => {
+        if (child.userData && child.userData.focusId) {
+          const isFocused = activeFocus && activeFocus.id === child.userData.focusId;
+          
+          if (isFocused) {
+            const scalePulse = 1.0 + Math.sin(elapsed * 6.0) * 0.08;
+            child.scale.set(scalePulse, scalePulse, scalePulse);
+            
+            child.traverse((node: any) => {
+              if (node.isMesh && node.material && node.material.emissive) {
+                node.material.emissive.setHex(0x3b82f6); // bright blue glow
+              }
+            });
+          } else {
+            child.scale.set(1, 1, 1);
+            child.traverse((node: any) => {
+              if (node.isMesh && node.material && node.material.emissive) {
+                node.material.emissive.setHex(0x000000); // restore default
+              }
+            });
+          }
+        }
+      });
       }
 
       renderer.render(scene, camera);
@@ -557,7 +580,7 @@ export default function EcoTwin({ user, onProfileUpdate }: EcoTwinProps) {
       }
       renderer.dispose();
     };
-  }, [simTransport, simDiet, simEnergy, simShopping, simScore, isHealthy, isModerate]);
+  }, [simTransport, simDiet, simEnergy, simShopping, simScore, isHealthy, isModerate, threeLib, treesCount]);
 
   return (
     <div className="fade-in eco-twin-style-1">
@@ -593,7 +616,35 @@ export default function EcoTwin({ user, onProfileUpdate }: EcoTwinProps) {
           </div>
 
           {/* Dynamic 3D WebGL Ecosystem Twin */}
-          <div className="eco-twin-style-12">
+          <div className="eco-twin-style-12" style={{ position: 'relative' }}>
+            {/* Asset Loading overlay when Three.js chunk is downloading */}
+            {!threeLib && (
+              <div className="three-loading-spinner-container" style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: 'rgba(15, 23, 42, 0.6)',
+                borderRadius: '12px',
+                zIndex: 5
+              }}>
+                <div className="loading-spinner" style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  border: '2px solid rgba(255, 255, 255, 0.1)',
+                  borderTopColor: '#10b981',
+                  animation: 'spin 1.5s linear infinite'
+                }} />
+                <span style={{ marginTop: '12px', fontSize: '12px', color: 'var(--text-secondary)' }}>Loading interactive 3D assets...</span>
+              </div>
+            )}
+            
             {/* 3D WebGL Canvas Container */}
             <div 
               ref={canvasContainerRef} 
@@ -607,6 +658,105 @@ export default function EcoTwin({ user, onProfileUpdate }: EcoTwinProps) {
             <div className="eco-twin-style-14">
               <Leaf size={10} color={isHealthy ? '#10b981' : isModerate ? '#eab308' : '#f43f5e'} />
               <span>CO₂ Load: <strong>{calculatedSimCO2} tons/yr</strong></span>
+            </div>
+          </div>
+
+          {/* Accessible Keyboard-Navigable Landscape Map */}
+          <div className="accessible-landscape-map" style={{ marginTop: '16px' }}>
+            <h4 className="accessible-map-title" style={{ fontSize: '13px', fontWeight: '600', marginBottom: '8px', color: 'var(--text-secondary)' }}>
+              Keyboard-Navigable Landscape Map (A11y Grid)
+            </h4>
+            <div className="sr-terrain-list" role="list">
+              <div 
+                tabIndex={0} 
+                role="listitem" 
+                className={`sr-terrain-item ${focusedItem?.id === 'base' ? 'focused-highlight' : ''}`}
+                onFocus={() => setFocusedItem({ x: 0, z: 0, type: 'base', id: 'base' })}
+                onBlur={() => setFocusedItem(null)}
+              >
+                <strong>Island Base:</strong> Circular terrain. Ground: {isHealthy ? 'Green Grass' : isModerate ? 'Dry Meadow' : 'Polluted Gray Land'}. Center [0, 0].
+              </div>
+              
+              {simEnergy < 60 && (
+                <div 
+                  tabIndex={0} 
+                  role="listitem" 
+                  className={`sr-terrain-item ${focusedItem?.id === 'windmill-0' ? 'focused-highlight' : ''}`}
+                  onFocus={() => setFocusedItem({ x: -2.8, z: -2.8, type: 'windmill', id: 'windmill-0' })}
+                  onBlur={() => setFocusedItem(null)}
+                >
+                  <strong>Wind Turbine #1:</strong> Height 3.2m, revolving blades. Spin Speed: {Math.round(100 - simEnergy)}%. Northwest [x:-2.8, z:-2.8].
+                </div>
+              )}
+              {simEnergy < 35 && (
+                <div 
+                  tabIndex={0} 
+                  role="listitem" 
+                  className={`sr-terrain-item ${focusedItem?.id === 'windmill-1' ? 'focused-highlight' : ''}`}
+                  onFocus={() => setFocusedItem({ x: -4.2, z: 0.2, type: 'windmill', id: 'windmill-1' })}
+                  onBlur={() => setFocusedItem(null)}
+                >
+                  <strong>Wind Turbine #2:</strong> Height 3.2m, revolving blades. Spin Speed: {Math.round(100 - simEnergy)}%. West [x:-4.2, z:0.2].
+                </div>
+              )}
+              
+              {simEnergy < 45 && (
+                <>
+                  <div 
+                    tabIndex={0} 
+                    role="listitem" 
+                    className={`sr-terrain-item ${focusedItem?.id === 'solar-0' ? 'focused-highlight' : ''}`}
+                    onFocus={() => setFocusedItem({ x: 2.2, z: -3.2, type: 'solar', id: 'solar-0' })}
+                    onBlur={() => setFocusedItem(null)}
+                  >
+                    <strong>Solar Array #1:</strong> Slanted silicon panel. Southeast [x:2.2, z:-3.2].
+                  </div>
+                  <div 
+                    tabIndex={0} 
+                    role="listitem" 
+                    className={`sr-terrain-item ${focusedItem?.id === 'solar-1' ? 'focused-highlight' : ''}`}
+                    onFocus={() => setFocusedItem({ x: 3.6, z: -1.8, type: 'solar', id: 'solar-1' })}
+                    onBlur={() => setFocusedItem(null)}
+                  >
+                    <strong>Solar Array #2:</strong> Slanted silicon panel. Southeast [x:3.6, z:-1.8].
+                  </div>
+                </>
+              )}
+              
+              {treePositions.slice(0, treesCount).map((pos, idx) => (
+                <div 
+                  key={idx}
+                  tabIndex={0} 
+                  role="listitem" 
+                  className={`sr-terrain-item ${focusedItem?.id === `tree-${idx}` ? 'focused-highlight' : ''}`}
+                  onFocus={() => setFocusedItem({ x: pos.x, z: pos.z, type: 'tree', id: `tree-${idx}` })}
+                  onBlur={() => setFocusedItem(null)}
+                >
+                  <strong>Coniferous Tree #{idx + 1}:</strong> Evergreen pine. Foliage: {isHealthy ? 'Green' : 'Brown'}. Coordinates: [{pos.x}, {pos.z}].
+                </div>
+              ))}
+              
+              {simScore > 240 && (
+                <div 
+                  tabIndex={0} 
+                  role="listitem" 
+                  className={`sr-terrain-item ${focusedItem?.id === 'factory-0' ? 'focused-highlight' : ''}`}
+                  onFocus={() => setFocusedItem({ x: 3.0, z: -1.0, type: 'factory', id: 'factory-0' })}
+                  onBlur={() => setFocusedItem(null)}
+                >
+                  <strong>Industrial Factory:</strong> 1.2m base, smokestack active. East [x:3.0, z:-1.0].
+                </div>
+              )}
+              
+              <div 
+                tabIndex={0} 
+                role="listitem" 
+                className={`sr-terrain-item ${focusedItem?.id === 'river' ? 'focused-highlight' : ''}`}
+                onFocus={() => setFocusedItem({ x: 0, z: 0, type: 'river', id: 'river' })}
+                onBlur={() => setFocusedItem(null)}
+              >
+                <strong>Flowing River:</strong> Blue wave animated stream. Center [0, 0].
+              </div>
             </div>
           </div>
         </div>

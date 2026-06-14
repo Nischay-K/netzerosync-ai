@@ -15,6 +15,7 @@ export default function Onboarding({ user, onComplete }: OnboardingProps) {
     transportMode: 'car_petrol', // car_petrol, car_electric, public, cycle_walk
     distancePerWeek: 150, // km
     flightsPerYear: 2, // count
+    vehicleType: 'compact', // compact, hybrid, suv
     
     // Step 2: Food
     dietType: 'meat_heavy', // meat_heavy, meat_average, vegetarian, vegan
@@ -24,6 +25,7 @@ export default function Onboarding({ user, onComplete }: OnboardingProps) {
     electricityBill: 1200, // INR/month (default Indian context or convert as needed)
     energySource: 'grid', // grid, mixed, solar
     houseSize: 'medium', // small, medium, large
+    gridRegion: 'balanced', // renewable_heavy, balanced, coal_heavy
     
     // Step 4: Shopping
     shoppingHabit: 'average', // low, average, high
@@ -131,6 +133,34 @@ export default function Onboarding({ user, onComplete }: OnboardingProps) {
                 ))}
               </div>
             </div>
+
+            {['car_petrol', 'car_electric'].includes(answers.transportMode) && (
+              <div style={{ marginTop: '16px', marginBottom: '16px' }}>
+                <label className="onboarding-style-13" style={{ display: 'block', marginBottom: '8px' }}>Vehicle Classification / Size</label>
+                <div className="onboarding-style-14" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
+                  {[
+                    { id: 'compact', label: 'Compact / Sedan', desc: 'Standard efficiency' },
+                    { id: 'hybrid', label: 'Hybrid / Smart', desc: 'Lower emissions' },
+                    { id: 'suv', label: 'SUV / Truck', desc: 'Higher emissions' }
+                  ].map(opt => (
+                    <div
+                      key={opt.id}
+                      onClick={() => handleSelect('vehicleType', opt.id)}
+                      className="glass-card onboarding-style-15"
+                      style={{ 
+                        borderColor: answers.vehicleType === opt.id ? 'var(--secondary)' : 'var(--glass-border)', 
+                        background: answers.vehicleType === opt.id ? 'rgba(99, 102, 241, 0.08)' : 'rgba(255, 255, 255, 0.01)',
+                        padding: '10px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      <div className="onboarding-style-16" style={{ fontSize: '13px', fontWeight: '600' }}>{opt.label}</div>
+                      <div className="onboarding-style-17" style={{ fontSize: '11px', marginTop: '2px' }}>{opt.desc}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div>
               <label htmlFor="distance-slider" className="onboarding-style-18">
@@ -258,6 +288,34 @@ export default function Onboarding({ user, onComplete }: OnboardingProps) {
                 ))}
               </div>
             </div>
+
+            {answers.energySource !== 'solar' && (
+              <div style={{ marginTop: '16px', marginBottom: '16px' }}>
+                <label className="onboarding-style-39" style={{ display: 'block', marginBottom: '8px' }}>Regional Power Grid Mix (Localized Factor)</label>
+                <div className="onboarding-style-40" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
+                  {[
+                    { id: 'renewable_heavy', label: 'Clean / Hydro Grid', desc: 'Low emissions region' },
+                    { id: 'balanced', label: 'Standard Mix Grid', desc: 'Average regional mix' },
+                    { id: 'coal_heavy', label: 'Coal-Heavy Grid', desc: 'High carbon intensity' }
+                  ].map(opt => (
+                    <div
+                      key={opt.id}
+                      onClick={() => handleSelect('gridRegion', opt.id)}
+                      className="glass-card onboarding-style-41"
+                      style={{ 
+                        borderColor: answers.gridRegion === opt.id ? 'var(--accent-cyan)' : 'var(--glass-border)', 
+                        background: answers.gridRegion === opt.id ? 'rgba(6, 182, 212, 0.08)' : 'rgba(255, 255, 255, 0.01)',
+                        padding: '10px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      <div className="onboarding-style-42" style={{ fontSize: '13px', fontWeight: '600' }}>{opt.label}</div>
+                      <div className="onboarding-style-43" style={{ fontSize: '11px', marginTop: '2px' }}>{opt.desc}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div>
               <label className="onboarding-style-44">House Size</label>

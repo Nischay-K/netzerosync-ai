@@ -7,6 +7,31 @@ import cors from 'cors';
 import helmet from 'helmet';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { VertexAI } from '@google-cloud/vertexai';
+import { z } from 'zod';
+
+// Zod Validation Schemas
+const copilotSchema = z.object({
+  message: z.string().min(1, 'Message cannot be empty').max(1000, 'Message is too long')
+});
+
+const activityLogSchema = z.object({
+  entry: z.object({
+    co2Value: z.number().optional().default(0),
+    name: z.string().min(1, 'Entry name is required'),
+    category: z.string().optional()
+  }).passthrough(),
+  logType: z.enum(['quest', 'offset', 'activity']).optional().default('activity'),
+  questId: z.string().optional(),
+  questXP: z.number().nonnegative().max(500).optional(),
+  questTokens: z.number().nonnegative().max(500).optional(),
+  tokenCost: z.number().nonnegative().optional(),
+  xpReward: z.number().nonnegative().max(500).optional(),
+  tokenReward: z.number().nonnegative().max(500).optional()
+});
+
+const challengeJoinSchema = z.object({
+  challengeId: z.string().min(1, 'Challenge ID is required')
+});
 
 interface AuthenticatedRequest extends Request {
   userId?: string;
@@ -256,10 +281,11 @@ async function generateContentWithRetry(systemInstruction: string, userMessage: 
 // 4. Secure Chatbot Endpoint
 app.post('/api/copilot/chat', authenticateUser, copilotLimiter, async (req: Request, res: Response): Promise<Response> => {
   try {
-    const { message } = req.body;
-    if (!message || typeof message !== 'string') {
-      return res.status(400).json({ error: 'Bad Request: "message" parameter is required.' });
+    const bodyResult = copilotSchema.safeParse(req.body);
+    if (!bodyResult.success) {
+      return res.status(400).json({ error: 'Bad Request: ' + bodyResult.error.issues[0].message });
     }
+    const { message } = bodyResult.data;
 
     if (!generativeModel) {
       return res.status(503).json({
@@ -293,10 +319,11 @@ app.post('/api/copilot/chat', authenticateUser, copilotLimiter, async (req: Requ
 // 5. Secure Carbon Activity Logging & Rewards Endpoint
 app.post('/api/activity/log', authenticateUser, logLimiter, async (req: Request, res: Response): Promise<Response> => {
   try {
-    const { entry, logType, questId, questXP, questTokens, tokenCost, xpReward, tokenReward } = req.body;
-    if (!entry || typeof entry !== 'object') {
-      return res.status(400).json({ error: 'Bad Request: "entry" object is required.' });
+    const bodyResult = activityLogSchema.safeParse(req.body);
+    if (!bodyResult.success) {
+      return res.status(400).json({ error: 'Bad Request: ' + bodyResult.error.issues[0].message });
     }
+    const { entry, logType, questId, questXP, questTokens, tokenCost, xpReward, tokenReward } = bodyResult.data;
 
     const userId = (req as AuthenticatedRequest).userId!;
     console.log(`[API GATEWAY] -> Activity log requested by User UID: ${userId}, Type: ${logType || 'activity'}`);
@@ -403,10 +430,11 @@ app.post('/api/activity/log', authenticateUser, logLimiter, async (req: Request,
 // 6. Secure Community Challenge Joining Endpoint
 app.post('/api/challenge/join', authenticateUser, joinLimiter, async (req: Request, res: Response): Promise<Response> => {
   try {
-    const { challengeId } = req.body;
-    if (!challengeId || typeof challengeId !== 'string') {
-      return res.status(400).json({ error: 'Bad Request: "challengeId" is required.' });
+    const bodyResult = challengeJoinSchema.safeParse(req.body);
+    if (!bodyResult.success) {
+      return res.status(400).json({ error: 'Bad Request: ' + bodyResult.error.issues[0].message });
     }
+    const { challengeId } = bodyResult.data;
 
     const userId = (req as AuthenticatedRequest).userId!;
     console.log(`[API GATEWAY] -> User UID: ${userId} requesting to join Challenge: ${challengeId}`);
