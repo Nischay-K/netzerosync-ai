@@ -8,13 +8,8 @@ import helmet from 'helmet';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { VertexAI } from '@google-cloud/vertexai';
 
-// Extend Express Request interface to support userId
-declare global {
-  namespace Express {
-    interface Request {
-      userId?: string;
-    }
-  }
+interface AuthenticatedRequest extends Request {
+  userId?: string;
 }
 
 // Load environment variables natively (supported in Node v24)
@@ -111,7 +106,7 @@ const authenticateUser = async (req: Request, res: Response, next: NextFunction)
 
     const idToken = authHeader.split('Bearer ')[1];
     const decodedToken = await admin.auth().verifyIdToken(idToken);
-    req.userId = decodedToken.uid;
+    (req as AuthenticatedRequest).userId = decodedToken.uid;
     next();
   } catch (error) {
     console.error('Auth verification error:', error);
@@ -126,7 +121,7 @@ const copilotLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   keyGenerator: (req: Request) => {
-    return req.userId || req.ip || 'anonymous';
+    return (req as AuthenticatedRequest).userId || req.ip || 'anonymous';
   },
   handler: (req: Request, res: Response) => {
     res.status(429).json({
@@ -140,7 +135,7 @@ const logLimiter = rateLimit({
   max: 100,
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req: Request) => req.userId || req.ip || 'anonymous',
+  keyGenerator: (req: Request) => (req as AuthenticatedRequest).userId || req.ip || 'anonymous',
   handler: (req: Request, res: Response) => {
     res.status(429).json({
       error: 'Too many logging requests. Please wait 15 minutes.'
@@ -153,7 +148,7 @@ const joinLimiter = rateLimit({
   max: 50,
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req: Request) => req.userId || req.ip || 'anonymous',
+  keyGenerator: (req: Request) => (req as AuthenticatedRequest).userId || req.ip || 'anonymous',
   handler: (req: Request, res: Response) => {
     res.status(429).json({
       error: 'Too many challenge join requests. Please wait 15 minutes.'
@@ -272,7 +267,7 @@ app.post('/api/copilot/chat', authenticateUser, copilotLimiter, async (req: Requ
       });
     }
 
-    const userId = req.userId!;
+    const userId = (req as AuthenticatedRequest).userId!;
     console.log(`[API GATEWAY] -> Incoming chat query from User UID: ${userId}`);
 
     // Fetch user profile from Firestore for personalization
@@ -303,7 +298,7 @@ app.post('/api/activity/log', authenticateUser, logLimiter, async (req: Request,
       return res.status(400).json({ error: 'Bad Request: "entry" object is required.' });
     }
 
-    const userId = req.userId!;
+    const userId = (req as AuthenticatedRequest).userId!;
     console.log(`[API GATEWAY] -> Activity log requested by User UID: ${userId}, Type: ${logType || 'activity'}`);
 
     const userRef = db.collection('users').doc(userId);
@@ -413,7 +408,7 @@ app.post('/api/challenge/join', authenticateUser, joinLimiter, async (req: Reque
       return res.status(400).json({ error: 'Bad Request: "challengeId" is required.' });
     }
 
-    const userId = req.userId!;
+    const userId = (req as AuthenticatedRequest).userId!;
     console.log(`[API GATEWAY] -> User UID: ${userId} requesting to join Challenge: ${challengeId}`);
 
     const userRef = db.collection('users').doc(userId);
