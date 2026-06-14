@@ -182,6 +182,8 @@ export default function AchievementsDrawer({ user, isOpen, onClose }: Achievemen
           badges.map((badge) => (
             <div
               key={badge.id}
+              role="status"
+              aria-label={`${badge.title} badge - ${badge.isUnlocked ? 'Unlocked' : 'Locked'}. ${badge.description}`}
               className={`glass-panel ${badge.isUnlocked ? badge.glowClass : ''} achievements-drawer-style-19`} style={{ background: badge.isUnlocked ? 'rgba(11, 33, 26, 0.5)' : 'rgba(11, 33, 26, 0.25)', borderColor: badge.isUnlocked ? badge.color + '33' : 'rgba(255,255,255,0.04)', opacity: badge.isUnlocked ? 1 : 0.65 }}
             >
               {/* Badge Icon circle */}
