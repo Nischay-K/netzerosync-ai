@@ -5,10 +5,29 @@ test.describe('3D EcoTwin WebGL Rendering E2E Tests', () => {
     // Navigate to local test app or production portal
     await page.goto('/');
     
-    // Simulate authentication login flow if needed
-    // NetZeroSync fallback automatically enters mock auth or allows logging in
+    // Simulate authentication login flow by setting the actual demo session key
+    // and override firebaseConfig to empty to force Local Demo Mode
     await page.evaluate(() => {
-      localStorage.setItem('firebase_auth_mock', 'true');
+      localStorage.setItem('ecoSphere_firebaseConfig', JSON.stringify({ apiKey: '', projectId: '' }));
+      const mockProfile = {
+        uid: 'demo_user_123',
+        displayName: 'Test Explorer',
+        email: 'explorer@test.com',
+        level: 1,
+        xp: 120,
+        ecoTokens: 600,
+        carbonTarget: 3.5,
+        carbonCurrent: 5.2,
+        twinState: {
+          transportSlider: 40,
+          dietSlider: 30,
+          energySlider: 45,
+          shoppingSlider: 35
+        },
+        completedMissions: [],
+        joinedChallenges: []
+      };
+      localStorage.setItem('ecoSphere_current_session', JSON.stringify(mockProfile));
     });
     await page.goto('/');
   });
@@ -31,7 +50,7 @@ test.describe('3D EcoTwin WebGL Rendering E2E Tests', () => {
     const webglStatus = await page.evaluate(() => {
       const canvas = document.querySelector('.eco-twin-style-13 canvas') as HTMLCanvasElement;
       if (!canvas) return 'No canvas found';
-      const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+      const gl = (canvas.getContext('webgl2') || canvas.getContext('webgl') || canvas.getContext('experimental-webgl')) as WebGL2RenderingContext | null;
       if (!gl) return 'WebGL context failed';
       // Verify shader precision
       const precision = gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.HIGH_FLOAT);
@@ -57,7 +76,8 @@ test.describe('3D EcoTwin WebGL Rendering E2E Tests', () => {
 
     // Verify active coordinate values via data structures
     const activeFocusState = await page.evaluate(() => {
-      const windmill = document.querySelector('.sr-terrain-item:has-text("Wind Turbine #1")');
+      const items = Array.from(document.querySelectorAll('.sr-terrain-item'));
+      const windmill = items.find(el => el.textContent && el.textContent.includes('Wind Turbine #1'));
       return windmill ? 'active' : 'inactive';
     });
     expect(activeFocusState).toBe('active');
