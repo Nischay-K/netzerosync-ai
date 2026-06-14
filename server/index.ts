@@ -1,32 +1,64 @@
-const express = require('express');
-const admin = require('firebase-admin');
-const rateLimit = require('express-rate-limit');
-const fs = require('fs');
-const path = require('path');
+import express, { Request, Response, NextFunction } from 'express';
+import admin from 'firebase-admin';
+import rateLimit from 'express-rate-limit';
+import fs from 'fs';
+import path from 'path';
+import cors from 'cors';
+import helmet from 'helmet';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import { VertexAI } from '@google-cloud/vertexai';
+
+// Extend Express Request interface to support userId
+declare global {
+  namespace Express {
+    interface Request {
+      userId?: string;
+    }
+  }
+}
 
 // Load environment variables natively (supported in Node v24)
-const serverEnvPath = path.join(__dirname, '.env');
-const rootEnvPath = path.join(__dirname, '..', '.env');
-if (fs.existsSync(serverEnvPath)) {
-  process.loadEnvFile(serverEnvPath);
-  console.log("[AI Gateway] Loaded environment variables from server/.env");
-} else if (fs.existsSync(rootEnvPath)) {
-  process.loadEnvFile(rootEnvPath);
-  console.log("[AI Gateway] Loaded environment variables from root .env");
+// Support both local development (index.ts in server/) and compiled (index.js in server/dist/)
+const searchPathsEnv = [
+  path.join(__dirname, '.env'),
+  path.join(__dirname, '..', '.env'),
+  path.join(__dirname, '..', '..', '.env'),
+  path.join(process.cwd(), '.env'),
+  path.join(process.cwd(), 'server', '.env')
+];
+
+for (const envPath of searchPathsEnv) {
+  if (fs.existsSync(envPath)) {
+    if (typeof process.loadEnvFile === 'function') {
+      process.loadEnvFile(envPath);
+      console.log(`[AI Gateway] Loaded environment variables from: ${envPath}`);
+      break;
+    }
+  }
 }
 
 // Setup local credentials if they exist
-const serviceAccountPath = path.join(__dirname, 'service-account.json');
-if (fs.existsSync(serviceAccountPath)) {
-  process.env.GOOGLE_APPLICATION_CREDENTIALS = serviceAccountPath;
-  console.log(`[Firebase Admin] Setting GOOGLE_APPLICATION_CREDENTIALS to: ${serviceAccountPath}`);
+const searchPathsCredentials = [
+  path.join(__dirname, 'service-account.json'),
+  path.join(__dirname, '..', 'service-account.json'),
+  path.join(process.cwd(), 'service-account.json'),
+  path.join(process.cwd(), 'server', 'service-account.json')
+];
+
+for (const credPath of searchPathsCredentials) {
+  if (fs.existsSync(credPath)) {
+    process.env.GOOGLE_APPLICATION_CREDENTIALS = credPath;
+    console.log(`[Firebase Admin] Setting GOOGLE_APPLICATION_CREDENTIALS to: ${credPath}`);
+    break;
+  }
 }
 
 // Initialize Firebase Admin SDK
 // This automatically picks up credentials in Cloud Run via Application Default Credentials (ADC)
 try {
   if (process.env.NODE_ENV === 'production' && !process.env.GOOGLE_APPLICATION_CREDENTIALS && !process.env.K_SERVICE) {
-    console.warn("[Firebase Admin] WARNING: GOOGLE_APPLICATION_CREDENTIALS is not set in production. App default credentials fallback will be used.");
+    console.error("[FATAL] Security Audit: GOOGLE_APPLICATION_CREDENTIALS or K_SERVICE must be set in production mode.");
+    process.exit(1);
   }
   admin.initializeApp();
   console.log("[Firebase Admin] Initialized successfully.");
@@ -38,16 +70,13 @@ try {
 }
 const db = admin.firestore();
 
-const cors = require('cors');
-const helmet = require('helmet');
-
 const app = express();
 
 // Enable Helmet to set secure HTTP headers (e.g. X-Content-Type-Options, X-Frame-Options)
 app.use(helmet());
 
 // Restrict CORS origins in production to prevent arbitrary API scraping
-const allowedOrigins = process.env.ALLOWED_ORIGINS 
+const allowedOrigins: string[] = process.env.ALLOWED_ORIGINS 
   ? process.env.ALLOWED_ORIGINS.split(',') 
   : [
       'http://localhost:5173',
@@ -57,7 +86,7 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
     ];
 
 app.use(cors({
-  origin: (origin, callback) => {
+  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -68,7 +97,7 @@ app.use(cors({
 app.use(express.json());
 
 // 1. Firebase Auth ID Token Verification Middleware
-const authenticateUser = async (req, res, next) => {
+const authenticateUser = async (req: Request, res: Response, next: NextFunction): Promise<void | Response> => {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -85,44 +114,42 @@ const authenticateUser = async (req, res, next) => {
   }
 };
 
-// 2. User-based Rate Limiter: Max 20 chatbot queries per 15 minutes per authenticated UID
+// 2. User-based Rate Limiters
 const copilotLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 20,
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req) => {
-    return req.userId || req.ip; // Rate limit by authenticated UID, fallback to IP
+  keyGenerator: (req: Request) => {
+    return req.userId || req.ip || 'anonymous';
   },
-  handler: (req, res) => {
+  handler: (req: Request, res: Response) => {
     res.status(429).json({
       error: 'Too many queries. Please wait 15 minutes before asking CarbonCopilot again.'
     });
   }
 });
 
-// Rate limiter: Max 100 activity logs per 15 minutes per authenticated user
 const logLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req) => req.userId || req.ip,
-  handler: (req, res) => {
+  keyGenerator: (req: Request) => req.userId || req.ip || 'anonymous',
+  handler: (req: Request, res: Response) => {
     res.status(429).json({
       error: 'Too many logging requests. Please wait 15 minutes.'
     });
   }
 });
 
-// Rate limiter: Max 50 challenge joins per 15 minutes per authenticated user
 const joinLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 50,
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req) => req.userId || req.ip,
-  handler: (req, res) => {
+  keyGenerator: (req: Request) => req.userId || req.ip || 'anonymous',
+  handler: (req: Request, res: Response) => {
     res.status(429).json({
       error: 'Too many challenge join requests. Please wait 15 minutes.'
     });
@@ -131,12 +158,11 @@ const joinLimiter = rateLimit({
 
 // Initialize AI Client (Supports Google AI Studio API Key or Google Cloud Vertex AI)
 let isAiStudioMode = false;
-let generativeModel = null;
+let generativeModel: any = null;
 
 if (process.env.GEMINI_API_KEY) {
   try {
-    const { GoogleGenerativeAI: GAI } = require('@google/generative-ai');
-    const genAI = new GAI(process.env.GEMINI_API_KEY);
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     generativeModel = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
     isAiStudioMode = true;
     console.log("[AI Gateway] Using Google AI Studio (GEMINI_API_KEY) for chatbot routing.");
@@ -147,7 +173,6 @@ if (process.env.GEMINI_API_KEY) {
 
 if (!isAiStudioMode) {
   try {
-    const { VertexAI } = require('@google-cloud/vertexai');
     const project = process.env.GCP_PROJECT_ID;
     const location = process.env.GCP_LOCATION || 'us-central1';
     
@@ -168,7 +193,7 @@ if (!isAiStudioMode) {
 
 // Run environment configuration audit to fail fast in production if required variables are missing
 if (process.env.NODE_ENV === 'production') {
-  const missingConfigs = [];
+  const missingConfigs: string[] = [];
   if (!generativeModel) {
     missingConfigs.push('GEMINI_API_KEY or GCP_PROJECT_ID (Vertex AI)');
   }
@@ -184,7 +209,11 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // 3. Exponential Backoff Retry wrapper for Vertex AI & AI Studio
-async function generateContentWithRetry(systemInstruction, userMessage, retries = 3, delay = 1000) {
+async function generateContentWithRetry(systemInstruction: string, userMessage: string, retries = 3, delay = 1000): Promise<string> {
+  if (!generativeModel) {
+    throw new Error('AI Provider is not configured. Please set GEMINI_API_KEY or configure GCP_PROJECT_ID (Vertex AI) in the environment configuration.');
+  }
+
   for (let i = 0; i < retries; i++) {
     try {
       if (isAiStudioMode) {
@@ -202,11 +231,12 @@ async function generateContentWithRetry(systemInstruction, userMessage, retries 
         });
         return response.response.candidates[0].content.parts[0].text;
       }
-    } catch (error) {
-      const isThrottled = error.status === 429 || 
-                          error.message.includes('Quota exceeded') || 
-                          error.message.includes('ResourceExhausted') || 
-                          error.message.includes('429');
+    } catch (error: any) {
+      const status = error.status || (error.response && error.response.status);
+      const isThrottled = status === 429 || 
+                          error.message?.includes('Quota exceeded') || 
+                          error.message?.includes('ResourceExhausted') || 
+                          error.message?.includes('429');
       if (isThrottled && i < retries - 1) {
         console.warn(`Gemini AI throttled (429). Retrying in ${delay}ms... (Attempt ${i + 1}/${retries})`);
         await new Promise(resolve => setTimeout(resolve, delay));
@@ -216,26 +246,33 @@ async function generateContentWithRetry(systemInstruction, userMessage, retries 
       throw error;
     }
   }
+  throw new Error('Failed to generate content after retries.');
 }
 
 // 4. Secure Chatbot Endpoint
-app.post('/api/copilot/chat', authenticateUser, copilotLimiter, async (req, res) => {
+app.post('/api/copilot/chat', authenticateUser, copilotLimiter, async (req: Request, res: Response): Promise<Response> => {
   try {
     const { message } = req.body;
     if (!message || typeof message !== 'string') {
       return res.status(400).json({ error: 'Bad Request: "message" parameter is required.' });
     }
 
-    const userId = req.userId;
+    if (!generativeModel) {
+      return res.status(503).json({
+        error: 'AI Provider is not configured. Please set GEMINI_API_KEY or configure GCP_PROJECT_ID (Vertex AI) in the environment configuration.'
+      });
+    }
+
+    const userId = req.userId!;
     console.log(`[API GATEWAY] -> Incoming chat query from User UID: ${userId}`);
 
     // Fetch user profile from Firestore for personalization
     const userDoc = await db.collection('users').doc(userId).get();
     const userData = userDoc.exists ? userDoc.data() : {};
 
-    const carbonCurrent = userData.carbonCurrent || 6.8;
-    const carbonTarget = userData.carbonTarget || 3.5;
-    const displayName = userData.displayName || 'Eco Explorer';
+    const carbonCurrent = userData?.carbonCurrent || 6.8;
+    const carbonTarget = userData?.carbonTarget || 3.5;
+    const displayName = userData?.displayName || 'Eco Explorer';
 
     // System prompt injecting database profile variables securely
     const systemPrompt = `You are CarbonCopilot, an AI sustainability mentor. The user's name is ${displayName}. They have a current carbon footprint of ${carbonCurrent} tons/yr (Target goal: ${carbonTarget} tons/yr). Answer their query helpfully and suggest micro-actions they can take. Keep responses encouraging, concise, and focused on emissions reductions.`;
@@ -250,14 +287,14 @@ app.post('/api/copilot/chat', authenticateUser, copilotLimiter, async (req, res)
 });
 
 // 5. Secure Carbon Activity Logging & Rewards Endpoint
-app.post('/api/activity/log', authenticateUser, logLimiter, async (req, res) => {
+app.post('/api/activity/log', authenticateUser, logLimiter, async (req: Request, res: Response): Promise<Response> => {
   try {
     const { entry, logType, questId, questXP, questTokens, tokenCost, xpReward, tokenReward } = req.body;
     if (!entry || typeof entry !== 'object') {
       return res.status(400).json({ error: 'Bad Request: "entry" object is required.' });
     }
 
-    const userId = req.userId;
+    const userId = req.userId!;
     console.log(`[API GATEWAY] -> Activity log requested by User UID: ${userId}, Type: ${logType || 'activity'}`);
 
     const userRef = db.collection('users').doc(userId);
@@ -270,7 +307,7 @@ app.post('/api/activity/log', authenticateUser, logLimiter, async (req, res) => 
         throw new Error('User profile does not exist in database.');
       }
 
-      const userData = userDoc.data();
+      const userData = userDoc.data() || {};
       const currentXP = userData.xp || 0;
       const currentTokens = userData.ecoTokens || 0;
       const currentLevel = userData.level || 1;
@@ -282,7 +319,7 @@ app.post('/api/activity/log', authenticateUser, logLimiter, async (req, res) => 
       const newCarbon = Math.max(0.1, Number((carbonCurrent + carbonDelta).toFixed(2)));
       
       let newXP = currentXP;
-      let newTokens;
+      let newTokens: number;
 
       if (logType === 'quest') {
         // Safety guard: max 500 XP / tokens per quest transaction
@@ -310,7 +347,7 @@ app.post('/api/activity/log', authenticateUser, logLimiter, async (req, res) => 
       const newLevel = Math.floor(newXP / 1000) + 1;
 
       // Update user document
-      const userUpdates = {
+      const userUpdates: any = {
         carbonCurrent: newCarbon,
         xp: newXP,
         ecoTokens: newTokens,
@@ -344,21 +381,21 @@ app.post('/api/activity/log', authenticateUser, logLimiter, async (req, res) => 
 
     console.log(`[API GATEWAY] <- Successfully processed transaction for User UID: ${userId}`);
     return res.json(updatedStats);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error processing carbon log activity:', error);
     return res.status(500).json({ error: error.message || 'Internal Server Error: Failed to process database transaction.' });
   }
 });
 
 // 6. Secure Community Challenge Joining Endpoint
-app.post('/api/challenge/join', authenticateUser, joinLimiter, async (req, res) => {
+app.post('/api/challenge/join', authenticateUser, joinLimiter, async (req: Request, res: Response): Promise<Response> => {
   try {
     const { challengeId } = req.body;
     if (!challengeId || typeof challengeId !== 'string') {
       return res.status(400).json({ error: 'Bad Request: "challengeId" is required.' });
     }
 
-    const userId = req.userId;
+    const userId = req.userId!;
     console.log(`[API GATEWAY] -> User UID: ${userId} requesting to join Challenge: ${challengeId}`);
 
     const userRef = db.collection('users').doc(userId);
@@ -376,8 +413,8 @@ app.post('/api/challenge/join', authenticateUser, joinLimiter, async (req, res) 
         throw new Error('Challenge does not exist.');
       }
 
-      const userData = userDoc.data();
-      const challengeData = challengeDoc.data();
+      const userData = userDoc.data() || {};
+      const challengeData = challengeDoc.data() || {};
 
       const joinedChallenges = userData.joinedChallenges || [];
       if (joinedChallenges.includes(challengeId)) {
@@ -391,7 +428,7 @@ app.post('/api/challenge/join', authenticateUser, joinLimiter, async (req, res) 
       const newXP = currentXP + 50; // Join bonus
       const newLevel = Math.floor(newXP / 1000) + 1;
 
-      const userUpdates = {
+      const userUpdates: any = {
         joinedChallenges,
         xp: newXP
       };
@@ -406,7 +443,7 @@ app.post('/api/challenge/join', authenticateUser, joinLimiter, async (req, res) 
       const shardNum = Math.floor(Math.random() * 10);
       const shardRef = challengeRef.collection('shards').doc(`shard_${shardNum}`);
       const shardSnap = await transaction.get(shardRef);
-      const shardData = shardSnap.exists ? shardSnap.data() : { participantCount: 0, current: 0 };
+      const shardData = shardSnap.exists ? shardSnap.data() || {} : { participantCount: 0, current: 0 };
 
       transaction.set(shardRef, {
         participantCount: (shardData.participantCount || 0) + 1,
@@ -437,7 +474,7 @@ app.post('/api/challenge/join', authenticateUser, joinLimiter, async (req, res) 
 
     console.log(`[API GATEWAY] <- User UID: ${userId} successfully joined Challenge: ${challengeId}`);
     return res.json(updatedUser);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error joining challenge:', error);
     return res.status(500).json({ error: error.message || 'Failed to join community challenge.' });
   }
@@ -451,4 +488,4 @@ if (process.env.NODE_ENV !== 'test') {
   });
 }
 
-module.exports = app;
+export default app;

@@ -1,13 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import request from 'supertest';
-import { createRequire } from 'module';
 
-// Use createRequire to get the real Node.js native require and cache
-const requireShim = createRequire(import.meta.url);
-const firebaseAdminPath = requireShim.resolve('firebase-admin');
-const generativeAiPath = requireShim.resolve('@google/generative-ai');
-
-// Setup Mocks
+// Define mocks before importing app
 const mockUserDoc = {
   exists: true,
   data: () => ({
@@ -29,7 +23,7 @@ const mockChallengeDoc = {
 };
 
 const mockTransaction = {
-  get: vi.fn().mockImplementation(async (ref) => {
+  get: vi.fn().mockImplementation(async (ref: any) => {
     if (ref.path.startsWith('users/')) {
       return mockUserDoc;
     }
@@ -48,7 +42,7 @@ const mockTransaction = {
   set: vi.fn()
 };
 
-const createMockRef = (collectionName, id) => {
+const createMockRef = (collectionName: string, id: string): any => {
   return {
     path: `${collectionName}/${id}`,
     get: vi.fn().mockResolvedValue(collectionName === 'challenges' ? mockChallengeDoc : mockUserDoc),
@@ -63,7 +57,7 @@ const mockFirestore = {
       doc: vi.fn().mockImplementation((id) => createMockRef(col, id))
     };
   }),
-  runTransaction: vi.fn().mockImplementation(async (callback) => {
+  runTransaction: vi.fn().mockImplementation(async (callback: any) => {
     return callback(mockTransaction);
   })
 };
@@ -75,45 +69,49 @@ const mockAuth = {
 const mockFirebaseAdmin = {
   initializeApp: vi.fn(),
   firestore: vi.fn(() => mockFirestore),
-  auth: vi.fn(() => {
-    return mockAuth;
-  }),
+  auth: vi.fn(() => mockAuth),
   apps: []
 };
 
-const mockGenerativeAi = {
-  GoogleGenerativeAI: vi.fn().mockImplementation(() => ({
-    getGenerativeModel: vi.fn().mockImplementation(() => ({
-      generateContent: vi.fn().mockResolvedValue({
-        response: {
-          text: () => "This is a helpful sustainability AI response."
+const mockGenerativeModel = {
+  generateContent: vi.fn().mockResolvedValue({
+    response: {
+      text: () => "This is a helpful sustainability AI response.",
+      candidates: [
+        {
+          content: {
+            parts: [
+              { text: "This is a helpful sustainability AI response." }
+            ]
+          }
         }
-      })
-    }))
+      ]
+    }
+  })
+};
+
+vi.mock('firebase-admin', () => ({
+  default: mockFirebaseAdmin
+}));
+
+vi.mock('@google/generative-ai', () => ({
+  GoogleGenerativeAI: vi.fn().mockImplementation(() => ({
+    getGenerativeModel: vi.fn().mockImplementation(() => mockGenerativeModel)
   }))
-};
+}));
 
-// Inject mocks directly into native Node require.cache
-requireShim.cache[firebaseAdminPath] = {
-  id: firebaseAdminPath,
-  filename: firebaseAdminPath,
-  loaded: true,
-  exports: mockFirebaseAdmin
-};
-
-requireShim.cache[generativeAiPath] = {
-  id: generativeAiPath,
-  filename: generativeAiPath,
-  loaded: true,
-  exports: mockGenerativeAi
-};
+vi.mock('@google-cloud/vertexai', () => ({
+  VertexAI: vi.fn().mockImplementation(() => ({
+    getGenerativeModel: vi.fn().mockImplementation(() => mockGenerativeModel)
+  }))
+}));
 
 // Set environment variables before loading the server dynamically
 process.env.NODE_ENV = 'test';
 process.env.GEMINI_API_KEY = 'test-gemini-key';
 process.env.ALLOWED_ORIGINS = 'http://localhost:5173';
 
-// Import express app dynamically AFTER require cache injection to avoid ES import hoisting bypasses
+// Load server dynamically to ensure mock environment takes effect
 const { default: app } = await import('./index');
 
 describe('Secure API Gateway Integration Tests', () => {

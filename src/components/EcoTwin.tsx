@@ -2,7 +2,43 @@ import { useState, useEffect, useRef } from 'react';
 import { updateUserProfile, UserProfile } from '../utils/firebase';
 import { calculateSimulationMetrics } from '../utils/calculators';
 import { Leaf, TrendingDown } from 'lucide-react';
-import * as THREE from 'three';
+import { 
+  Scene, 
+  PerspectiveCamera, 
+  WebGLRenderer, 
+  AmbientLight, 
+  DirectionalLight, 
+  Group, 
+  CylinderGeometry, 
+  MeshStandardMaterial, 
+  Mesh, 
+  BoxGeometry, 
+  SphereGeometry, 
+  ConeGeometry, 
+  Vector3, 
+  MeshBasicMaterial, 
+  Clock, 
+  Material 
+} from 'three';
+
+const THREE = {
+  Scene, 
+  PerspectiveCamera, 
+  WebGLRenderer, 
+  AmbientLight, 
+  DirectionalLight, 
+  Group, 
+  CylinderGeometry, 
+  MeshStandardMaterial, 
+  Mesh, 
+  BoxGeometry, 
+  SphereGeometry, 
+  ConeGeometry, 
+  Vector3, 
+  MeshBasicMaterial, 
+  Clock, 
+  Material
+};
 
 interface EcoTwinProps {
   user: UserProfile;

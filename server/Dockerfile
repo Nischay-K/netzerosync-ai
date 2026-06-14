@@ -1,17 +1,17 @@
-# Use official Node.js lightweight image
-FROM node:20-alpine
-
-# Set working directory
+# Stage 1: Build TypeScript source code
+FROM node:20-alpine AS builder
 WORKDIR /app
+COPY package*.json tsconfig.json ./
+RUN npm ci
+COPY index.ts ./
+RUN npm run build
 
-# Copy package descriptors
+# Stage 2: Production release
+FROM node:20-alpine
+WORKDIR /app
 COPY package*.json ./
-
-# Install dependencies in production mode
 RUN npm ci --only=production
-
-# Copy source code
-COPY index.js .
+COPY --from=builder /app/dist ./dist
 
 # Expose port (default Cloud Run port is 8080)
 EXPOSE 8080

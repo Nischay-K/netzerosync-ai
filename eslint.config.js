@@ -7,7 +7,7 @@ import tsParser from '@typescript-eslint/parser'
 import tsPlugin from '@typescript-eslint/eslint-plugin'
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  globalIgnores(['dist', 'server/dist']),
   {
     // Apply React/Browser/TS settings to src
     files: ['src/**/*.{ts,tsx}'],
