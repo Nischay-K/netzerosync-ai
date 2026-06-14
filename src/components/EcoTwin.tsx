@@ -476,43 +476,53 @@ export default function EcoTwin({ user, onProfileUpdate }: EcoTwinProps) {
       frameId = requestAnimationFrame(tick);
       const elapsed = clock.getElapsedTime();
 
+      const prefersReducedMotion = typeof window !== 'undefined' && typeof window.matchMedia === 'function'
+        ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        : false;
+
       // Spin windmills blades
-      const bladeSpeed = (100 - simEnergy) * 0.0016;
+      const bladeSpeed = prefersReducedMotion ? 0 : (100 - simEnergy) * 0.0016;
       windRotors.forEach(blades => {
         blades.rotation.z += bladeSpeed;
       });
 
       // River wavy motion
-      riverMesh.position.y = 0.01 + Math.sin(elapsed * 2.0) * 0.01;
+      if (!prefersReducedMotion) {
+        riverMesh.position.y = 0.01 + Math.sin(elapsed * 2.0) * 0.01;
+      }
 
       // Update smoke puffing particles
-      smogSpheres.forEach(puff => {
-        const m = puff.mesh;
-        m.userData.age++;
-        m.position.y += m.userData.vy;
-        m.position.x += m.userData.vx;
-        m.position.z += m.userData.vz;
+      if (!prefersReducedMotion) {
+        smogSpheres.forEach(puff => {
+          const m = puff.mesh;
+          m.userData.age++;
+          m.position.y += m.userData.vy;
+          m.position.x += m.userData.vx;
+          m.position.z += m.userData.vz;
 
-        const growth = 1.0 + (m.userData.age / m.userData.maxAge) * 1.8;
-        m.scale.set(growth, growth, growth);
-        if (m.material instanceof THREE.Material) {
-          m.material.opacity = 0.55 * (1.0 - m.userData.age / m.userData.maxAge);
-        }
+          const growth = 1.0 + (m.userData.age / m.userData.maxAge) * 1.8;
+          m.scale.set(growth, growth, growth);
+          if (m.material instanceof THREE.Material) {
+            m.material.opacity = 0.55 * (1.0 - m.userData.age / m.userData.maxAge);
+          }
 
-        if (m.userData.age >= m.userData.maxAge) {
-          resetSmog(m, puff.origin);
-        }
-      });
+          if (m.userData.age >= m.userData.maxAge) {
+            resetSmog(m, puff.origin);
+          }
+        });
+      }
 
       // Float ambient spore particles
-      floaters.forEach((p, idx) => {
-        p.position.y += Math.sin(elapsed + idx) * 0.002;
-        p.position.x += Math.cos(elapsed * 0.4 + idx) * 0.0015;
-        if (p.position.y > 5.0) p.position.y = 1.0;
-      });
+      if (!prefersReducedMotion) {
+        floaters.forEach((p, idx) => {
+          p.position.y += Math.sin(elapsed + idx) * 0.002;
+          p.position.x += Math.cos(elapsed * 0.4 + idx) * 0.0015;
+          if (p.position.y > 5.0) p.position.y = 1.0;
+        });
+      }
 
       // Rotate group incrementally when idle
-      if (!isDragging) {
+      if (!isDragging && !prefersReducedMotion) {
         worldGroup.rotation.y += 0.0015;
       }
 

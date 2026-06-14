@@ -78,12 +78,17 @@ app.use(helmet());
 // Restrict CORS origins in production to prevent arbitrary API scraping
 const allowedOrigins: string[] = process.env.ALLOWED_ORIGINS 
   ? process.env.ALLOWED_ORIGINS.split(',') 
-  : [
-      'http://localhost:5173',
-      'http://localhost:5174',
-      'https://netzerosync-ai.web.app',
-      'https://netzerosync-ai.firebaseapp.com'
-    ];
+  : process.env.NODE_ENV === 'production'
+    ? [
+        'https://netzerosync-ai.web.app',
+        'https://netzerosync-ai.firebaseapp.com'
+      ]
+    : [
+        'http://localhost:5173',
+        'http://localhost:5174',
+        'https://netzerosync-ai.web.app',
+        'https://netzerosync-ai.firebaseapp.com'
+      ];
 
 app.use(cors({
   origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
@@ -156,9 +161,13 @@ const joinLimiter = rateLimit({
   }
 });
 
+interface GeminiModel {
+  generateContent(contents: any): Promise<any>;
+}
+
 // Initialize AI Client (Supports Google AI Studio API Key or Google Cloud Vertex AI)
 let isAiStudioMode = false;
-let generativeModel: any = null;
+let generativeModel: GeminiModel | null = null;
 
 if (process.env.GEMINI_API_KEY) {
   try {
@@ -346,8 +355,17 @@ app.post('/api/activity/log', authenticateUser, logLimiter, async (req: Request,
 
       const newLevel = Math.floor(newXP / 1000) + 1;
 
+      interface UserUpdates {
+        carbonCurrent: number;
+        xp: number;
+        ecoTokens: number;
+        completedMissions: string[];
+        level?: number;
+        [key: string]: any;
+      }
+
       // Update user document
-      const userUpdates: any = {
+      const userUpdates: UserUpdates = {
         carbonCurrent: newCarbon,
         xp: newXP,
         ecoTokens: newTokens,
@@ -428,7 +446,14 @@ app.post('/api/challenge/join', authenticateUser, joinLimiter, async (req: Reque
       const newXP = currentXP + 50; // Join bonus
       const newLevel = Math.floor(newXP / 1000) + 1;
 
-      const userUpdates: any = {
+      interface ChallengeUserUpdates {
+        joinedChallenges: string[];
+        xp: number;
+        level?: number;
+        [key: string]: any;
+      }
+
+      const userUpdates: ChallengeUserUpdates = {
         joinedChallenges,
         xp: newXP
       };
