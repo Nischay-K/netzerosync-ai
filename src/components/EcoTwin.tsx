@@ -14,7 +14,7 @@ interface EcoTwinProps {
 }
 
 export default function EcoTwin({ user, onProfileUpdate }: EcoTwinProps) {
-  const [threeLib, setThreeLib] = useState<any>(null);
+  const [threeLib, setThreeLib] = useState<typeof import('three') | null>(null);
   const [focusedItem, setFocusedItem] = useState<{ x: number; z: number; type: string; id: string } | null>(null);
   const focusedItemRef = useRef(focusedItem);
 
@@ -150,8 +150,8 @@ export default function EcoTwin({ user, onProfileUpdate }: EcoTwinProps) {
     scene.add(worldGroup);
 
     // Track resources for proper garbage collection on rebuild/unmount
-    const disposables: any[] = [];
-    const track = (resource: any) => {
+    const disposables: { dispose: () => void }[] = [];
+    const track = <T extends { dispose: () => void }>(resource: T): T => {
       disposables.push(resource);
       return resource;
     };
@@ -183,7 +183,7 @@ export default function EcoTwin({ user, onProfileUpdate }: EcoTwinProps) {
     worldGroup.add(riverMesh);
 
     // 6. Spawn Windmills (Utilities Slider < 60)
-    const windRotors: any[] = [];
+    const windRotors: import('three').Group[] = [];
     if (simEnergy < 60) {
       createWindmill(-2.8, -2.8, 'windmill-0');
       if (simEnergy < 35) {
@@ -301,7 +301,7 @@ export default function EcoTwin({ user, onProfileUpdate }: EcoTwinProps) {
     }
 
     // 9. Spawn Factory & Smog (Polluted or high score utility)
-    const smogSpheres: Array<{ mesh: any; origin: any }> = [];
+    const smogSpheres: Array<{ mesh: import('three').Mesh; origin: import('three').Vector3 }> = [];
     if (simScore > 240) {
       createFactory(3.0, -1.0, 'factory-0');
     }
@@ -355,7 +355,7 @@ export default function EcoTwin({ user, onProfileUpdate }: EcoTwinProps) {
       worldGroup.add(fGroup);
     }
 
-    function resetSmog(sphere: any, origin: any) {
+    function resetSmog(sphere: import('three').Mesh, origin: import('three').Vector3) {
       sphere.position.copy(origin);
       sphere.position.x += (Math.random() - 0.5) * 0.15;
       sphere.position.z += (Math.random() - 0.5) * 0.15;
@@ -370,7 +370,7 @@ export default function EcoTwin({ user, onProfileUpdate }: EcoTwinProps) {
     }
 
     // 10. Floating spores (leaves / dust)
-    const floaters: any[] = [];
+    const floaters: import('three').Mesh[] = [];
     const floaterGeo = track(new THREE.SphereGeometry(0.05, 4, 4));
     const floaterMat = track(new THREE.MeshBasicMaterial({
       color: isHealthy ? 0x10b981 : 0xeab308,
@@ -535,16 +535,28 @@ export default function EcoTwin({ user, onProfileUpdate }: EcoTwinProps) {
             const scalePulse = 1.0 + Math.sin(elapsed * 6.0) * 0.08;
             child.scale.set(scalePulse, scalePulse, scalePulse);
             
-            child.traverse((node: any) => {
-              if (node.isMesh && node.material && node.material.emissive) {
-                node.material.emissive.setHex(0x3b82f6); // bright blue glow
+            child.traverse((node) => {
+              if (node instanceof THREE.Mesh) {
+                const material = node.material;
+                if (material && 'emissive' in material) {
+                  const standardMat = material as import('three').MeshStandardMaterial;
+                  if (standardMat.emissive && typeof standardMat.emissive.setHex === 'function') {
+                    standardMat.emissive.setHex(0x3b82f6); // bright blue glow
+                  }
+                }
               }
             });
           } else {
             child.scale.set(1, 1, 1);
-            child.traverse((node: any) => {
-              if (node.isMesh && node.material && node.material.emissive) {
-                node.material.emissive.setHex(0x000000); // restore default
+            child.traverse((node) => {
+              if (node instanceof THREE.Mesh) {
+                const material = node.material;
+                if (material && 'emissive' in material) {
+                  const standardMat = material as import('three').MeshStandardMaterial;
+                  if (standardMat.emissive && typeof standardMat.emissive.setHex === 'function') {
+                    standardMat.emissive.setHex(0x000000); // restore default
+                  }
+                }
               }
             });
           }
