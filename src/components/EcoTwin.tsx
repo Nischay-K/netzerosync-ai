@@ -457,11 +457,14 @@ export default function EcoTwin({ user, onProfileUpdate }: EcoTwinProps) {
 
     // 13. Animating Lifecycle
     let frameId: number;
-    let clock = new THREE.Clock();
+    let timer = new THREE.Timer();
+    timer.connect(document);
 
-    const tick = () => {
+    const tick = (timestamp: DOMHighResTimeStamp) => {
       frameId = requestAnimationFrame(tick);
-      const elapsed = clock.getElapsedTime();
+      
+      timer.update(timestamp);
+      const elapsed = timer.getElapsed();
 
       const prefersReducedMotion = typeof window !== 'undefined' && typeof window.matchMedia === 'function'
         ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -552,7 +555,7 @@ export default function EcoTwin({ user, onProfileUpdate }: EcoTwinProps) {
       renderer.render(scene, camera);
     };
 
-    tick();
+    frameId = requestAnimationFrame(tick);
 
     // Cleanup on slider changes / unmounts
     return () => {
@@ -582,8 +585,25 @@ export default function EcoTwin({ user, onProfileUpdate }: EcoTwinProps) {
     };
   }, [simTransport, simDiet, simEnergy, simShopping, simScore, isHealthy, isModerate, threeLib, treesCount]);
 
+  // Accessibility Announcement State
+  const [a11yAnnouncement, setA11yAnnouncement] = useState('');
+
+  const announceChange = (label: string, value: string) => {
+    setA11yAnnouncement(`${label} changed to ${value}. Ecosystem updated.`);
+  };
+
   return (
     <div className="fade-in eco-twin-style-1">
+      {/* Accessibility screen-reader only live announcements */}
+      <div 
+        className="sr-only" 
+        role="status" 
+        aria-live="polite" 
+        style={{ position: 'absolute', width: '1px', height: '1px', padding: 0, margin: '-1px', overflow: 'hidden', clip: 'rect(0, 0, 0, 0)', border: 0 }}
+      >
+        {a11yAnnouncement}
+      </div>
+
       
       {/* Toast */}
       {toast && (
@@ -816,7 +836,11 @@ export default function EcoTwin({ user, onProfileUpdate }: EcoTwinProps) {
                   min="0"
                   max="100"
                   value={simTransport}
-                  onChange={(e) => setSimTransport(Number(e.target.value))}
+                  onChange={(e) => {
+                    const val = Number(e.target.value);
+                    setSimTransport(val);
+                    announceChange('Transport Footprint', val === 0 ? 'Zero Emission' : val < 40 ? 'Eco-Commute' : 'High Commute');
+                  }}
                 />
               </div>
 
@@ -831,7 +855,11 @@ export default function EcoTwin({ user, onProfileUpdate }: EcoTwinProps) {
                   min="0"
                   max="100"
                   value={simDiet}
-                  onChange={(e) => setSimDiet(Number(e.target.value))}
+                  onChange={(e) => {
+                    const val = Number(e.target.value);
+                    setSimDiet(val);
+                    announceChange('Diet Choice', val < 25 ? 'Plant-based' : val < 60 ? 'Low-Meat' : 'Heavy Meat');
+                  }}
                 />
               </div>
 
@@ -846,7 +874,11 @@ export default function EcoTwin({ user, onProfileUpdate }: EcoTwinProps) {
                   min="0"
                   max="100"
                   value={simEnergy}
-                  onChange={(e) => setSimEnergy(Number(e.target.value))}
+                  onChange={(e) => {
+                    const val = Number(e.target.value);
+                    setSimEnergy(val);
+                    announceChange('Home Utilities', val < 30 ? 'Renewable/Solar' : val < 60 ? 'Smart Energy' : 'Inefficient Grid');
+                  }}
                 />
               </div>
 
@@ -861,7 +893,11 @@ export default function EcoTwin({ user, onProfileUpdate }: EcoTwinProps) {
                   min="0"
                   max="100"
                   value={simShopping}
-                  onChange={(e) => setSimShopping(Number(e.target.value))}
+                  onChange={(e) => {
+                    const val = Number(e.target.value);
+                    setSimShopping(val);
+                    announceChange('Shopping & Waste', val < 30 ? 'Minimalist Recycle' : val < 60 ? 'Average Consumer' : 'High Waste');
+                  }}
                 />
               </div>
             </div>

@@ -49,8 +49,10 @@ vi.mock('three', () => {
   const mockDirectionalLight = vi.fn().mockImplementation(() => ({
     position: mockPosition(),
   }));
-  const mockClock = vi.fn().mockImplementation(() => ({
-    getElapsedTime: () => 1.0,
+  const mockTimer = vi.fn().mockImplementation(() => ({
+    update: vi.fn(),
+    getElapsed: () => 1.0,
+    connect: vi.fn(),
   }));
 
   return {
@@ -71,7 +73,7 @@ vi.mock('three', () => {
       copy: vi.fn(),
     })),
     MeshBasicMaterial: vi.fn(),
-    Clock: mockClock,
+    Timer: mockTimer,
     Material: vi.fn(),
   };
 });
@@ -132,5 +134,27 @@ describe('EcoTwin Component', () => {
 
     expect(screen.getByText('CO₂ Reduction')).toBeDefined();
     expect(screen.getByText('Tree Equivalent')).toBeDefined();
+  });
+
+  it('triggers accessibility announcements when sliders are adjusted', async () => {
+    let container: HTMLElement | null = null;
+    await act(async () => {
+      const result = render(<EcoTwin user={mockUser} onProfileUpdate={vi.fn()} />);
+      container = result.container;
+    });
+
+    // Find the slider for Transport Footprint
+    const sliders = container!.querySelectorAll('input[type="range"]');
+    expect(sliders.length).toBe(4);
+
+    // Simulate change on first slider (Transport Footprint) to 30
+    await act(async () => {
+      fireEvent.change(sliders[0], { target: { value: '30' } });
+    });
+
+    // Verify screen-reader live region has the polite announcement
+    const liveRegion = container!.querySelector('[role="status"]');
+    expect(liveRegion).toBeDefined();
+    expect(liveRegion!.textContent).toContain('Transport Footprint changed to Eco-Commute. Ecosystem updated.');
   });
 });
