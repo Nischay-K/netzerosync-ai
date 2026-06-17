@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import styles from './CarbonLens.module.css';
 import { scanReceipt, isGeminiConfigured } from '../utils/gemini';
 import { logCarbonEntry, UserProfile } from '../utils/firebase';
 import { Upload, FileText, Trash2, Check, AlertCircle } from 'lucide-react';
@@ -91,24 +92,24 @@ export default function CarbonLens({ user, onProfileUpdate, addLogNotify }: Carb
   };
 
   return (
-    <div className="fade-in carbon-lens-style-1">
+    <div className={`fade-in carbon-lens-style-1 ${styles['carbon-lens-style-1']}`}>
       
       {/* Header */}
       <div>
-        <h1 className="carbon-lens-style-2">Carbon Lens AI</h1>
-        <p className="carbon-lens-style-3">
+        <h1 className={`carbon-lens-style-2 ${styles['carbon-lens-style-2']}`}>Carbon Lens AI</h1>
+        <p className={`carbon-lens-style-3 ${styles['carbon-lens-style-3']}`}>
           Upload invoices, receipts, grocery bills, or travel boarding passes. Our AI calculates emissions instantly.
         </p>
       </div>
 
-      <div className="carbon-lens-style-4 dashboard-grid">
+      <div className={`carbon-lens-style-4 dashboard-grid ${styles['carbon-lens-style-4']}`}>
         
         {/* Left Column: Upload Form */}
-        <div className="glass-panel glow-indigo carbon-lens-style-5">
-          <h3 className="carbon-lens-style-6">Scan Bill or Receipt</h3>
+        <div className={`glass-panel glow-indigo carbon-lens-style-5 ${styles['carbon-lens-style-5']}`}>
+          <h3 className={`carbon-lens-style-6 ${styles['carbon-lens-style-6']}`}>Scan Bill or Receipt</h3>
 
           {!isGeminiConfigured() && (
-            <div className="carbon-lens-style-7">
+            <div className={`carbon-lens-style-7 ${styles['carbon-lens-style-7']}`}>
               <AlertCircle size={16} />
               <span>
                 Running in <strong>Mock Scanner</strong> mode. Paste your Gemini API key in the settings drawer to use live multimodal AI receipt scanning.
@@ -117,30 +118,30 @@ export default function CarbonLens({ user, onProfileUpdate, addLogNotify }: Carb
           )}
 
           {successMsg && (
-            <div className="carbon-lens-style-8">
+            <div className={`carbon-lens-style-8 ${styles['carbon-lens-style-8']}`}>
               {successMsg}
             </div>
           )}
 
-          <form onSubmit={handleScan} className="carbon-lens-style-9">
+          <form onSubmit={handleScan} className={`carbon-lens-style-9 ${styles['carbon-lens-style-9']}`}>
             
             {/* File drag-drop input */}
-            <div className="carbon-lens-style-10">
+            <div className={`carbon-lens-style-10 ${styles['carbon-lens-style-10']}`}>
               <input
                 type="file"
                 accept="image/*,application/pdf"
                 id="file-upload"
                 onChange={handleFileChange}
-                className="carbon-lens-style-11"
+                className={`carbon-lens-style-11 ${styles['carbon-lens-style-11']}`}
               />
               
-              <div className="carbon-lens-style-12">
+              <div className={`carbon-lens-style-12 ${styles['carbon-lens-style-12']}`}>
                 <Upload size={32} color="var(--text-muted)" />
                 <div>
-                  <p className="carbon-lens-style-13">
+                  <p className={`carbon-lens-style-13 ${styles['carbon-lens-style-13']}`}>
                     {file ? file.name : 'Choose file or drag & drop'}
                   </p>
-                  <p className="carbon-lens-style-14">
+                  <p className={`carbon-lens-style-14 ${styles['carbon-lens-style-14']}`}>
                     JPG, PNG, PDF up to 5MB (Grocery bills, utility invoices, flight tickets)
                   </p>
                 </div>
@@ -149,12 +150,12 @@ export default function CarbonLens({ user, onProfileUpdate, addLogNotify }: Carb
 
             {/* Preview image */}
             {previewUrl && (
-              <div className="carbon-lens-style-15">
-                <img src={previewUrl} alt="Preview" className="carbon-lens-style-16" />
+              <div className={`carbon-lens-style-15 ${styles['carbon-lens-style-15']}`}>
+                <img src={previewUrl} alt="Preview" className={`carbon-lens-style-16 ${styles['carbon-lens-style-16']}`} />
                 <button
                   type="button"
                   onClick={clearSelection}
-                  className="carbon-lens-style-17"
+                  className={`carbon-lens-style-17 ${styles['carbon-lens-style-17']}`}
                 >
                   <Trash2 size={14} />
                 </button>
@@ -163,7 +164,7 @@ export default function CarbonLens({ user, onProfileUpdate, addLogNotify }: Carb
 
             {/* Manual text notes */}
             <div>
-              <label className="carbon-lens-style-18">
+              <label className={`carbon-lens-style-18 ${styles['carbon-lens-style-18']}`}>
                 Add items details manually (Alternative if no image)
               </label>
               <textarea
@@ -177,7 +178,7 @@ export default function CarbonLens({ user, onProfileUpdate, addLogNotify }: Carb
             <button
               type="submit"
               disabled={loading || (!file && !textNotes)}
-              className="btn-primary carbon-lens-style-19"
+              className={`btn-primary carbon-lens-style-19 ${styles['carbon-lens-style-19']}`}
             >
               {loading ? 'AI Scanning Receipt Content...' : 'Initiate AI Analysis'}
             </button>
@@ -185,39 +186,39 @@ export default function CarbonLens({ user, onProfileUpdate, addLogNotify }: Carb
         </div>
 
         {/* Right Column: AI Extraction Results */}
-        <div className="carbon-lens-style-20">
+        <div className={`carbon-lens-style-20 ${styles['carbon-lens-style-20']}`}>
           {loading ? (
-            <div className="glass-panel carbon-lens-style-21">
-              <div className="xp-bar carbon-lens-style-22">
-                <div className="xp-fill carbon-lens-style-23" />
+            <div className={`glass-panel carbon-lens-style-21 ${styles['carbon-lens-style-21']}`}>
+              <div className={`xp-bar carbon-lens-style-22 ${styles['carbon-lens-style-22']}`}>
+                <div className={`xp-fill carbon-lens-style-23 ${styles['carbon-lens-style-23']}`} />
               </div>
-              <p className="carbon-lens-style-24">Gemini OCR extracting items & calculating CO₂ equivalents...</p>
+              <p className={`carbon-lens-style-24 ${styles['carbon-lens-style-24']}`}>Gemini OCR extracting items & calculating CO₂ equivalents...</p>
             </div>
           ) : result ? (
-            <div className="glass-panel glow-emerald fade-in carbon-lens-style-25">
-              <div className="carbon-lens-style-26">
-                <h3 className="carbon-lens-style-27">Extraction Breakdown</h3>
-                <span className="carbon-lens-style-28">
+            <div className={`glass-panel glow-emerald fade-in carbon-lens-style-25 ${styles['carbon-lens-style-25']}`}>
+              <div className={`carbon-lens-style-26 ${styles['carbon-lens-style-26']}`}>
+                <h3 className={`carbon-lens-style-27 ${styles['carbon-lens-style-27']}`}>Extraction Breakdown</h3>
+                <span className={`carbon-lens-style-28 ${styles['carbon-lens-style-28']}`}>
                   +{result.totalCo2} kg CO₂
                 </span>
               </div>
 
               {/* Items Table */}
-              <div className="carbon-lens-style-29">
-                <table className="carbon-lens-style-30">
+              <div className={`carbon-lens-style-29 ${styles['carbon-lens-style-29']}`}>
+                <table className={`carbon-lens-style-30 ${styles['carbon-lens-style-30']}`}>
                   <thead>
-                    <tr className="carbon-lens-style-31">
-                      <th className="carbon-lens-style-32">Item</th>
-                      <th className="carbon-lens-style-33">Category</th>
-                      <th className="carbon-lens-style-34">CO₂ Impact</th>
+                    <tr className={`carbon-lens-style-31 ${styles['carbon-lens-style-31']}`}>
+                      <th className={`carbon-lens-style-32 ${styles['carbon-lens-style-32']}`}>Item</th>
+                      <th className={`carbon-lens-style-33 ${styles['carbon-lens-style-33']}`}>Category</th>
+                      <th className={`carbon-lens-style-34 ${styles['carbon-lens-style-34']}`}>CO₂ Impact</th>
                     </tr>
                   </thead>
                   <tbody>
                     {result.items?.map((item: any, index: number) => (
-                      <tr key={index} className="carbon-lens-style-35">
-                        <td className="carbon-lens-style-36">{item.name}</td>
-                        <td className="carbon-lens-style-37">{item.category}</td>
-                        <td className="carbon-lens-style-38" style={{ color: item.co2 > 5 ? 'var(--accent-rose)' : 'var(--text-primary)' }}>
+                      <tr key={index} className={`carbon-lens-style-35 ${styles['carbon-lens-style-35']}`}>
+                        <td className={`carbon-lens-style-36 ${styles['carbon-lens-style-36']}`}>{item.name}</td>
+                        <td className={`carbon-lens-style-37 ${styles['carbon-lens-style-37']}`}>{item.category}</td>
+                        <td className={`carbon-lens-style-38 ${styles['carbon-lens-style-38']}`} style={{ color: item.co2 > 5 ? 'var(--accent-rose)' : 'var(--text-primary)' }}>
                           {item.co2} kg
                         </td>
                       </tr>
@@ -228,33 +229,33 @@ export default function CarbonLens({ user, onProfileUpdate, addLogNotify }: Carb
 
               {/* Suggestions */}
               {result.suggestions && (
-                <div className="carbon-lens-style-39">
-                  <strong className="carbon-lens-style-40">Coach Recommendation:</strong>
+                <div className={`carbon-lens-style-39 ${styles['carbon-lens-style-39']}`}>
+                  <strong className={`carbon-lens-style-40 ${styles['carbon-lens-style-40']}`}>Coach Recommendation:</strong>
                   {result.suggestions}
                 </div>
               )}
 
               {/* Buttons */}
-              <div className="carbon-lens-style-41">
+              <div className={`carbon-lens-style-41 ${styles['carbon-lens-style-41']}`}>
                 <button
                   onClick={clearSelection}
-                  className="btn-ghost carbon-lens-style-42"
+                  className={`btn-ghost carbon-lens-style-42 ${styles['carbon-lens-style-42']}`}
                 >
                   Discard
                 </button>
                 <button
                   onClick={handleLogToFootprint}
-                  className="btn-primary carbon-lens-style-43"
+                  className={`btn-primary carbon-lens-style-43 ${styles['carbon-lens-style-43']}`}
                 >
                   <Check size={16} /> Log to Footprint Dashboard
                 </button>
               </div>
             </div>
           ) : (
-            <div className="glass-panel carbon-lens-style-44">
-              <FileText size={48} strokeWidth={1} className="carbon-lens-style-45" />
-              <h4 className="carbon-lens-style-46">No Scan Initiated</h4>
-              <p className="carbon-lens-style-47">Upload a file or write shopping notes on the left and click "Initiate AI Analysis" to parse carbon weights.</p>
+            <div className={`glass-panel carbon-lens-style-44 ${styles['carbon-lens-style-44']}`}>
+              <FileText size={48} strokeWidth={1} className={`carbon-lens-style-45 ${styles['carbon-lens-style-45']}`} />
+              <h4 className={`carbon-lens-style-46 ${styles['carbon-lens-style-46']}`}>No Scan Initiated</h4>
+              <p className={`carbon-lens-style-47 ${styles['carbon-lens-style-47']}`}>Upload a file or write shopping notes on the left and click "Initiate AI Analysis" to parse carbon weights.</p>
             </div>
           )}
         </div>

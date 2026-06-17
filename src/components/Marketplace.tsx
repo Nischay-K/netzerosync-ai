@@ -3,6 +3,8 @@ import { getCarbonLogs, logCarbonEntry, UserProfile } from '../utils/firebase';
 import { scanProductCarbon } from '../utils/gemini';
 import { calculateProductTokenCost } from '../utils/calculators';
 import { Leaf, Coins, ShieldCheck, Check, Sparkles, Globe, Sun, Flame, Loader, ChevronRight, Search, Camera, X, Wind, TreePine, Factory } from 'lucide-react';
+import useFocusTrap from '../utils/useFocusTrap';
+import styles from './Marketplace.module.css';
 
 interface MarketplaceProps {
   user: UserProfile;
@@ -36,6 +38,9 @@ export default function Marketplace({ user, onProfileUpdate }: MarketplaceProps)
   const [lensOffsetting, setLensOffsetting] = useState(false);
   const [highlightedProjectId, setHighlightedProjectId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const successRef = useRef<HTMLDivElement | null>(null);
+
+  useFocusTrap(successRef, !!successModal);
 
   const handleLensFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -299,13 +304,13 @@ export default function Marketplace({ user, onProfileUpdate }: MarketplaceProps)
           <div>
             <div className="widget-title">Available Balance</div>
             <div className="layout-baseline-6">
-              <span className="market-stat-value-primary">
+              <span className={`${styles['market-stat-value-primary']}`}>
                 {user.ecoTokens || 0}
               </span>
               <span className="widget-unit">Eco-Tokens</span>
             </div>
           </div>
-          <div className="market-stat-icon-container-primary">
+          <div className={`${styles['market-stat-icon-container-primary']}`}>
             <Coins size={24} />
           </div>
         </div>
@@ -315,13 +320,13 @@ export default function Marketplace({ user, onProfileUpdate }: MarketplaceProps)
           <div>
             <div className="widget-title">Lifetime Offsets Purchased</div>
             <div className="layout-baseline-6">
-              <span className="market-stat-value-white">
+              <span className={`${styles['market-stat-value-white']}`}>
                 {(lifetimeOffsetKg / 1000).toFixed(1)}
               </span>
               <span className="widget-unit">tons CO₂</span>
             </div>
           </div>
-          <div className="market-stat-icon-container-white">
+          <div className={`${styles['market-stat-icon-container-white']}`}>
             <Globe size={24} />
           </div>
         </div>
@@ -338,13 +343,13 @@ export default function Marketplace({ user, onProfileUpdate }: MarketplaceProps)
               <div>
                 <div className="widget-title">Projected Net-Zero Target</div>
                 <div className="layout-baseline-6">
-                  <span className="market-stat-value-cyan">
+                  <span className={`${styles['market-stat-value-cyan']}`}>
                     {netZeroYear}
                   </span>
                   <span className="widget-unit">({yearsToNetZero} yrs)</span>
                 </div>
               </div>
-              <div className="market-stat-icon-container-cyan">
+              <div className={`${styles['market-stat-icon-container-cyan']}`}>
                 <Sparkles size={24} />
               </div>
             </div>
@@ -357,19 +362,19 @@ export default function Marketplace({ user, onProfileUpdate }: MarketplaceProps)
       <div className="glass-panel layout-stack-16">
         <div className="layout-row-align-center-gap-12">
           <div className="pos-relative flex-grow-1">
-            <Search size={16} color="var(--text-muted)" className="search-icon-pos" />
+            <Search size={16} color="var(--text-muted)" className={`${styles['search-icon-pos']}`} />
             <input
               type="text"
               placeholder="Search offset initiatives, categories, locations..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="search-input-field"
+              className={`${styles['search-input-field']}`}
             />
           </div>
 
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="btn-secondary glow-indigo lens-scan-btn"
+            className={`btn-secondary glow-indigo ${styles['lens-scan-btn']}`}
           >
             <Camera size={16} />
             <span>AI Product Lens</span>
@@ -386,7 +391,7 @@ export default function Marketplace({ user, onProfileUpdate }: MarketplaceProps)
 
         {/* AI Lens scanning display loader */}
         {scanningProduct && (
-          <div className="lens-scanning-banner">
+          <div className={`${styles['lens-scanning-banner']}`}>
             <Loader size={16} className="animate-spin" />
             <span>AI carbon scanner auditing product lifecycle emissions...</span>
           </div>
@@ -394,23 +399,23 @@ export default function Marketplace({ user, onProfileUpdate }: MarketplaceProps)
 
         {/* Lens Scanning Results */}
         {lensResult && (
-          <div className="glass-card fade-in lens-result-card">
+          <div className={`glass-card fade-in ${styles['lens-result-card']}`}>
             {/* Scanned Image Preview Thumbnail */}
             {lensImageUrl && (
               <img 
                 src={lensImageUrl} 
                 alt="Product Scan Thumbnail" 
-                className="lens-result-thumbnail"
+                className={`${styles['lens-result-thumbnail']}`}
               />
             )}
 
-            <div className="lens-result-body">
+            <div className={`${styles['lens-result-body']}`}>
               <div className="layout-between-start">
                 <div>
-                  <div className="lens-result-tag">
+                  <div className={`${styles['lens-result-tag']}`}>
                     <Sparkles size={10} /> Google Lens Footprint audit
                   </div>
-                  <h4 className="lens-result-title">
+                  <h4 className={`${styles['lens-result-title']}`}>
                     {lensResult.productName}
                   </h4>
                 </div>
@@ -422,28 +427,28 @@ export default function Marketplace({ user, onProfileUpdate }: MarketplaceProps)
                     setLensImageUrl(null);
                     setHighlightedProjectId(null);
                   }}
-                  className="btn-icon-close"
+                  className={`${styles['btn-icon-close']}`}
                 >
                   <X size={16} />
                 </button>
               </div>
 
-              <p className="lens-result-insight">
+              <p className={`${styles['lens-result-insight']}`}>
                 {lensResult.ecoInsight}
               </p>
 
               {/* Action and Cost Metrics */}
-              <div className="lens-result-footer">
+              <div className={`${styles['lens-result-footer']}`}>
                 <div className="layout-row-align-center-gap-12 gap-20">
                   <div>
-                    <div className="text-mut-9-5">Estimated Footprint</div>
-                    <div className="text-rose-14-bold">
+                    <div className={`${styles['text-mut-9-5']}`}>Estimated Footprint</div>
+                    <div className={`${styles['text-rose-14-bold']}`}>
                       {lensResult.carbonImpact} kg CO₂
                     </div>
                   </div>
                   <div>
-                    <div className="text-mut-9-5">Offset Token Cost</div>
-                    <div className="text-primary-14-bold-flex">
+                    <div className={`${styles['text-mut-9-5']}`}>Offset Token Cost</div>
+                    <div className={`${styles['text-primary-14-bold-flex']}`}>
                       <Coins size={11} />
                       {calculateProductTokenCost(lensResult.carbonImpact)} Tkn
                     </div>
@@ -453,7 +458,7 @@ export default function Marketplace({ user, onProfileUpdate }: MarketplaceProps)
                 <button
                   onClick={handleOffsetProduct}
                   disabled={lensOffsetting || (user.ecoTokens || 0) < calculateProductTokenCost(lensResult.carbonImpact)}
-                  className="btn-primary lens-offset-btn"
+                  className={`btn-primary ${styles['lens-offset-btn']}`}
                 >
                   {lensOffsetting ? (
                     <>
@@ -475,7 +480,7 @@ export default function Marketplace({ user, onProfileUpdate }: MarketplaceProps)
 
       {/* Project Cards Section */}
       <div>
-        <h3 className="market-section-title">Verified Green Initiatives</h3>
+        <h3 className={`${styles['market-section-title']}`}>Verified Green Initiatives</h3>
         
         <div className="layout-grid-2cols">
           {(() => {
@@ -488,7 +493,7 @@ export default function Marketplace({ user, onProfileUpdate }: MarketplaceProps)
 
             if (filtered.length === 0) {
               return (
-                <div className="market-empty-message">
+                <div className={`${styles['market-empty-message']}`}>
                   No offset initiatives match your query. Try searching "solar", "mangrove", "India", or "Kenya".
                 </div>
               );
@@ -504,57 +509,57 @@ export default function Marketplace({ user, onProfileUpdate }: MarketplaceProps)
                 <div 
                   key={project.id} 
                   id={project.id}
-                  className={`glass-panel project-card ${isHighlighted ? 'highlighted' : ''}`}
+                  className={`glass-panel ${styles['project-card']} ${isHighlighted ? 'highlighted' : ''}`}
                 >
                   {/* Visual Top Highlight bar */}
                   <div 
-                    className="project-card-top-bar"
+                    className={`${styles['project-card-top-bar']}`}
                     style={{ 
                       background: project.color,
                       boxShadow: `0 0 10px ${project.color}`
                     }} 
                   />
 
-                  <div className="project-card-header">
+                  <div className={`${styles['project-card-header']}`}>
                     <div>
-                      <div className="project-card-tags">
-                        <span className="project-card-tag">
+                      <div className={`${styles['project-card-tags']}`}>
+                        <span className={`${styles['project-card-tag']}`}>
                           {project.category}
                         </span>
                         {isRecommended && (
-                          <span className="project-card-tag-recommended">
+                          <span className={`${styles['project-card-tag-recommended']}`}>
                             ⚡ AI Recommended
                           </span>
                         )}
                       </div>
-                      <h4 className="project-card-title">
+                      <h4 className={`${styles['project-card-title']}`}>
                         {project.title}
                       </h4>
-                      <span className="project-card-location">{project.location}</span>
+                      <span className={`${styles['project-card-location']}`}>{project.location}</span>
                     </div>
 
-                    <div className="project-card-icon-container">
+                    <div className={`${styles['project-card-icon-container']}`}>
                       {project.icon}
                     </div>
                   </div>
 
-                  <p className="project-card-description">
+                  <p className={`${styles['project-card-description']}`}>
                     {project.description}
                   </p>
 
                   {/* Metrics */}
-                  <div className="project-card-metrics">
+                  <div className={`${styles['project-card-metrics']}`}>
                     <div>
-                      <div className="project-card-metric-label">Credits Needed</div>
-                      <div className="project-card-metric-value-primary">
+                      <div className={`${styles['project-card-metric-label']}`}>Credits Needed</div>
+                      <div className={`${styles['project-card-metric-value-primary']}`}>
                         <Coins size={12} />
                         {project.cost}
                       </div>
                     </div>
 
                     <div className="text-align-right">
-                      <div className="project-card-metric-label">Offset Yield</div>
-                      <div className="project-card-metric-value-white">
+                      <div className={`${styles['project-card-metric-label']}`}>Offset Yield</div>
+                      <div className={`${styles['project-card-metric-value-white']}`}>
                         -{(project.offsetKg / 1000).toFixed(1)} Tons CO₂
                       </div>
                     </div>
@@ -562,7 +567,7 @@ export default function Marketplace({ user, onProfileUpdate }: MarketplaceProps)
 
                   {/* Recommendation Reason Callout */}
                   {isRecommended && (
-                    <div className="project-card-recommendation-callout">
+                    <div className={`${styles['project-card-recommendation-callout']}`}>
                       {recommendationReason}
                     </div>
                   )}
@@ -571,7 +576,7 @@ export default function Marketplace({ user, onProfileUpdate }: MarketplaceProps)
                   <button
                     onClick={() => handlePurchaseOffset(project)}
                     disabled={!hasSufficientTokens || isPurchasing}
-                    className={`${hasSufficientTokens ? "btn-primary" : "btn-ghost"} project-card-action-btn ${hasSufficientTokens ? "" : "disabled"}`}
+                    className={`${hasSufficientTokens ? "btn-primary" : "btn-ghost"} ${styles['project-card-action-btn']} ${hasSufficientTokens ? "" : "disabled"}`}
                   >
                     {isPurchasing ? (
                       <>
@@ -602,11 +607,11 @@ export default function Marketplace({ user, onProfileUpdate }: MarketplaceProps)
           Green Credit Registry History
         </h3>
 
-        <div className="registry-history-container">
+        <div className={`${styles['registry-history-container']}`}>
           {loadingLogs ? (
             <p className="text-mut-12">Refreshing credit audit logs...</p>
           ) : logs.filter(log => log.category === 'Offset').length === 0 ? (
-            <p className="text-mut-13-center-padding">
+            <p className={`${styles['text-mut-13-center-padding']}`}>
               No offset sponsorships registered yet. Complete quests to earn credits and purchase your first offset.
             </p>
           ) : (
@@ -616,17 +621,17 @@ export default function Marketplace({ user, onProfileUpdate }: MarketplaceProps)
                 .map((log, idx) => (
                   <div 
                     key={log.id || idx} 
-                    className="glass-card registry-history-item"
+                    className={`glass-card ${styles['registry-history-item']}`}
                   >
                     <div>
-                      <div className="registry-history-item-title">
+                      <div className={`${styles['registry-history-item-title']}`}>
                         {log.name}
                       </div>
-                      <div className="registry-history-item-meta">
+                      <div className={`${styles['registry-history-item-meta']}`}>
                         Registered on {new Date(log.timestamp).toLocaleDateString()} at {new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </div>
                     </div>
-                    <div className="registry-history-item-yield">
+                    <div className={`${styles['registry-history-item-yield']}`}>
                       {(log.co2Value / 1000).toFixed(1)} Tons CO₂
                     </div>
                   </div>
@@ -639,8 +644,8 @@ export default function Marketplace({ user, onProfileUpdate }: MarketplaceProps)
       {/* Success Animation Modal */}
       {successModal && (
         <div className="cert-modal-backdrop">
-          <div className="glass-panel glow-emerald success-modal-panel fade-in" style={{ border: `2px solid ${successModal.color}` }}>
-            <div className="success-modal-icon-container" style={{
+          <div ref={successRef} className={`glass-panel glow-emerald ${styles['success-modal-panel']} fade-in`} style={{ border: `2px solid ${successModal.color}` }}>
+            <div className={`${styles['success-modal-icon-container']}`} style={{
               background: `${successModal.color}1c`,
               border: `2px solid ${successModal.color}`,
               color: successModal.color,
@@ -649,27 +654,27 @@ export default function Marketplace({ user, onProfileUpdate }: MarketplaceProps)
               <Check size={32} />
             </div>
 
-            <h3 className="success-modal-title">
+            <h3 className={`${styles['success-modal-title']}`}>
               Carbon Offset Active!
             </h3>
-            <p className="success-modal-subtitle" style={{ color: successModal.color }}>
+            <p className={`${styles['success-modal-subtitle']}`} style={{ color: successModal.color }}>
               {successModal.title} Sponsored
             </p>
 
-            <p className="success-modal-description">
+            <p className={`${styles['success-modal-description']}`}>
               Successfully offset **{(successModal.offsetKg / 1000).toFixed(1)} Tons of CO₂** from your profile. Your ecological footprint and Projected Net-Zero milestone year have been successfully updated in your EcoTwin telemetry.
             </p>
 
-            <div className="success-modal-stats-card">
+            <div className={`${styles['success-modal-stats-card']}`}>
               <span className="success-modal-stats-label">Tokens Redeemed:</span>
-              <span className="success-modal-stats-value-rose">
+              <span className={`${styles['success-modal-stats-value-rose']}`}>
                 -{successModal.cost} Eco-Tokens
               </span>
             </div>
 
             <button
               onClick={() => setSuccessModal(null)}
-              className="btn-primary success-modal-btn"
+              className={`btn-primary ${styles['success-modal-btn']}`}
               style={{
                 background: `linear-gradient(135deg, ${successModal.color} 0%, #059669 100%)`
               }}

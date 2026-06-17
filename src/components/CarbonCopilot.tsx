@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, FormEvent } from 'react';
+import styles from './CarbonCopilot.module.css';
 import { chatWithCoach, isGeminiConfigured } from '../utils/gemini';
 import { Send, X, Bot, Sparkles, User } from 'lucide-react';
 import { UserProfile } from '../utils/firebase';
@@ -100,16 +101,16 @@ export default function CarbonCopilot({ user, isOpen, onClose }: CarbonCopilotPr
   if (!isOpen) return null;
 
   return (
-    <div className="carbon-copilot-style-1">
+    <div className={`carbon-copilot-style-1 ${styles['carbon-copilot-style-1']}`}>
       {/* Copilot Header */}
-      <div className="carbon-copilot-style-2">
-        <div className="carbon-copilot-style-3">
-          <div className="carbon-copilot-style-4">
+      <div className={`carbon-copilot-style-2 ${styles['carbon-copilot-style-2']}`}>
+        <div className={`carbon-copilot-style-3 ${styles['carbon-copilot-style-3']}`}>
+          <div className={`carbon-copilot-style-4 ${styles['carbon-copilot-style-4']}`}>
             <Bot size={20} />
           </div>
           <div>
-            <h3 className="carbon-copilot-style-5">Carbon Copilot</h3>
-            <span className="carbon-copilot-style-6">
+            <h3 className={`carbon-copilot-style-5 ${styles['carbon-copilot-style-5']}`}>Carbon Copilot</h3>
+            <span className={`carbon-copilot-style-6 ${styles['carbon-copilot-style-6']}`}>
               <Sparkles size={10} /> AI Sustainability Coach
             </span>
           </div>
@@ -119,23 +120,23 @@ export default function CarbonCopilot({ user, isOpen, onClose }: CarbonCopilotPr
           onClick={onClose}
           ref={closeButtonRef}
           aria-label="Close Carbon Copilot"
-          className="carbon-copilot-style-7"
+          className={`carbon-copilot-style-7 ${styles['carbon-copilot-style-7']}`}
         >
           <X size={20} />
         </button>
       </div>
 
       {/* Messages area */}
-      <div className="carbon-copilot-style-8">
+      <div className={`carbon-copilot-style-8 ${styles['carbon-copilot-style-8']}`}>
         {messages.map((msg) => {
           const isCoach = msg.sender === 'coach';
           return (
             <div
               key={msg.id}
-              className="carbon-copilot-style-9" style={{ alignItems: isCoach ? 'flex-start' : 'flex-end', alignSelf: isCoach ? 'flex-start' : 'flex-end' }}
+              className={`carbon-copilot-style-9 ${styles['carbon-copilot-style-9']}`} style={{ alignItems: isCoach ? 'flex-start' : 'flex-end', alignSelf: isCoach ? 'flex-start' : 'flex-end' }}
             >
               {/* Sender label */}
-              <div className="carbon-copilot-style-10">
+              <div className={`carbon-copilot-style-10 ${styles['carbon-copilot-style-10']}`}>
                 {isCoach ? (
                   <>
                     <Bot size={10} /> Copilot Coach
@@ -148,7 +149,7 @@ export default function CarbonCopilot({ user, isOpen, onClose }: CarbonCopilotPr
               </div>
 
               {/* Message text bubble */}
-              <div className="carbon-copilot-style-11" style={{ background: isCoach ? 'rgba(255, 255, 255, 0.03)' : 'rgba(99, 102, 241, 0.15)', border: isCoach ? '1px solid var(--glass-border)' : '1px solid rgba(99, 102, 241, 0.25)', borderRadius: isCoach ? '0px 14px 14px 14px' : '14px 0px 14px 14px' }}>
+              <div className={`carbon-copilot-style-11 ${styles['carbon-copilot-style-11']}`} style={{ background: isCoach ? 'rgba(255, 255, 255, 0.03)' : 'rgba(99, 102, 241, 0.15)', border: isCoach ? '1px solid var(--glass-border)' : '1px solid rgba(99, 102, 241, 0.25)', borderRadius: isCoach ? '0px 14px 14px 14px' : '14px 0px 14px 14px' }}>
                 {msg.text}
               </div>
             </div>
@@ -156,11 +157,11 @@ export default function CarbonCopilot({ user, isOpen, onClose }: CarbonCopilotPr
         })}
 
         {loading && (
-          <div className="carbon-copilot-style-12">
-            <div className="carbon-copilot-style-13">
-              <span className="animate-pulse carbon-copilot-style-14"></span>
-              <span className="animate-pulse carbon-copilot-style-15"></span>
-              <span className="animate-pulse carbon-copilot-style-16"></span>
+          <div className={`carbon-copilot-style-12 ${styles['carbon-copilot-style-12']}`}>
+            <div className={`carbon-copilot-style-13 ${styles['carbon-copilot-style-13']}`}>
+              <span className={`animate-pulse carbon-copilot-style-14 ${styles['carbon-copilot-style-14']}`}></span>
+              <span className={`animate-pulse carbon-copilot-style-15 ${styles['carbon-copilot-style-15']}`}></span>
+              <span className={`animate-pulse carbon-copilot-style-16 ${styles['carbon-copilot-style-16']}`}></span>
             </div>
           </div>
         )}
@@ -168,18 +169,18 @@ export default function CarbonCopilot({ user, isOpen, onClose }: CarbonCopilotPr
       </div>
 
       {/* Input section */}
-      <form onSubmit={handleSend} className="carbon-copilot-style-17">
+      <form onSubmit={handleSend} className={`carbon-copilot-style-17 ${styles['carbon-copilot-style-17']}`}>
         <input
           type="text"
           placeholder="Ask a sustainability question..."
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           disabled={loading}
-          className="carbon-copilot-style-18"
+          className={`carbon-copilot-style-18 ${styles['carbon-copilot-style-18']}`}
         />
         <button
           type="submit"
-          className="btn-primary glow-indigo carbon-copilot-style-19"
+          className={`btn-primary glow-indigo carbon-copilot-style-19 ${styles['carbon-copilot-style-19']}`}
           disabled={loading || !inputValue.trim()}
         >
           <Send size={16} />
@@ -188,7 +189,7 @@ export default function CarbonCopilot({ user, isOpen, onClose }: CarbonCopilotPr
 
       {/* API Key reminder if missing */}
       {!isGeminiConfigured() && (
-        <div className="carbon-copilot-style-20">
+        <div className={`carbon-copilot-style-20 ${styles['carbon-copilot-style-20']}`}>
           Mock chatbot activated. paste Gemini API key in settings modal for a live conversation.
         </div>
       )}

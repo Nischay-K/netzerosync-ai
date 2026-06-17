@@ -1,8 +1,10 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { getCarbonLogs, logCarbonEntry, UserProfile } from '../utils/firebase';
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts';
 import { Activity, Plus, TrendingUp, Calendar, Award, X, Printer, Share2, Leaf, Sparkles } from 'lucide-react';
 import DailyTipCard from './DailyTipCard';
+import useFocusTrap from '../utils/useFocusTrap';
+import styles from './Dashboard.module.css';
 
 interface DashboardProps {
   user: UserProfile;
@@ -26,6 +28,9 @@ export default function Dashboard({ user, onProfileUpdate, onOpenAchievements }:
   const [submitting, setSubmitting] = useState(false);
   const [showCert, setShowCert] = useState(false);
   const [hoveredPoint, setHoveredPoint] = useState<number | null>(null);
+  
+  const certRef = useRef<HTMLDivElement | null>(null);
+  useFocusTrap(certRef, showCert);
 
   // Carbon trend calculations
   const mapCarbonToY = useCallback((val: number): number => {
@@ -137,20 +142,20 @@ export default function Dashboard({ user, onProfileUpdate, onOpenAchievements }:
   return (
     <div className="fade-in layout-stack-30">
       {/* Telemetry Header & Certificate Claim */}
-      <div className="dashboard-header">
+      <div className={`${styles['dashboard-header']}`}>
         <div>
-          <div className="dashboard-header-telemetry">
-            <span className="dashboard-header-telemetry-dot"></span>
+          <div className={`${styles['dashboard-header-telemetry']}`}>
+            <span className={`${styles['dashboard-header-telemetry-dot']}`}></span>
             EcoTwin Telemetry: SYNCED
           </div>
-          <h2 className="dashboard-header-title">
-            Telemetry Node: <strong className="dashboard-header-name">{user.displayName}</strong>
+          <h2 className={`${styles['dashboard-header-title']}`}>
+            Telemetry Node: <strong className={`${styles['dashboard-header-name']}`}>{user.displayName}</strong>
           </h2>
         </div>
         
         <button
           onClick={() => setShowCert(true)}
-          className="btn-primary dashboard-claim-btn"
+          className={`btn-primary ${styles['dashboard-claim-btn']}`}
         >
           <Award size={14} /> Claim Eco-Certificate
         </button>
@@ -160,32 +165,32 @@ export default function Dashboard({ user, onProfileUpdate, onOpenAchievements }:
       <DailyTipCard />
 
       {/* Upper Widgets Grid */}
-      <div className="widget-grid">
+      <div className={`${styles['widget-grid']}`}>
         
         {/* Widget 1: Carbon Index */}
         <div className="glass-panel glow-emerald pos-relative">
-          <div className="widget-title">Current Footprint</div>
+          <div className={`${styles['widget-title']}`}>Current Footprint</div>
           <div className="layout-baseline-6">
-            <span className="widget-value">
+            <span className={`${styles['widget-value']}`}>
               {user.carbonCurrent || 6.8}
             </span>
-            <span className="widget-unit">tons CO₂/yr</span>
+            <span className={`${styles['widget-unit']}`}>tons CO₂/yr</span>
           </div>
-          <div className="widget-footer">
+          <div className={`${styles['widget-footer']}`}>
             <TrendingUp size={12} /> Live tracking active
           </div>
         </div>
 
         {/* Widget 2: Target Reduction */}
         <div className="glass-panel pos-relative">
-          <div className="widget-title">Target Reduction</div>
+          <div className={`${styles['widget-title']}`}>Target Reduction</div>
           <div className="layout-baseline-6">
-            <span className="widget-value-cyan">
+            <span className={`${styles['widget-value-cyan']}`}>
               {user.carbonTarget || 3.5}
             </span>
-            <span className="widget-unit">tons CO₂/yr</span>
+            <span className={`${styles['widget-unit']}`}>tons CO₂/yr</span>
           </div>
-          <div className="widget-footer-muted">
+          <div className={`${styles['widget-footer-muted']}`}>
             Target: 40% reduction from baseline
           </div>
         </div>
@@ -193,18 +198,18 @@ export default function Dashboard({ user, onProfileUpdate, onOpenAchievements }:
         {/* Widget 3: Game Rank */}
         <button 
           onClick={onOpenAchievements}
-          className="glass-panel glow-indigo widget-btn" 
+          className={`glass-panel glow-indigo ${styles['widget-btn']}`} 
           title="Click to view Achievements"
           aria-label={`View achievements milestones list. Earned ${user.completedMissions?.length || 0} badges.`}
         >
-          <div className="widget-title">Rank & Status</div>
+          <div className={`${styles['widget-title']}`}>Rank & Status</div>
           <div className="layout-baseline-6">
-            <span className="widget-value">
+            <span className={`${styles['widget-value']}`}>
               Lvl {user.level || 1}
             </span>
-            <span className="widget-unit">{user.xp || 0} XP total</span>
+            <span className={`${styles['widget-unit']}`}>{user.xp || 0} XP total</span>
           </div>
-          <div className="widget-footer-secondary">
+          <div className={`${styles['widget-footer-secondary']}`}>
             <Award size={12} color="var(--accent-amber)" /> View Achievements ({user.completedMissions?.length || 0} Badges)
           </div>
         </button>
@@ -218,14 +223,14 @@ export default function Dashboard({ user, onProfileUpdate, onOpenAchievements }:
           
           return (
             <div className="glass-panel glow-emerald pos-relative">
-              <div className="widget-title">Projected Net-Zero</div>
+              <div className={`${styles['widget-title']}`}>Projected Net-Zero</div>
               <div className="layout-baseline-6">
-                <span className="widget-value-primary">
+                <span className={`${styles['widget-value-primary']}`}>
                   {netZeroYear}
                 </span>
-                <span className="widget-unit-margin">({yearsToNetZero} yrs)</span>
+                <span className={`${styles['widget-unit-margin']}`}>({yearsToNetZero} yrs)</span>
               </div>
-              <div className="widget-footer-cyan">
+              <div className={`${styles['widget-footer-cyan']}`}>
                 Accelerating via quests completed
               </div>
             </div>
@@ -236,32 +241,32 @@ export default function Dashboard({ user, onProfileUpdate, onOpenAchievements }:
 
       {/* SVG Telemetry Trend Chart */}
       <div className="glass-panel layout-stack-16 pos-relative">
-        <div className="chart-panel-header">
+        <div className={`${styles['chart-panel-header']}`}>
           <div>
-            <h3 className="chart-panel-title">
+            <h3 className={`${styles['chart-panel-title']}`}>
               <TrendingUp size={20} color="var(--accent-cyan)" />
               Weekly Carbon Telemetry Trend
             </h3>
-            <span className="chart-panel-subtitle">
+            <span className={`${styles['chart-panel-subtitle']}`}>
               Historical progress compared to net-zero target line.
             </span>
           </div>
 
-          <div className="chart-legends">
+          <div className={`${styles['chart-legends']}`}>
             <div className="layout-row-align-center-gap-6">
-              <div className="chart-legend-dot" />
+              <div className={`${styles['chart-legend-dot']}`} />
               <span className="text-sec">Current Telemetry</span>
             </div>
             <div className="layout-row-align-center-gap-6">
-              <div className="chart-legend-dashed" />
+              <div className={`${styles['chart-legend-dashed']}`} />
               <span className="text-sec">Target Threshold</span>
             </div>
           </div>
         </div>
 
         {/* SVG Wrapper */}
-        <div className="chart-svg-wrapper">
-          <svg viewBox="0 0 800 200" width="100%" height="100%" aria-hidden="true" className="chart-svg">
+        <div className={`${styles['chart-svg-wrapper']}`}>
+          <svg viewBox="0 0 800 200" width="100%" height="100%" aria-hidden="true" className={`${styles['chart-svg']}`}>
             <defs>
               <linearGradient id="chartAreaGrad" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="var(--accent-cyan)" stopOpacity="0.25" />
@@ -313,7 +318,7 @@ export default function Dashboard({ user, onProfileUpdate, onOpenAchievements }:
               stroke="var(--accent-cyan)"
               strokeWidth="3.5"
               strokeLinecap="round"
-              className="chart-svg-path"
+              className={`${styles['chart-svg-path']}`}
             />
 
             {/* Interactive Points */}
@@ -326,7 +331,7 @@ export default function Dashboard({ user, onProfileUpdate, onOpenAchievements }:
                   r={hoveredPoint === idx ? "10" : "5"}
                   fill="var(--accent-cyan)"
                   opacity={hoveredPoint === idx ? "0.3" : "0.0"}
-                  className="chart-svg-interactive-circle"
+                  className={`${styles['chart-svg-interactive-circle']}`}
                 />
                 {/* Core point */}
                 <circle
@@ -338,7 +343,7 @@ export default function Dashboard({ user, onProfileUpdate, onOpenAchievements }:
                   strokeWidth="2.5"
                   onMouseEnter={() => setHoveredPoint(idx)}
                   onMouseLeave={() => setHoveredPoint(null)}
-                  className="chart-svg-core-circle"
+                  className={`${styles['chart-svg-core-circle']}`}
                 />
                 {/* Label below dot */}
                 <text
@@ -365,7 +370,7 @@ export default function Dashboard({ user, onProfileUpdate, onOpenAchievements }:
                   fill="var(--bg-secondary)"
                   stroke="var(--accent-cyan)"
                   strokeWidth="1"
-                  className="chart-svg-rect-tooltip"
+                  className={`${styles['chart-svg-rect-tooltip']}`}
                 />
                 <text
                   x="0"
@@ -403,8 +408,8 @@ export default function Dashboard({ user, onProfileUpdate, onOpenAchievements }:
           <div className="glass-panel layout-stack-20">
             <h3 className="text-size-18">Emissions Distribution</h3>
             
-            <div className="chart-distribution-container">
-              <div className="chart-distribution-pie">
+            <div className={`${styles['chart-distribution-container']}`}>
+              <div className={`${styles['chart-distribution-pie']}`}>
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
@@ -426,14 +431,14 @@ export default function Dashboard({ user, onProfileUpdate, onOpenAchievements }:
               </div>
 
               {/* Legends list */}
-              <div className="chart-distribution-legends">
+              <div className={`${styles['chart-distribution-legends']}`}>
                 {chartData.map((entry, idx) => (
                   <div key={idx} className="layout-row-align-center-gap-10">
-                    <div className="chart-distribution-legend-color" style={{ background: entry.color }} />
-                    <div className="chart-distribution-legend-name">
+                    <div className={`${styles['chart-distribution-legend-color']}`} style={{ background: entry.color }} />
+                    <div className={`${styles['chart-distribution-legend-name']}`}>
                       {entry.name}
                     </div>
-                    <div className="chart-distribution-legend-value">
+                    <div className={`${styles['chart-distribution-legend-value']}`}>
                       {entry.value}%
                     </div>
                   </div>
@@ -449,9 +454,9 @@ export default function Dashboard({ user, onProfileUpdate, onOpenAchievements }:
               Daily Habit Logger
             </h3>
 
-            <form onSubmit={handleQuickLog} className="logger-form">
+            <form onSubmit={handleQuickLog} className={`${styles['logger-form']}`}>
               <div>
-                <label htmlFor="quick-log-name" className="logger-label">Action Name</label>
+                <label htmlFor="quick-log-name" className={`${styles['logger-label']}`}>Action Name</label>
                 <input
                   id="quick-log-name"
                   type="text"
@@ -463,7 +468,7 @@ export default function Dashboard({ user, onProfileUpdate, onOpenAchievements }:
               </div>
 
               <div>
-                <label htmlFor="quick-log-category" className="logger-label">Category</label>
+                <label htmlFor="quick-log-category" className={`${styles['logger-label']}`}>Category</label>
                 <select
                   id="quick-log-category"
                   value={quickLogCategory}
@@ -477,7 +482,7 @@ export default function Dashboard({ user, onProfileUpdate, onOpenAchievements }:
               </div>
 
               <div>
-                <label htmlFor="quick-log-co2" className="logger-label">CO₂ Impact (kg)</label>
+                <label htmlFor="quick-log-co2" className={`${styles['logger-label']}`}>CO₂ Impact (kg)</label>
                 <input
                   id="quick-log-co2"
                   type="number"
@@ -491,13 +496,14 @@ export default function Dashboard({ user, onProfileUpdate, onOpenAchievements }:
 
               <button
                 type="submit"
-                className="btn-primary logger-submit-btn"
+                className={`btn-primary ${styles['logger-submit-btn']}`}
                 disabled={submitting}
+                aria-label="Log Carbon Activity"
               >
                 <Plus size={18} />
               </button>
             </form>
-            <span className="logger-tip">
+            <span className={`${styles['logger-tip']}`}>
               Tip: Use negative numbers for carbon-saving actions (e.g. -4.5 for choosing train over flying).
             </span>
           </div>
@@ -511,11 +517,11 @@ export default function Dashboard({ user, onProfileUpdate, onOpenAchievements }:
             Recent Carbon Activity Log
           </h3>
 
-          <div className="activities-list-container">
+          <div className={`${styles['activities-list-container']}`}>
             {loadingLogs ? (
-              <p className="text-mut-13">Loading logs history...</p>
+              <p className={`${styles['text-mut-13']}`}>Loading logs history...</p>
             ) : logs.length === 0 ? (
-              <p className="text-mut-13-center-margin">
+              <p className={`${styles['text-mut-13-center-margin']}`}>
                 No entries logged yet. Try scanning a receipt or completing a mission.
               </p>
             ) : (
@@ -525,20 +531,20 @@ export default function Dashboard({ user, onProfileUpdate, onOpenAchievements }:
                 return (
                   <div
                     key={entry.id || idx}
-                    className="glass-card activity-item"
+                    className={`glass-card ${styles['activity-item']}`}
                   >
                     <div>
-                      <div className="activity-item-title">
+                      <div className={`${styles['activity-item-title']}`}>
                         {entry.name}
                       </div>
-                      <div className="activity-item-meta">
+                      <div className={`${styles['activity-item-meta']}`}>
                         <span>{entry.category}</span>
                         <span>•</span>
                         <span>{new Date(entry.timestamp).toLocaleDateString()}</span>
                       </div>
                     </div>
 
-                    <div className={`activity-item-impact ${isSaving ? 'text-primary' : 'text-rose'}`}>
+                    <div className={`${styles['activity-item-impact']} ${isSaving ? 'text-primary' : 'text-rose'}`}>
                       {isSaving ? '' : '+'}{entry.co2Value} kg
                     </div>
                   </div>
@@ -552,65 +558,65 @@ export default function Dashboard({ user, onProfileUpdate, onOpenAchievements }:
 
       {/* Shareable Certificate Modal */}
       {showCert && (
-        <div className="cert-modal-backdrop">
-          <div className="glass-panel glow-emerald cert-modal-panel fade-in">
+        <div className={`${styles['cert-modal-backdrop']}`}>
+          <div ref={certRef} className={`glass-panel glow-emerald ${styles['cert-modal-panel']} fade-in`}>
             {/* Close Button */}
             <button 
               onClick={() => setShowCert(false)} 
-              className="cert-modal-close-btn"
+              className={`${styles['cert-modal-close-btn']}`}
               aria-label="Close certificate modal"
             >
               <X size={20} />
             </button>
 
             {/* Certificate Print Area */}
-            <div id="print-certificate" className="cert-print-area">
+            <div id="print-certificate" className={`${styles['cert-print-area']}`}>
               {/* Decorative Background Leaf */}
-              <div className="cert-bg-leaf">
+              <div className={`${styles['cert-bg-leaf']}`}>
                 <Leaf size={240} />
               </div>
 
-              <div className="cert-award-icon">
+              <div className={`${styles['cert-award-icon']}`}>
                 <Award size={48} />
               </div>
 
-              <h2 className="cert-title">
+              <h2 className={`${styles['cert-title']}`}>
                 Certificate of Excellence
               </h2>
-              <p className="cert-subtitle">
+              <p className={`${styles['cert-subtitle']}`}>
                 In Environmental Stewardship
               </p>
 
-              <p className="cert-recipient-pre">
+              <p className={`${styles['cert-recipient-pre']}`}>
                 This certifies that
               </p>
-              <h3 className="cert-recipient-name">
+              <h3 className={`${styles['cert-recipient-name']}`}>
                 {user.displayName}
               </h3>
 
-              <p className="cert-text">
+              <p className={`${styles['cert-text']}`}>
                 has successfully completed onboarding carbon offsets, validated lifestyle targets, and logged green initiatives at **Level {user.level || 1}** explorer rank on the **NetZeroSync AI Platform**.
               </p>
 
               {/* Stats summary in certificate */}
-              <div className="cert-stats-container">
+              <div className={`${styles['cert-stats-container']}`}>
                 <div>
-                  <div className="cert-stats-label">Rank Status</div>
-                  <div className="cert-stats-value">Lvl {user.level || 1} Explorer</div>
+                  <div className={`${styles['cert-stats-label']}`}>Rank Status</div>
+                  <div className={`${styles['cert-stats-value']}`}>Lvl {user.level || 1} Explorer</div>
                 </div>
-                <div className="cert-stats-divider"></div>
+                <div className={`${styles['cert-stats-divider']}`}></div>
                 <div>
-                  <div className="cert-stats-label">Target Footprint</div>
-                  <div className="cert-stats-value-primary">{user.carbonTarget || 3.5} Tons/yr</div>
+                  <div className={`${styles['cert-stats-label']}`}>Target Footprint</div>
+                  <div className={`${styles['cert-stats-value-primary']}`}>{user.carbonTarget || 3.5} Tons/yr</div>
                 </div>
               </div>
             </div>
 
             {/* Share / Action Buttons */}
-            <div className="cert-actions-container">
+            <div className={`${styles['cert-actions-container']}`}>
               <button
                 onClick={() => window.print()}
-                className="btn-ghost cert-action-btn-ghost"
+                className={`btn-ghost ${styles['cert-action-btn-ghost']}`}
               >
                 <Printer size={14} /> Save as PDF
               </button>
@@ -619,7 +625,7 @@ export default function Dashboard({ user, onProfileUpdate, onOpenAchievements }:
                   navigator.clipboard.writeText(`I just reached Level ${user.level} on NetZeroSync AI, reducing my target carbon footprint to ${user.carbonTarget} tons/year! Join the movement!`);
                   alert('Certificate summary copied to clipboard! Share it with your friends.');
                 }}
-                className="btn-primary cert-action-btn-ghost"
+                className={`btn-primary ${styles['cert-action-btn-ghost']}`}
               >
                 <Share2 size={14} /> Share Achievements
               </button>

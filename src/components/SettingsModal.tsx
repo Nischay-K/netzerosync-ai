@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import styles from './SettingsModal.module.css';
 import { isFirebaseConnected } from '../utils/firebase';
 import { isGeminiConfigured } from '../utils/gemini';
 import { Settings, X, Key, Database, RefreshCw, Check } from 'lucide-react';
@@ -102,45 +103,45 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   };
 
   return (
-    <div className="settings-modal-style-1">
-      <div className="glass-panel glow-indigo fade-in settings-modal-style-2">
+    <div className={`settings-modal-style-1 ${styles['settings-modal-style-1']}`}>
+      <div className={`glass-panel glow-indigo fade-in settings-modal-style-2 ${styles['settings-modal-style-2']}`}>
         {/* Header */}
-        <div className="settings-modal-style-3">
-          <div className="settings-modal-style-4">
+        <div className={`settings-modal-style-3 ${styles['settings-modal-style-3']}`}>
+          <div className={`settings-modal-style-4 ${styles['settings-modal-style-4']}`}>
             <Settings size={20} color="var(--secondary)" />
-            <h2 className="settings-modal-style-5">Integrations & Settings</h2>
+            <h2 className={`settings-modal-style-5 ${styles['settings-modal-style-5']}`}>Integrations & Settings</h2>
           </div>
           <button 
             onClick={onClose} 
             ref={closeButtonRef}
             aria-label="Close settings modal"
-            className="settings-modal-style-6"
+            className={`settings-modal-style-6 ${styles['settings-modal-style-6']}`}
           >
             <X size={20} />
           </button>
         </div>
 
         {saved && (
-          <div className="settings-modal-style-7">
+          <div className={`settings-modal-style-7 ${styles['settings-modal-style-7']}`}>
             <Check size={16} /> Saved! Reloading page to apply updates...
           </div>
         )}
 
-        <form onSubmit={handleSave} className="settings-modal-style-8">
+        <form onSubmit={handleSave} className={`settings-modal-style-8 ${styles['settings-modal-style-8']}`}>
           
           {/* Gemini API Box */}
-          <div className="glass-card settings-modal-style-9">
-            <div className="settings-modal-style-10">
+          <div className={`glass-card settings-modal-style-9 ${styles['settings-modal-style-9']}`}>
+            <div className={`settings-modal-style-10 ${styles['settings-modal-style-10']}`}>
               <Key size={16} color="var(--secondary)" />
               Google Gemini API Key
             </div>
             
-            <p className="settings-modal-style-11">
+            <p className={`settings-modal-style-11 ${styles['settings-modal-style-11']}`}>
               Used to process physical bills/receipt files (Carbon Lens) and chat with your Sustainability Coach (Carbon Copilot). 
-              Get a free developer key at <a href="https://aistudio.google.com/" target="_blank" rel="noopener noreferrer" className="settings-modal-style-12">Google AI Studio</a>.
+              Get a free developer key at <a href="https://aistudio.google.com/" target="_blank" rel="noopener noreferrer" className={`settings-modal-style-12 ${styles['settings-modal-style-12']}`}>Google AI Studio</a>.
             </p>
 
-            <label htmlFor="settings-gemini-key" className="settings-modal-style-13">Gemini API Key</label>
+            <label htmlFor="settings-gemini-key" className={`settings-modal-style-13 ${styles['settings-modal-style-13']}`}>Gemini API Key</label>
             <input
               id="settings-gemini-key"
               type="password"
@@ -149,25 +150,25 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
               onChange={(e) => setGeminiKey(e.target.value)}
             />
 
-            <div className="settings-modal-style-14" style={{ color: isGeminiConfigured() ? 'var(--primary)' : 'var(--accent-amber)' }}>
+            <div className={`settings-modal-style-14 ${styles['settings-modal-style-14']}`} style={{ color: isGeminiConfigured() ? 'var(--primary)' : 'var(--accent-amber)' }}>
               Status: {isGeminiConfigured() ? '● Live API Activated' : '○ Missing key (Running Sandbox Mock)'}
             </div>
           </div>
 
           {/* Firebase API Box */}
-          <div className="glass-card settings-modal-style-15">
-            <div className="settings-modal-style-16">
+          <div className={`glass-card settings-modal-style-15 ${styles['settings-modal-style-15']}`}>
+            <div className={`settings-modal-style-16 ${styles['settings-modal-style-16']}`}>
               <Database size={16} color="var(--primary)" />
               Firebase Config Parameters
             </div>
             
-            <p className="settings-modal-style-17">
+            <p className={`settings-modal-style-17 ${styles['settings-modal-style-17']}`}>
               Connect your own Firebase Authentication and Firestore Database. Enable "Email/Password" in Auth console and create Firestore database first.
             </p>
 
-            <div className="settings-modal-style-18">
+            <div className={`settings-modal-style-18 ${styles['settings-modal-style-18']}`}>
               <div>
-                <label htmlFor="settings-fb-api-key" className="settings-modal-style-19">API Key</label>
+                <label htmlFor="settings-fb-api-key" className={`settings-modal-style-19 ${styles['settings-modal-style-19']}`}>API Key</label>
                 <input
                   id="settings-fb-api-key"
                   type="text"
@@ -178,7 +179,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
               </div>
 
               <div>
-                <label htmlFor="settings-fb-project-id" className="settings-modal-style-20">Project ID</label>
+                <label htmlFor="settings-fb-project-id" className={`settings-modal-style-20 ${styles['settings-modal-style-20']}`}>Project ID</label>
                 <input
                   id="settings-fb-project-id"
                   type="text"
@@ -189,7 +190,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
               </div>
 
               <div>
-                <label htmlFor="settings-fb-auth-domain" className="settings-modal-style-21">Auth Domain</label>
+                <label htmlFor="settings-fb-auth-domain" className={`settings-modal-style-21 ${styles['settings-modal-style-21']}`}>Auth Domain</label>
                 <input
                   id="settings-fb-auth-domain"
                   type="text"
@@ -200,7 +201,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
               </div>
 
               <div>
-                <label htmlFor="settings-fb-storage-bucket" className="settings-modal-style-22">Storage Bucket</label>
+                <label htmlFor="settings-fb-storage-bucket" className={`settings-modal-style-22 ${styles['settings-modal-style-22']}`}>Storage Bucket</label>
                 <input
                   id="settings-fb-storage-bucket"
                   type="text"
@@ -211,7 +212,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
               </div>
 
               <div>
-                <label htmlFor="settings-fb-sender-id" className="settings-modal-style-23">Sender ID</label>
+                <label htmlFor="settings-fb-sender-id" className={`settings-modal-style-23 ${styles['settings-modal-style-23']}`}>Sender ID</label>
                 <input
                   id="settings-fb-sender-id"
                   type="text"
@@ -222,7 +223,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
               </div>
 
               <div>
-                <label htmlFor="settings-fb-app-id" className="settings-modal-style-24">App ID</label>
+                <label htmlFor="settings-fb-app-id" className={`settings-modal-style-24 ${styles['settings-modal-style-24']}`}>App ID</label>
                 <input
                   id="settings-fb-app-id"
                   type="text"
@@ -233,31 +234,31 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
               </div>
             </div>
 
-            <div className="settings-modal-style-25" style={{ color: isFirebaseConnected ? 'var(--primary)' : 'var(--accent-amber)' }}>
+            <div className={`settings-modal-style-25 ${styles['settings-modal-style-25']}`} style={{ color: isFirebaseConnected ? 'var(--primary)' : 'var(--accent-amber)' }}>
               Status: {isFirebaseConnected ? '● Connected to Cloud DB' : '○ Running Sandbox LocalStorage DB'}
             </div>
           </div>
 
           {/* Action buttons */}
-          <div className="settings-modal-style-26">
+          <div className={`settings-modal-style-26 ${styles['settings-modal-style-26']}`}>
             <button
               type="button"
               onClick={handleClear}
-              className="btn-danger settings-modal-style-27"
+              className={`btn-danger settings-modal-style-27 ${styles['settings-modal-style-27']}`}
             >
               Reset All configs
             </button>
-            <div className="settings-modal-style-28" />
+            <div className={`settings-modal-style-28 ${styles['settings-modal-style-28']}`} />
             <button
               type="button"
               onClick={onClose}
-              className="btn-ghost settings-modal-style-29"
+              className={`btn-ghost settings-modal-style-29 ${styles['settings-modal-style-29']}`}
             >
               Close
             </button>
             <button
               type="submit"
-              className="btn-primary settings-modal-style-30"
+              className={`btn-primary settings-modal-style-30 ${styles['settings-modal-style-30']}`}
             >
               <RefreshCw size={14} /> Save & Reload
             </button>

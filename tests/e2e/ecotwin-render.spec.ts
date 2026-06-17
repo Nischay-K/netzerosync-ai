@@ -39,16 +39,16 @@ test.describe('3D EcoTwin WebGL Rendering E2E Tests', () => {
     await ecoTwinTab.click();
 
     // Verify loading spinner is hidden and canvas container is loaded
-    const canvasContainer = page.locator('.eco-twin-style-13');
+    const canvasContainer = page.locator('.eco-twin-canvas-element');
     await expect(canvasContainer).toBeVisible();
 
     // Wait for dynamic Three.js assets to resolve and attach WebGL canvas element
-    const canvasElement = page.locator('.eco-twin-style-13 canvas');
+    const canvasElement = page.locator('.eco-twin-canvas-element canvas');
     await expect(canvasElement).toBeVisible({ timeout: 15000 });
 
     // Validate that the WebGL context initialized successfully and did not crash
     const webglStatus = await page.evaluate(() => {
-      const canvas = document.querySelector('.eco-twin-style-13 canvas') as HTMLCanvasElement;
+      const canvas = document.querySelector('.eco-twin-canvas-element canvas') as HTMLCanvasElement;
       if (!canvas) return 'No canvas found';
       const gl = (canvas.getContext('webgl2') || canvas.getContext('webgl') || canvas.getContext('experimental-webgl')) as WebGL2RenderingContext | null;
       if (!gl) return 'WebGL context failed';

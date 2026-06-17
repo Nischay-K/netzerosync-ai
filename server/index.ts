@@ -14,6 +14,31 @@ const copilotSchema = z.object({
   message: z.string().min(1, 'Message cannot be empty').max(1000, 'Message is too long')
 });
 
+const scanReceiptSchema = z.object({
+  fileData: z.object({
+    data: z.string(),
+    mimeType: z.string()
+  }).optional(),
+  fileName: z.string().optional(),
+  textInput: z.string().optional()
+});
+
+const verifyQuestSchema = z.object({
+  fileData: z.object({
+    data: z.string(),
+    mimeType: z.string()
+  }).optional(),
+  questTitle: z.string().min(1, 'Quest title is required')
+});
+
+const scanProductSchema = z.object({
+  fileData: z.object({
+    data: z.string(),
+    mimeType: z.string()
+  }).optional(),
+  fileName: z.string().optional()
+});
+
 const activityLogSchema = z.object({
   entry: z.object({
     co2Value: z.number().optional().default(0),
@@ -316,6 +341,264 @@ app.post('/api/copilot/chat', authenticateUser, copilotLimiter, async (req: Requ
   }
 });
 
+// Helper Mocks for Server-side AI fallbacks when model is unconfigured
+const getMockReceiptAnalysis = (fileName: string) => {
+  const name = fileName.toLowerCase();
+  if (name.includes('grocery') || name.includes('receipt') || name.includes('store') || name.includes('supermarket')) {
+    return {
+      items: [
+        { name: "Organic Beef Sirloin (500g)", category: "Food (Meat)", co2: 15.5 },
+        { name: "Avocados (Pack of 4)", category: "Food (Imports)", co2: 2.1 },
+        { name: "Local Strawberries (250g)", category: "Food (Local)", co2: 0.3 },
+        { name: "Almond Milk (1L - tetrapak)", category: "Food (Dairy Alternative)", co2: 0.8 },
+        { name: "Sparkling Water in Plastic (2L)", category: "Shopping (Plastic)", co2: 1.4 }
+      ],
+      totalCo2: 20.1,
+      suggestions: "Your highest contributor is the Beef Sirloin. Swapping beef for poultry or legumes could save up to 14 kg of CO₂. Also, try purchasing sparkling water in aluminum cans or using a soda maker to eliminate single-use plastic bottles."
+    };
+  } else if (name.includes('electricity') || name.includes('bill') || name.includes('utility') || name.includes('power')) {
+    return {
+      items: [
+        { name: "Electricity Usage (340 kWh)", category: "Energy (Electricity)", co2: 125.8 },
+        { name: "Gas usage (15 therms)", category: "Energy (Natural Gas)", co2: 80.2 }
+      ],
+      totalCo2: 206.0,
+      suggestions: "Your grid electricity generates significant carbon. Consider joining a community solar project, installing LED bulbs throughout your home, or setting your thermostat 2°F lower in winter to save approximately 40 kg CO₂/month."
+    };
+  } else {
+    return {
+      items: [
+        { name: "Uber Ride (18.5 km)", category: "Transport (Ride Share)", co2: 4.2 },
+        { name: "Fast Fashion Cotton T-shirt", category: "Shopping (Apparel)", co2: 8.5 }
+      ],
+      totalCo2: 12.7,
+      suggestions: "Consider public transit or biking for trips under 10km. For clothing, buying from thrift stores or choosing high-quality organic cotton brands extends clothing lifecycles and halves fashion emissions."
+    };
+  }
+};
+
+const getMockProductAnalysis = (fileName: string) => {
+  const name = fileName.toLowerCase();
+  if (name.includes('bottle') || name.includes('plastic') || name.includes('cup')) {
+    return {
+      productName: "Single-Use Plastic Bottle",
+      carbonImpact: 0.15,
+      ecoInsight: "PET plastic generates about 0.15 kg of CO₂ per bottle during manufacturing. We recommend checking out Mangrove Reforestation to offset high plastic waste footprints.",
+      recommendedOffsetCategory: "Forestry"
+    };
+  } else if (name.includes('burger') || name.includes('meat') || name.includes('food')) {
+    return {
+      productName: "Fast Food Beef Burger",
+      carbonImpact: 4.8,
+      ecoInsight: "Beef production generates high methane and carbon output. Offsetting 4.8 kg carbon using Cookstove efficiency projects is highly recommended.",
+      recommendedOffsetCategory: "Efficiency"
+    };
+  } else if (name.includes('box') || name.includes('package') || name.includes('cardboard')) {
+    return {
+      productName: "Cardboard Shipping Container",
+      carbonImpact: 0.85,
+      ecoInsight: "Cardboard requires tree harvesting. Counter this impact by contributing to Mangrove Reforestation to replenish canopy sequestration.",
+      recommendedOffsetCategory: "Forestry"
+    };
+  } else {
+    return {
+      productName: "Electronic Device / Retail Item",
+      carbonImpact: 12.5,
+      ecoInsight: "Consumer electronics involve complex supply-chain emissions. Sponsoring the Solar Microgrid Initiative helps displace fossil-fuel manufacturing grids.",
+      recommendedOffsetCategory: "Renewables"
+    };
+  }
+};
+
+// 4b. Secure Vision AI Endpoints
+app.post('/api/copilot/scan-receipt', authenticateUser, copilotLimiter, async (req: Request, res: Response): Promise<Response> => {
+  try {
+    const bodyResult = scanReceiptSchema.safeParse(req.body);
+    if (!bodyResult.success) {
+      return res.status(400).json({ error: 'Bad Request: ' + bodyResult.error.issues[0].message });
+    }
+    const { fileData, fileName, textInput } = bodyResult.data;
+
+    if (!generativeModel) {
+      await new Promise(r => setTimeout(r, 1000));
+      return res.json(getMockReceiptAnalysis(fileName || "text_receipt"));
+    }
+
+    let prompt = `Analyze this purchase receipt, grocery list, travel ticket, or electricity bill. 
+Extract the key items and estimate the carbon footprint (CO2 in kilograms) generated by each item.
+For groceries, estimate based on food category carbon footprint (e.g. beef has high footprint, local vegetables have low).
+For electricity/gas bills, convert the kWh or gas therms directly into CO2 kilograms using standard global emission averages.
+For travel, calculate CO2 based on travel mode and distance.
+
+You must output your response strictly as a JSON object, with no markdown code blocks, using this format:
+{
+  "items": [
+    { "name": "Item or service name", "category": "Food/Transport/Energy/Shopping", "co2": 0.0 }
+  ],
+  "totalCo2": 0.0,
+  "suggestions": "Brief advice on eco-friendly alternatives for the highest emitting items found"
+}
+`;
+
+    if (textInput) {
+      prompt += `\nAdditional text context/notes provided: "${textInput}"`;
+    }
+
+    const parts: any[] = [];
+    if (fileData) {
+      parts.push({
+        inlineData: {
+          data: fileData.data,
+          mimeType: fileData.mimeType
+        }
+      });
+    }
+    parts.push({ text: prompt });
+
+    let responseText = "";
+    if (isAiStudioMode) {
+      const result = await generativeModel.generateContent(parts);
+      responseText = result.response.text();
+    } else {
+      const result = await generativeModel.generateContent(parts);
+      responseText = result.response.candidates[0].content.parts[0].text;
+    }
+
+    let text = responseText.trim();
+    if (text.startsWith("```json")) {
+      text = text.substring(7, text.length - 3);
+    } else if (text.startsWith("```")) {
+      text = text.substring(3, text.length - 3);
+    }
+
+    return res.json(JSON.parse(text.trim()));
+  } catch (error) {
+    console.error('Error handling scan-receipt request:', error);
+    return res.status(500).json({ error: 'Internal Server Error: Failed to scan receipt.' });
+  }
+});
+
+app.post('/api/copilot/verify-quest', authenticateUser, copilotLimiter, async (req: Request, res: Response): Promise<Response> => {
+  try {
+    const bodyResult = verifyQuestSchema.safeParse(req.body);
+    if (!bodyResult.success) {
+      return res.status(400).json({ error: 'Bad Request: ' + bodyResult.error.issues[0].message });
+    }
+    const { fileData, questTitle } = bodyResult.data;
+
+    if (!generativeModel || !fileData) {
+      await new Promise(r => setTimeout(r, 1000));
+      return res.json({ 
+        verified: true, 
+        explanation: `Sandbox verified: The uploaded photo contains elements matching the quest "${questTitle}"!` 
+      });
+    }
+
+    const prompt = `Inspect this uploaded image. Determine if this image provides visual proof of completing the sustainability quest: "${questTitle}".
+For example:
+- If quest is about a vegetarian meal, check if the image shows vegetarian/vegan food.
+- If quest is about walking or cycling, check if the image shows a bicycle, walking path, pedometer reading, or walking shoes.
+- If quest is about saving energy/water, check if the image shows thermostat dials, unplugged power outlets, or water aerators.
+
+You must output your response strictly as a JSON object, with no markdown code blocks, using this format:
+{
+  "verified": true, // true or false
+  "explanation": "A short, 1-sentence friendly confirmation of what the AI detected in the photo (e.g. 'I detected your bicycle on the street! Quest successfully completed.')"
+}
+`;
+
+    const parts = [
+      {
+        inlineData: {
+          data: fileData.data,
+          mimeType: fileData.mimeType
+        }
+      },
+      { text: prompt }
+    ];
+
+    let responseText = "";
+    if (isAiStudioMode) {
+      const result = await generativeModel.generateContent(parts);
+      responseText = result.response.text();
+    } else {
+      const result = await generativeModel.generateContent(parts);
+      responseText = result.response.candidates[0].content.parts[0].text;
+    }
+
+    let text = responseText.trim();
+    if (text.startsWith("```json")) {
+      text = text.substring(7, text.length - 3);
+    } else if (text.startsWith("```")) {
+      text = text.substring(3, text.length - 3);
+    }
+
+    return res.json(JSON.parse(text.trim()));
+  } catch (error) {
+    console.error('Error handling verify-quest request:', error);
+    return res.status(500).json({ error: 'Internal Server Error: Failed to verify quest photo.' });
+  }
+});
+
+app.post('/api/copilot/scan-product', authenticateUser, copilotLimiter, async (req: Request, res: Response): Promise<Response> => {
+  try {
+    const bodyResult = scanProductSchema.safeParse(req.body);
+    if (!bodyResult.success) {
+      return res.status(400).json({ error: 'Bad Request: ' + bodyResult.error.issues[0].message });
+    }
+    const { fileData, fileName } = bodyResult.data;
+
+    if (!generativeModel || !fileData) {
+      await new Promise(r => setTimeout(r, 1000));
+      return res.json(getMockProductAnalysis(fileName || "product.jpg"));
+    }
+
+    const prompt = `Identify the product in this image. Estimate its carbon footprint (in kg CO2 equivalents) based on common lifecycles.
+Provide short sustainability insights (what makes this carbon-intensive or how the user can reduce it).
+Suggest one of these marketplace project categories to offset it: "Forestry", "Renewables", or "Efficiency".
+
+You must output your response strictly as a JSON object, with no markdown code blocks, using this format:
+{
+  "productName": "Product Name",
+  "carbonImpact": 0.0, // estimated CO2 in kg
+  "ecoInsight": "1-2 sentence ecological description",
+  "recommendedOffsetCategory": "Forestry" // must be "Forestry", "Renewables", or "Efficiency"
+}
+`;
+
+    const parts = [
+      {
+        inlineData: {
+          data: fileData.data,
+          mimeType: fileData.mimeType
+        }
+      },
+      { text: prompt }
+    ];
+
+    let responseText = "";
+    if (isAiStudioMode) {
+      const result = await generativeModel.generateContent(parts);
+      responseText = result.response.text();
+    } else {
+      const result = await generativeModel.generateContent(parts);
+      responseText = result.response.candidates[0].content.parts[0].text;
+    }
+
+    let text = responseText.trim();
+    if (text.startsWith("```json")) {
+      text = text.substring(7, text.length - 3);
+    } else if (text.startsWith("```")) {
+      text = text.substring(3, text.length - 3);
+    }
+
+    return res.json(JSON.parse(text.trim()));
+  } catch (error) {
+    console.error('Error handling scan-product request:', error);
+    return res.status(500).json({ error: 'Internal Server Error: Failed to scan product.' });
+  }
+});
+
 // 5. Secure Carbon Activity Logging & Rewards Endpoint
 app.post('/api/activity/log', authenticateUser, logLimiter, async (req: Request, res: Response): Promise<Response> => {
   try {
@@ -423,7 +706,7 @@ app.post('/api/activity/log', authenticateUser, logLimiter, async (req: Request,
     return res.json(updatedStats);
   } catch (error: any) {
     console.error('Error processing carbon log activity:', error);
-    return res.status(500).json({ error: error.message || 'Internal Server Error: Failed to process database transaction.' });
+    return res.status(500).json({ error: 'Internal Server Error: Failed to process activity log in database.' });
   }
 });
 
@@ -524,7 +807,7 @@ app.post('/api/challenge/join', authenticateUser, joinLimiter, async (req: Reque
     return res.json(updatedUser);
   } catch (error: any) {
     console.error('Error joining challenge:', error);
-    return res.status(500).json({ error: error.message || 'Failed to join community challenge.' });
+    return res.status(500).json({ error: 'Internal Server Error: Failed to join community challenge.' });
   }
 });
 

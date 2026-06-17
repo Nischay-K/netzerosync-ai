@@ -1,4 +1,5 @@
 import { useState, useEffect, lazy, Suspense } from 'react';
+import styles from './App.module.css';
 import { onAuthStateChanged, signOut, UserProfile } from './utils/firebase';
 import Auth from './components/Auth';
 import './App.css';
@@ -82,9 +83,9 @@ export default function App() {
 
   if (authLoading) {
     return (
-      <div className="app-style-1">
-        <div className="app-style-2" />
-        <p className="app-style-3">Securing sandbox gateway...</p>
+      <div className={`app-style-1 ${styles['app-style-1']}`}>
+        <div className={`app-style-2 ${styles['app-style-2']}`} />
+        <p className={`app-style-3 ${styles['app-style-3']}`}>Securing sandbox gateway...</p>
         <style>{`
           @keyframes spin {
             0% { transform: rotate(0deg); }
@@ -106,8 +107,8 @@ export default function App() {
   if (!hasOnboarded) {
     return (
       <Suspense fallback={
-        <div className="app-style-4">
-          <div className="app-style-5" />
+        <div className={`app-style-4 ${styles['app-style-4']}`}>
+          <div className={`app-style-5 ${styles['app-style-5']}`} />
         </div>
       }>
         <Onboarding 
@@ -144,7 +145,7 @@ export default function App() {
       case 'marketplace':
         return <Marketplace key={user.uid} user={user} onProfileUpdate={(p) => setUser(p)} />;
       default:
-        return <Dashboard key={user.uid} user={user} onProfileUpdate={(p) => setUser(p)} />;
+        return <Dashboard key={user.uid} user={user} onProfileUpdate={(p) => setUser(p)} onOpenAchievements={() => setAchievementsOpen(true)} />;
     }
   };
 
@@ -161,7 +162,7 @@ export default function App() {
         <div className="toast-container">
           <div className="toast success">
             <Leaf size={16} color="var(--primary)" />
-            <span className="app-style-6">{toastNotify}</span>
+            <span className={`app-style-6 ${styles['app-style-6']}`}>{toastNotify}</span>
           </div>
         </div>
       )}
@@ -173,12 +174,12 @@ export default function App() {
           <span>NetZeroSync AI</span>
         </div>
 
-        <nav className="app-style-7">
+        <nav className={`app-style-7 ${styles['app-style-7']}`}>
           <ul className="nav-links">
             <li>
               <button 
                 onClick={() => setActiveTab('dashboard')} 
-                className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''} app-style-8`}
+                className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''} app-style-8 ${styles['app-style-8']}`}
                 aria-current={activeTab === 'dashboard' ? 'page' : undefined}
               >
                 <LayoutDashboard size={18} />
@@ -190,7 +191,7 @@ export default function App() {
                 onClick={() => setActiveTab('ecotwin')} 
                 onMouseEnter={() => prefetchComponent('ecotwin')}
                 onFocus={() => prefetchComponent('ecotwin')}
-                className={`nav-item ${activeTab === 'ecotwin' ? 'active' : ''} app-style-9`}
+                className={`nav-item ${activeTab === 'ecotwin' ? 'active' : ''} app-style-9 ${styles['app-style-9']}`}
                 aria-current={activeTab === 'ecotwin' ? 'page' : undefined}
               >
                 <Orbit size={18} />
@@ -202,7 +203,7 @@ export default function App() {
                 onClick={() => setActiveTab('carbonlens')} 
                 onMouseEnter={() => prefetchComponent('carbonlens')}
                 onFocus={() => prefetchComponent('carbonlens')}
-                className={`nav-item ${activeTab === 'carbonlens' ? 'active' : ''} app-style-10`}
+                className={`nav-item ${activeTab === 'carbonlens' ? 'active' : ''} app-style-10 ${styles['app-style-10']}`}
                 aria-current={activeTab === 'carbonlens' ? 'page' : undefined}
               >
                 <Scan size={18} />
@@ -214,7 +215,7 @@ export default function App() {
                 onClick={() => setActiveTab('carbonquest')} 
                 onMouseEnter={() => prefetchComponent('carbonquest')}
                 onFocus={() => prefetchComponent('carbonquest')}
-                className={`nav-item ${activeTab === 'carbonquest' ? 'active' : ''} app-style-11`}
+                className={`nav-item ${activeTab === 'carbonquest' ? 'active' : ''} app-style-11 ${styles['app-style-11']}`}
                 aria-current={activeTab === 'carbonquest' ? 'page' : undefined}
               >
                 <ListTodo size={18} />
@@ -226,7 +227,7 @@ export default function App() {
                 onClick={() => setActiveTab('community')} 
                 onMouseEnter={() => prefetchComponent('community')}
                 onFocus={() => prefetchComponent('community')}
-                className={`nav-item ${activeTab === 'community' ? 'active' : ''} app-style-12`}
+                className={`nav-item ${activeTab === 'community' ? 'active' : ''} app-style-12 ${styles['app-style-12']}`}
                 aria-current={activeTab === 'community' ? 'page' : undefined}
               >
                 <Users size={18} />
@@ -238,7 +239,7 @@ export default function App() {
                 onClick={() => setActiveTab('marketplace')} 
                 onMouseEnter={() => prefetchComponent('marketplace')}
                 onFocus={() => prefetchComponent('marketplace')}
-                className={`nav-item ${activeTab === 'marketplace' ? 'active' : ''} app-style-13`}
+                className={`nav-item ${activeTab === 'marketplace' ? 'active' : ''} app-style-13 ${styles['app-style-13']}`}
                 aria-current={activeTab === 'marketplace' ? 'page' : undefined}
               >
                 <ShoppingCart size={18} />
@@ -248,7 +249,7 @@ export default function App() {
           </ul>
 
           {/* User Profile Badge at bottom of Sidebar */}
-          <div className="sidebar-footer app-style-14">
+          <div className={`sidebar-footer app-style-14 ${styles['app-style-14']}`}>
             <button 
               onClick={() => setAchievementsOpen(true)}
               onMouseEnter={(e) => {
@@ -257,26 +258,26 @@ export default function App() {
               }}
               onFocus={() => prefetchComponent('achievements')}
               onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-              className="app-style-15"
+              className={`app-style-15 ${styles['app-style-15']}`}
               title="Click to view achievements"
               aria-label="View eco achievements drawer"
             >
-              <div className="app-style-16">
+              <div className={`app-style-16 ${styles['app-style-16']}`}>
                 {user.displayName?.charAt(0) || 'E'}
               </div>
-              <div className="app-style-17">
-                <div className="app-style-18">
+              <div className={`app-style-17 ${styles['app-style-17']}`}>
+                <div className={`app-style-18 ${styles['app-style-18']}`}>
                   {user.displayName}
                 </div>
-                <div className="app-style-19">
+                <div className={`app-style-19 ${styles['app-style-19']}`}>
                   <span>Lvl {user.level || 1}</span>
                   <span>•</span>
-                  <span className="app-style-20">
+                  <span className={`app-style-20 ${styles['app-style-20']}`}>
                     <Coins size={10} />
                     {user.ecoTokens || 0}
                   </span>
                   <span>•</span>
-                  <span className="app-style-21">
+                  <span className={`app-style-21 ${styles['app-style-21']}`}>
                     <Award size={11} />
                   </span>
                 </div>
@@ -285,7 +286,7 @@ export default function App() {
 
             <button 
               onClick={handleLogout}
-              className="btn-ghost app-style-22"
+              className={`btn-ghost app-style-22 ${styles['app-style-22']}`}
             >
               <LogOut size={14} />
               Sign Out
@@ -296,28 +297,28 @@ export default function App() {
 
       {/* Main Panel Content Area */}
       <main className="main-content">
-        <header className="header-bar app-style-23">
-          <div className="app-style-24">
-            <h2 className="app-style-25">
+        <header className={`header-bar app-style-23 ${styles['app-style-23']}`}>
+          <div className={`app-style-24 ${styles['app-style-24']}`}>
+            <h2 className={`app-style-25 ${styles['app-style-25']}`}>
               {activeTab === 'carbonlens' ? 'Carbon Lens AI' : activeTab === 'ecotwin' ? 'EcoTwin Simulator' : activeTab === 'marketplace' ? 'Offset Marketplace' : activeTab}
             </h2>
 
             {/* Global Telemetry Carbon Ticker */}
-            <div className="app-style-26 hide-mobile" title="Simulated collective carbon offsets across the NetZeroSync network">
-              <span className="app-style-27" />
+            <div className={`app-style-26 hide-mobile ${styles['app-style-26']}`} title="Simulated collective carbon offsets across the NetZeroSync network">
+              <span className={`app-style-27 ${styles['app-style-27']}`} />
               <span>Net-Zero Network Save: </span>
-              <strong className="app-style-28">{globalSavings.toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 })} kg</strong>
+              <strong className={`app-style-28 ${styles['app-style-28']}`}>{globalSavings.toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 })} kg</strong>
             </div>
           </div>
 
-          <div className="app-style-29">
+          <div className={`app-style-29 ${styles['app-style-29']}`}>
             
             {/* Toggle Settings Modal */}
             <button
               onClick={() => setSettingsOpen(true)}
               onMouseEnter={() => prefetchComponent('settings')}
               onFocus={() => prefetchComponent('settings')}
-              className="btn-ghost app-style-30"
+              className={`btn-ghost app-style-30 ${styles['app-style-30']}`}
               aria-label="Open cloud connection settings"
             >
               <Settings size={16} />
@@ -328,7 +329,7 @@ export default function App() {
               onClick={() => setCopilotOpen(true)}
               onMouseEnter={() => prefetchComponent('copilot')}
               onFocus={() => prefetchComponent('copilot')}
-              className="btn-secondary glow-indigo app-style-31"
+              className={`btn-secondary glow-indigo app-style-31 ${styles['app-style-31']}`}
             >
               <Bot size={14} />
               <span>Ask Copilot</span>
@@ -337,11 +338,11 @@ export default function App() {
         </header>
 
         {/* Dynamic Inner Panel Page */}
-        <div className="app-style-32">
+        <div className={`app-style-32 ${styles['app-style-32']}`}>
           <Suspense fallback={
-            <div className="app-style-33">
-              <div className="app-style-34" />
-              <p className="app-style-35">Loading panel telemetry...</p>
+            <div className={`app-style-33 ${styles['app-style-33']}`}>
+              <div className={`app-style-34 ${styles['app-style-34']}`} />
+              <p className={`app-style-35 ${styles['app-style-35']}`}>Loading panel telemetry...</p>
             </div>
           }>
             {renderContent()}

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import styles from './Auth.module.css';
 import { signUp, signIn, signInWithGoogle, UserProfile } from '../utils/firebase';
 import { Leaf, User, ChevronRight, Shield, Eye, EyeOff, Bot, ArrowLeft, Zap } from 'lucide-react';
 
@@ -105,49 +106,49 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
   return (
     <div 
       onMouseMove={handleMouseMove}
-      className="auth-style-1"
+      className={`auth-style-1 ${styles['auth-style-1']}`}
     >
       {/* Floating Background Particles */}
-      <div className="auth-style-2">
+      <div className={`auth-style-2 ${styles['auth-style-2']}`}>
         {staticParticles.map(p => (
           <div
             key={p.id}
-            className="auth-style-3" style={{ left: p.left, width: p.size, height: p.size, animation: `floatParticle ${p.duration} linear infinite`, animationDelay: p.delay }}
+            className={`auth-style-3 ${styles['auth-style-3']}`} style={{ left: p.left, width: p.size, height: p.size, animation: `floatParticle ${p.duration} linear infinite`, animationDelay: p.delay }}
           />
         ))}
       </div>
 
       {/* Background Interactive Cursor Glow */}
-      <div className="auth-style-4" style={{ top: mousePos.y - 200, left: mousePos.x - 200 }} />
+      <div className={`auth-style-4 ${styles['auth-style-4']}`} style={{ top: mousePos.y - 200, left: mousePos.x - 200 }} />
       {/* Background Neon Glows */}
-      <div className="auth-style-5" />
-      <div className="auth-style-6" />
+      <div className={`auth-style-5 ${styles['auth-style-5']}`} />
+      <div className={`auth-style-6 ${styles['auth-style-6']}`} />
 
       {/* VIEW STATE 1: INTERACTIVE PRODUCT TOUR CARD GRID */}
       {viewState === 'features' && (
-        <div className="auth-style-7 fade-in">
+        <div className={`auth-style-7 fade-in ${styles['auth-style-7']}`}>
           
           {/* Header */}
-          <div className="auth-style-8">
-            <div className="auth-style-9">
+          <div className={`auth-style-8 ${styles['auth-style-8']}`}>
+            <div className={`auth-style-9 ${styles['auth-style-9']}`}>
               <Leaf size={28} color="#00ff88" />
             </div>
 
-            <div className="auth-style-10">
+            <div className={`auth-style-10 ${styles['auth-style-10']}`}>
               <Zap size={12} /> Carbon Footprint Telemetry
             </div>
 
-            <h1 className="auth-style-11">
+            <h1 className={`auth-style-11 ${styles['auth-style-11']}`}>
               Take Control of Emissions with NetZeroSync AI
             </h1>
 
-            <p className="auth-style-12">
+            <p className={`auth-style-12 ${styles['auth-style-12']}`}>
               Simulate lifestyle parameters, track carbon costs using Vision OCR, and achieve Net-Zero milestones through gamified community challenges.
             </p>
           </div>
 
           {/* Interactive Feature Cards Grid */}
-          <div className="auth-style-13">
+          <div className={`auth-style-13 ${styles['auth-style-13']}`}>
             {[
               { 
                 icon: <Leaf size={24} color="#00ff88" />, 
@@ -188,17 +189,17 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
             ].map((card, idx) => (
               <div 
                 key={idx} 
-                className="glass-panel auth-style-14"
+                className={`glass-panel auth-style-14 ${styles['auth-style-14']}`}
                 onMouseEnter={() => setHoveredCard(idx)}
                 onMouseLeave={() => setHoveredCard(null)}
                 style={{ background: card.color, borderColor: hoveredCard === idx ? card.glowColor : card.borderColor, boxShadow: hoveredCard === idx ? card.shadowGlow : '0 8px 32px rgba(0,0,0,0.4)', transform: hoveredCard === idx ? 'translateY(-6px)' : 'translateY(0)' }}
               >
-                <div className="auth-style-15">
+                <div className={`auth-style-15 ${styles['auth-style-15']}`}>
                   {card.icon}
                 </div>
                 <div>
-                  <h3 className="auth-style-16">{card.title}</h3>
-                  <p className="auth-style-17">{card.desc}</p>
+                  <h3 className={`auth-style-16 ${styles['auth-style-16']}`}>{card.title}</h3>
+                  <p className={`auth-style-17 ${styles['auth-style-17']}`}>{card.desc}</p>
                 </div>
               </div>
             ))}
@@ -207,7 +208,7 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
           {/* CTA Action button to proceed */}
           <button
             onClick={() => setViewState('auth')}
-            className="btn-primary auth-style-18"
+            className={`btn-primary auth-style-18 ${styles['auth-style-18']}`}
           >
             Access Telemetry Console <ChevronRight size={18} />
           </button>
@@ -216,77 +217,77 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
 
       {/* VIEW STATE 2: SPLIT-SCREEN AUTHENTICATION PANEL */}
       {viewState === 'auth' && (
-        <div className="auth-style-19">
+        <div className={`auth-style-19 ${styles['auth-style-19']}`}>
           {/* Left features sidebar */}
-          <div className="auth-style-20 hide-mobile">
+          <div className={`auth-style-20 hide-mobile ${styles['auth-style-20']}`}>
             {/* Back to Tour Button */}
             <button
               onClick={() => setViewState('features')}
-              className="auth-style-21"
+              className={`auth-style-21 ${styles['auth-style-21']}`}
             >
               <ArrowLeft size={16} /> Back to Feature Tour
             </button>
 
-            <div className="auth-style-22">
-              <div className="auth-style-23">
+            <div className={`auth-style-22 ${styles['auth-style-22']}`}>
+              <div className={`auth-style-23 ${styles['auth-style-23']}`}>
                 <Leaf size={24} color="var(--primary)" />
-                <span className="auth-style-24">
+                <span className={`auth-style-24 ${styles['auth-style-24']}`}>
                   NETZEROSYNC AI
                 </span>
               </div>
-              <h2 className="auth-style-25">
+              <h2 className={`auth-style-25 ${styles['auth-style-25']}`}>
                 Climate intelligence, at your node.
               </h2>
-              <p className="auth-style-26">
+              <p className={`auth-style-26 ${styles['auth-style-26']}`}>
                 Configure parameters directly in the settings drawer to connect your real Firebase Auth, Firestore, and Gemini models. Local Sandbox fallback allows instant evaluation checks.
               </p>
 
               {/* Animated Technical Terminal */}
-              <div className="auth-style-27">
-                <div className="auth-style-28">
-                  <div className="auth-style-29" />
-                  <div className="auth-style-30" />
-                  <div className="auth-style-31" />
+              <div className={`auth-style-27 ${styles['auth-style-27']}`}>
+                <div className={`auth-style-28 ${styles['auth-style-28']}`}>
+                  <div className={`auth-style-29 ${styles['auth-style-29']}`} />
+                  <div className={`auth-style-30 ${styles['auth-style-30']}`} />
+                  <div className={`auth-style-31 ${styles['auth-style-31']}`} />
                 </div>
                 <ConsoleTerminal />
               </div>
             </div>
 
-            <div className="auth-style-32">
+            <div className={`auth-style-32 ${styles['auth-style-32']}`}>
               NODE ID STATUS: SECURE CONNECTION ACTIVE
             </div>
           </div>
 
           {/* Right login container */}
-          <div className="auth-style-33">
+          <div className={`auth-style-33 ${styles['auth-style-33']}`}>
             {/* Back to features (mobile-only display helper) */}
             <button
               onClick={() => setViewState('features')}
-              className="show-mobile-only auth-style-34"
+              className={`show-mobile-only auth-style-34 ${styles['auth-style-34']}`}
             >
               <ArrowLeft size={14} /> View Features
             </button>
 
-            <div className="glass-panel glow-emerald fade-in auth-style-35">
+            <div className={`glass-panel glow-emerald fade-in auth-style-35 ${styles['auth-style-35']}`}>
               
-              <h2 className="auth-style-36">
+              <h2 className={`auth-style-36 ${styles['auth-style-36']}`}>
                 {isRegister ? 'Create Node Account' : 'Console Sign In'}
               </h2>
-              <p className="auth-style-37">
+              <p className={`auth-style-37 ${styles['auth-style-37']}`}>
                 {isRegister ? 'Setup your target parameters.' : 'Connect to dashboard telemetry.'}
               </p>
 
               {/* Tabs */}
-              <div className="auth-style-38">
+              <div className={`auth-style-38 ${styles['auth-style-38']}`}>
                 <button
                   onClick={() => { setIsRegister(false); setError(''); }}
-                  className="auth-style-39" style={{ borderBottom: !isRegister ? '2px solid var(--primary)' : '2px solid transparent', color: !isRegister ? 'var(--text-primary)' : 'var(--text-muted)' }}
+                  className={`auth-style-39 ${styles['auth-style-39']}`} style={{ borderBottom: !isRegister ? '2px solid var(--primary)' : '2px solid transparent', color: !isRegister ? 'var(--text-primary)' : 'var(--text-muted)' }}
                 >
                   Sign In
                 </button>
                 <button
                   onClick={() => { setIsRegister(true); setError(''); }}
-                  className="auth-style-40" style={{ borderBottom: isRegister ? '2px solid var(--primary)' : '2px solid transparent', color: isRegister ? 'var(--text-primary)' : 'var(--text-muted)' }}
+                  className={`auth-style-40 ${styles['auth-style-40']}`} style={{ borderBottom: isRegister ? '2px solid var(--primary)' : '2px solid transparent', color: isRegister ? 'var(--text-primary)' : 'var(--text-muted)' }}
                 >
                   Sign Up
                 </button>
@@ -294,18 +295,18 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
 
               {/* Error Alert */}
               {error && (
-                <div className="auth-style-41">
+                <div className={`auth-style-41 ${styles['auth-style-41']}`}>
                   {error}
                 </div>
               )}
 
               {/* Form elements */}
-              <form onSubmit={handleSubmit} className="auth-style-42">
+              <form onSubmit={handleSubmit} className={`auth-style-42 ${styles['auth-style-42']}`}>
                 {isRegister && (
                   <div>
-                    <label htmlFor="auth-explorer-name" className="auth-style-43">Explorer Name</label>
-                    <div className="auth-style-44">
-                      <User size={13} color="var(--text-muted)" className="auth-style-45" />
+                    <label htmlFor="auth-explorer-name" className={`auth-style-43 ${styles['auth-style-43']}`}>Explorer Name</label>
+                    <div className={`auth-style-44 ${styles['auth-style-44']}`}>
+                      <User size={13} color="var(--text-muted)" className={`auth-style-45 ${styles['auth-style-45']}`} />
                       <input
                         id="auth-explorer-name"
                         type="text"
@@ -313,15 +314,15 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
                         value={displayName}
                         onChange={(e) => setDisplayName(e.target.value)}
                         required
-                        className="auth-style-46"
+                        className={`auth-style-46 ${styles['auth-style-46']}`}
                       />
                     </div>
                   </div>
                 )}
 
                 <div>
-                  <label htmlFor="auth-email" className="auth-style-47">Email Address</label>
-                  <div className="auth-style-48">
+                  <label htmlFor="auth-email" className={`auth-style-47 ${styles['auth-style-47']}`}>Email Address</label>
+                  <div className={`auth-style-48 ${styles['auth-style-48']}`}>
                     <input
                       id="auth-email"
                       type="email"
@@ -329,14 +330,14 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      className="auth-style-49" style={{ borderColor: !email || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? 'var(--glass-border)' : 'rgba(239, 68, 68, 0.5)' }}
+                      className={`auth-style-49 ${styles['auth-style-49']}`} style={{ borderColor: !email || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? 'var(--glass-border)' : 'rgba(239, 68, 68, 0.5)' }}
                     />
                   </div>
                 </div>
 
                  <div>
-                  <label htmlFor="auth-password" className="auth-style-50">Password</label>
-                  <div className="auth-style-51">
+                  <label htmlFor="auth-password" className={`auth-style-50 ${styles['auth-style-50']}`}>Password</label>
+                  <div className={`auth-style-51 ${styles['auth-style-51']}`}>
                     <input
                       id="auth-password"
                       type={showPassword ? "text" : "password"}
@@ -344,34 +345,34 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
-                      className="auth-style-52" style={{ borderColor: !password || (isRegister ? (validatePasswordStrength(password).length && validatePasswordStrength(password).hasUpper && validatePasswordStrength(password).hasLower && validatePasswordStrength(password).hasNumber && validatePasswordStrength(password).hasSpecial) : password.length >= 6) ? 'var(--glass-border)' : 'rgba(239, 68, 68, 0.5)' }}
+                      className={`auth-style-52 ${styles['auth-style-52']}`} style={{ borderColor: !password || (isRegister ? (validatePasswordStrength(password).length && validatePasswordStrength(password).hasUpper && validatePasswordStrength(password).hasLower && validatePasswordStrength(password).hasNumber && validatePasswordStrength(password).hasSpecial) : password.length >= 6) ? 'var(--glass-border)' : 'rgba(239, 68, 68, 0.5)' }}
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="auth-style-53"
+                      className={`auth-style-53 ${styles['auth-style-53']}`}
                     >
                       {showPassword ? <EyeOff size={13} /> : <Eye size={13} />}
                     </button>
                   </div>
                   
                   {isRegister && password.length > 0 && (
-                    <div className="auth-style-54">
-                      <span className="auth-style-55">Password Security Checklist:</span>
-                      <div className="auth-style-56" style={{ color: validatePasswordStrength(password).length ? '#00ff88' : 'var(--text-muted)' }}>
-                        <div className="auth-style-57" style={{ background: validatePasswordStrength(password).length ? '#00ff88' : 'var(--text-muted)' }} />
+                    <div className={`auth-style-54 ${styles['auth-style-54']}`}>
+                      <span className={`auth-style-55 ${styles['auth-style-55']}`}>Password Security Checklist:</span>
+                      <div className={`auth-style-56 ${styles['auth-style-56']}`} style={{ color: validatePasswordStrength(password).length ? '#00ff88' : 'var(--text-muted)' }}>
+                        <div className={`auth-style-57 ${styles['auth-style-57']}`} style={{ background: validatePasswordStrength(password).length ? '#00ff88' : 'var(--text-muted)' }} />
                         <span>At least 8 characters</span>
                       </div>
-                      <div className="auth-style-58" style={{ color: (validatePasswordStrength(password).hasUpper && validatePasswordStrength(password).hasLower) ? '#00ff88' : 'var(--text-muted)' }}>
-                        <div className="auth-style-59" style={{ background: (validatePasswordStrength(password).hasUpper && validatePasswordStrength(password).hasLower) ? '#00ff88' : 'var(--text-muted)' }} />
+                      <div className={`auth-style-58 ${styles['auth-style-58']}`} style={{ color: (validatePasswordStrength(password).hasUpper && validatePasswordStrength(password).hasLower) ? '#00ff88' : 'var(--text-muted)' }}>
+                        <div className={`auth-style-59 ${styles['auth-style-59']}`} style={{ background: (validatePasswordStrength(password).hasUpper && validatePasswordStrength(password).hasLower) ? '#00ff88' : 'var(--text-muted)' }} />
                         <span>Uppercase & lowercase letters</span>
                       </div>
-                      <div className="auth-style-60" style={{ color: validatePasswordStrength(password).hasNumber ? '#00ff88' : 'var(--text-muted)' }}>
-                        <div className="auth-style-61" style={{ background: validatePasswordStrength(password).hasNumber ? '#00ff88' : 'var(--text-muted)' }} />
+                      <div className={`auth-style-60 ${styles['auth-style-60']}`} style={{ color: validatePasswordStrength(password).hasNumber ? '#00ff88' : 'var(--text-muted)' }}>
+                        <div className={`auth-style-61 ${styles['auth-style-61']}`} style={{ background: validatePasswordStrength(password).hasNumber ? '#00ff88' : 'var(--text-muted)' }} />
                         <span>At least one number (0-9)</span>
                       </div>
-                      <div className="auth-style-62" style={{ color: validatePasswordStrength(password).hasSpecial ? '#00ff88' : 'var(--text-muted)' }}>
-                        <div className="auth-style-63" style={{ background: validatePasswordStrength(password).hasSpecial ? '#00ff88' : 'var(--text-muted)' }} />
+                      <div className={`auth-style-62 ${styles['auth-style-62']}`} style={{ color: validatePasswordStrength(password).hasSpecial ? '#00ff88' : 'var(--text-muted)' }}>
+                        <div className={`auth-style-63 ${styles['auth-style-63']}`} style={{ background: validatePasswordStrength(password).hasSpecial ? '#00ff88' : 'var(--text-muted)' }} />
                         <span>At least one special character (!@#$%)</span>
                       </div>
                     </div>
@@ -380,7 +381,7 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
 
                 <button
                   type="submit"
-                  className="btn-primary auth-style-64"
+                  className={`btn-primary auth-style-64 ${styles['auth-style-64']}`}
                   disabled={loading}
                 >
                   {loading ? 'Processing...' : isRegister ? 'Establish Node Account' : 'Authenticate Console'}
@@ -389,20 +390,20 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
               </form>
 
               {/* Divider */}
-              <div className="auth-style-65">
-                <div className="auth-style-66"></div>
-                <span className="auth-style-67">OR</span>
-                <div className="auth-style-68"></div>
+              <div className={`auth-style-65 ${styles['auth-style-65']}`}>
+                <div className={`auth-style-66 ${styles['auth-style-66']}`}></div>
+                <span className={`auth-style-67 ${styles['auth-style-67']}`}>OR</span>
+                <div className={`auth-style-68 ${styles['auth-style-68']}`}></div>
               </div>
 
               {/* Google Sign-in button */}
-              <div className="auth-style-69">
+              <div className={`auth-style-69 ${styles['auth-style-69']}`}>
                 <button
                   onClick={handleGoogleLogin}
                   disabled={loading}
-                  className="btn-ghost auth-style-70"
+                  className={`btn-ghost auth-style-70 ${styles['auth-style-70']}`}
                 >
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true" className="auth-style-71">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true" className={`auth-style-71 ${styles['auth-style-71']}`}>
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
                     <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
                     <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/>
@@ -479,7 +480,7 @@ function ConsoleTerminal() {
   }, []);
 
   return (
-    <div className="auth-style-72">
+    <div className={`auth-style-72 ${styles['auth-style-72']}`}>
       {lines.map((line, idx) => {
         let lineColor = 'var(--text-secondary)';
         if (line.startsWith('[OK]')) lineColor = '#00ff88';
@@ -491,7 +492,7 @@ function ConsoleTerminal() {
         );
       })}
       {lines.length < DIAGNOSTIC_LOGS.length && (
-        <span className="auth-style-73" />
+        <span className={`auth-style-73 ${styles['auth-style-73']}`} />
       )}
       <style>{`
         @keyframes blink {

@@ -1,0 +1,41 @@
+name: CI Testing Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      firestore-emulator:
+        image: mtlynch/firestore-emulator
+        ports:
+          - 8080:8080
+        env:
+          FIRESTORE_PROJECT_ID: netzerosync-ai
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22
+        cache: 'npm'
+
+    - name: Install Dependencies
+      run: npm ci
+
+    - name: Run ESLint
+      run: npm run lint
+
+    - name: Run Vitest Unit & Coverage Tests
+      run: npm run test:coverage
+      env:
+        FIRESTORE_EMULATOR_HOST: localhost:8080
+        GCLOUD_PROJECT: netzerosync-ai

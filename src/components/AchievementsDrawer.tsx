@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import styles from './AchievementsDrawer.module.css';
 import { Award, Compass, Shield, Zap, Leaf, CheckCircle2, Lock, X, Trophy } from 'lucide-react';
 import { getCarbonLogs, UserProfile } from '../utils/firebase';
 
@@ -107,16 +108,16 @@ export default function AchievementsDrawer({ user, isOpen, onClose }: Achievemen
   const progressPercent = Math.round((unlockedCount / badges.length) * 100);
 
   return (
-    <div className="achievements-drawer-style-1">
+    <div className={`achievements-drawer-style-1 ${styles['achievements-drawer-style-1']}`}>
       {/* Drawer Header */}
-      <div className="achievements-drawer-style-2">
-        <div className="achievements-drawer-style-3">
-          <div className="achievements-drawer-style-4">
+      <div className={`achievements-drawer-style-2 ${styles['achievements-drawer-style-2']}`}>
+        <div className={`achievements-drawer-style-3 ${styles['achievements-drawer-style-3']}`}>
+          <div className={`achievements-drawer-style-4 ${styles['achievements-drawer-style-4']}`}>
             <Award size={20} />
           </div>
           <div>
-            <h3 className="achievements-drawer-style-5">Eco Achievements</h3>
-            <span className="achievements-drawer-style-6">
+            <h3 className={`achievements-drawer-style-5 ${styles['achievements-drawer-style-5']}`}>Eco Achievements</h3>
+            <span className={`achievements-drawer-style-6 ${styles['achievements-drawer-style-6']}`}>
               Gamified Carbon Milestones
             </span>
           </div>
@@ -126,17 +127,17 @@ export default function AchievementsDrawer({ user, isOpen, onClose }: Achievemen
           onClick={onClose}
           ref={closeButtonRef}
           aria-label="Close Achievements Drawer"
-          className="achievements-drawer-style-7"
+          className={`achievements-drawer-style-7 ${styles['achievements-drawer-style-7']}`}
         >
           <X size={20} />
         </button>
       </div>
 
       {/* Progress Circle Summary */}
-      <div className="achievements-drawer-style-8">
-        <div className="achievements-drawer-style-9">
+      <div className={`achievements-drawer-style-8 ${styles['achievements-drawer-style-8']}`}>
+        <div className={`achievements-drawer-style-9 ${styles['achievements-drawer-style-9']}`}>
           {/* SVG Progress Circle */}
-          <svg width="70" height="70" aria-hidden="true" className="achievements-drawer-style-10">
+          <svg width="70" height="70" aria-hidden="true" className={`achievements-drawer-style-10 ${styles['achievements-drawer-style-10']}`}>
             <circle
               cx="35"
               cy="35"
@@ -154,29 +155,29 @@ export default function AchievementsDrawer({ user, isOpen, onClose }: Achievemen
               strokeWidth="5"
               strokeDasharray={2 * Math.PI * 30}
               strokeDashoffset={2 * Math.PI * 30 * (1 - progressPercent / 100)}
-              className="achievements-drawer-style-11"
+              className={`achievements-drawer-style-11 ${styles['achievements-drawer-style-11']}`}
             />
           </svg>
-          <span className="achievements-drawer-style-12">
+          <span className={`achievements-drawer-style-12 ${styles['achievements-drawer-style-12']}`}>
             {progressPercent}%
           </span>
         </div>
 
-        <div className="achievements-drawer-style-13">
-          <div className="achievements-drawer-style-14">
+        <div className={`achievements-drawer-style-13 ${styles['achievements-drawer-style-13']}`}>
+          <div className={`achievements-drawer-style-14 ${styles['achievements-drawer-style-14']}`}>
             Milestones Tracker
           </div>
-          <div className="achievements-drawer-style-15">
+          <div className={`achievements-drawer-style-15 ${styles['achievements-drawer-style-15']}`}>
             Unlocked {unlockedCount} of {badges.length} environmental badges. Keep logging green choices to unlock more!
           </div>
         </div>
       </div>
 
       {/* Badges List container */}
-      <div className="achievements-drawer-style-16">
+      <div className={`achievements-drawer-style-16 ${styles['achievements-drawer-style-16']}`}>
         {loading ? (
-          <div className="achievements-drawer-style-17">
-            <div className="achievements-drawer-style-18" />
+          <div className={`achievements-drawer-style-17 ${styles['achievements-drawer-style-17']}`}>
+            <div className={`achievements-drawer-style-18 ${styles['achievements-drawer-style-18']}`} />
           </div>
         ) : (
           badges.map((badge) => (
@@ -184,33 +185,33 @@ export default function AchievementsDrawer({ user, isOpen, onClose }: Achievemen
               key={badge.id}
               role="status"
               aria-label={`${badge.title} badge - ${badge.isUnlocked ? 'Unlocked' : 'Locked'}. ${badge.description}`}
-              className={`glass-panel ${badge.isUnlocked ? badge.glowClass : ''} achievements-drawer-style-19`} style={{ background: badge.isUnlocked ? 'rgba(11, 33, 26, 0.5)' : 'rgba(11, 33, 26, 0.25)', borderColor: badge.isUnlocked ? badge.color + '33' : 'rgba(255,255,255,0.04)', opacity: badge.isUnlocked ? 1 : 0.65 }}
+              className={`glass-panel ${badge.isUnlocked ? badge.glowClass : ''} achievements-drawer-style-19 ${styles['achievements-drawer-style-19']}`} style={{ background: badge.isUnlocked ? 'rgba(11, 33, 26, 0.5)' : 'rgba(11, 33, 26, 0.25)', borderColor: badge.isUnlocked ? badge.color + '33' : 'rgba(255,255,255,0.04)', opacity: badge.isUnlocked ? 1 : 0.65 }}
             >
               {/* Badge Icon circle */}
-              <div className="achievements-drawer-style-20" style={{ background: badge.isUnlocked ? badge.color + '18' : 'rgba(255,255,255,0.02)', border: `1px solid ${badge.isUnlocked ? badge.color + '44' : 'rgba(255,255,255,0.05)'}`, color: badge.isUnlocked ? badge.color : 'var(--text-muted)', boxShadow: badge.isUnlocked ? `0 0 15px ${badge.color}15` : 'none' }}>
+              <div className={`achievements-drawer-style-20 ${styles['achievements-drawer-style-20']}`} style={{ background: badge.isUnlocked ? badge.color + '18' : 'rgba(255,255,255,0.02)', border: `1px solid ${badge.isUnlocked ? badge.color + '44' : 'rgba(255,255,255,0.05)'}`, color: badge.isUnlocked ? badge.color : 'var(--text-muted)', boxShadow: badge.isUnlocked ? `0 0 15px ${badge.color}15` : 'none' }}>
                 {badge.icon}
               </div>
 
               {/* Text Info */}
-              <div className="achievements-drawer-style-21">
-                <div className="achievements-drawer-style-22">
-                  <h4 className="achievements-drawer-style-23" style={{ color: badge.isUnlocked ? '#fff' : 'var(--text-muted)' }}>
+              <div className={`achievements-drawer-style-21 ${styles['achievements-drawer-style-21']}`}>
+                <div className={`achievements-drawer-style-22 ${styles['achievements-drawer-style-22']}`}>
+                  <h4 className={`achievements-drawer-style-23 ${styles['achievements-drawer-style-23']}`} style={{ color: badge.isUnlocked ? '#fff' : 'var(--text-muted)' }}>
                     {badge.title}
                   </h4>
                   {badge.isUnlocked ? (
-                    <span className="achievements-drawer-style-24" style={{ color: badge.color }}>
+                    <span className={`achievements-drawer-style-24 ${styles['achievements-drawer-style-24']}`} style={{ color: badge.color }}>
                       <CheckCircle2 size={11} /> Unlocked
                     </span>
                   ) : (
-                    <span className="achievements-drawer-style-25">
+                    <span className={`achievements-drawer-style-25 ${styles['achievements-drawer-style-25']}`}>
                       <Lock size={11} /> Locked
                     </span>
                   )}
                 </div>
-                <p className="achievements-drawer-style-26">
+                <p className={`achievements-drawer-style-26 ${styles['achievements-drawer-style-26']}`}>
                   {badge.description}
                 </p>
-                <div className="achievements-drawer-style-27" style={{ color: badge.isUnlocked ? 'var(--primary)' : 'var(--text-muted)' }}>
+                <div className={`achievements-drawer-style-27 ${styles['achievements-drawer-style-27']}`} style={{ color: badge.isUnlocked ? 'var(--primary)' : 'var(--text-muted)' }}>
                   Target: {badge.criteriaText}
                 </div>
               </div>

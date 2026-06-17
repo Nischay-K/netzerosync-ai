@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import SettingsModal from './SettingsModal';
+import { obfuscateKey } from '../utils/security';
 
 // Mock the modules
 vi.mock('../utils/firebase', () => ({
@@ -27,7 +28,7 @@ describe('SettingsModal Component', () => {
   it('renders correctly when open', () => {
     render(<SettingsModal isOpen={true} onClose={() => {}} />);
     expect(screen.getByText('Integrations & Settings')).toBeDefined();
-    expect(screen.getByLabelText('Gemini API Key')).toBeDefined();
+    expect(screen.getByLabelText('API Key')).toBeDefined();
   });
 
   it('does not render when closed', () => {
@@ -41,18 +42,15 @@ describe('SettingsModal Component', () => {
 
     render(<SettingsModal isOpen={true} onClose={() => {}} />);
 
-    const geminiInput = screen.getByLabelText('Gemini API Key');
     const fbApiKeyInput = screen.getByLabelText('API Key');
     const fbProjectIdInput = screen.getByLabelText('Project ID');
     const saveButton = screen.getByText('Save & Reload');
 
-    fireEvent.change(geminiInput, { target: { value: 'test-gemini-key' } });
     fireEvent.change(fbApiKeyInput, { target: { value: 'test-fb-api-key' } });
     fireEvent.change(fbProjectIdInput, { target: { value: 'test-fb-project-id' } });
 
     fireEvent.click(saveButton);
 
-    expect(localStorage.getItem('ecoSphere_geminiApiKey')).toBe('test-gemini-key');
     const storedFb = JSON.parse(localStorage.getItem('ecoSphere_firebaseConfig') || '{}');
     expect(storedFb.apiKey).toBe('test-fb-api-key');
     expect(storedFb.projectId).toBe('test-fb-project-id');

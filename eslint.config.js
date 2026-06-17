@@ -7,7 +7,7 @@ import tsParser from '@typescript-eslint/parser'
 import tsPlugin from '@typescript-eslint/eslint-plugin'
 
 export default defineConfig([
-  globalIgnores(['dist', 'server/dist']),
+  globalIgnores(['dist', 'server/dist', 'coverage']),
   {
     // Apply React/Browser/TS settings to src
     files: ['src/**/*.{ts,tsx}'],
@@ -36,7 +36,7 @@ export default defineConfig([
   },
   {
     // Node environment for server files
-    files: ['server/**/*.js'],
+    files: ['server/**/*.{js,ts}'],
     extends: [
       js.configs.recommended,
     ],
@@ -44,11 +44,16 @@ export default defineConfig([
       globals: {
         ...globals.node,
       },
+      parser: tsParser,
     },
+    rules: {
+      'no-unused-vars': 'off',
+      'no-undef': 'off'
+    }
   },
   {
-    // Test environment for src/**/*.test.ts/tsx
-    files: ['src/**/*.test.{ts,tsx,js,jsx}'],
+    // Test environment for src/**/*.test.ts/tsx and server/**/*.test.ts
+    files: ['src/**/*.test.{ts,tsx,js,jsx}', 'server/**/*.test.{ts,tsx,js,jsx}'],
     languageOptions: {
       parser: tsParser,
       globals: {

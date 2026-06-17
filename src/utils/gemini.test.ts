@@ -1,4 +1,10 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import type { UserProfile } from './firebase';
+
+vi.mock('./firebase', () => ({
+  isFirebaseConnected: false,
+  fetchWithRetry: vi.fn()
+}));
 
 // Initialize global localStorage BEFORE importing modules to prevent startup crashes
 (global as any).localStorage = {
@@ -21,14 +27,12 @@ describe('Gemini AI Configurations & Mocks', () => {
     vi.restoreAllMocks();
   });
 
-  it('should detect when Gemini is configured via localStorage', () => {
+  it('should check if Gemini is configured (matches Firebase connection status)', () => {
     expect(isGeminiConfigured()).toBe(false);
-    localStorage.setItem('ecoSphere_geminiApiKey', 'test-key-xyz');
-    expect(isGeminiConfigured()).toBe(true);
   });
 
   it('should return appropriate mock chat responses when not configured', async () => {
-    const userProfile = { displayName: 'Alice', carbonCurrent: 5.4, carbonTarget: 2.5 };
+    const userProfile = { displayName: 'Alice', carbonCurrent: 5.4, carbonTarget: 2.5 } as UserProfile;
     
     const helloResponse = await chatWithCoach('hello copilot', [], userProfile);
     expect(helloResponse).toContain('Alice');

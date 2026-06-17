@@ -9,7 +9,8 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
   Auth,
-  User
+  User,
+  connectAuthEmulator
 } from 'firebase/auth';
 import { 
   getFirestore, 
@@ -23,7 +24,8 @@ import {
   where, 
   orderBy, 
   limit,
-  Firestore
+  Firestore,
+  connectFirestoreEmulator
 } from 'firebase/firestore';
 
 export interface UserProfile {
@@ -106,6 +108,13 @@ if (config && config.apiKey && config.projectId) {
     const app: FirebaseApp = getApps().length === 0 ? initializeApp(config) : getApp();
     auth = getAuth(app);
     db = getFirestore(app);
+    
+    if (import.meta.env.VITE_USE_FIREBASE_EMULATORS === 'true') {
+      connectAuthEmulator(auth, 'http://localhost:9099');
+      connectFirestoreEmulator(db, 'localhost', 8080);
+      console.log("EcoSphere: Connected to Local Firebase Emulators.");
+    }
+    
     isFirebaseConnected = true;
     console.log("EcoSphere: Connected to live Firebase backend.");
   } catch (e) {
